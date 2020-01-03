@@ -1,9 +1,12 @@
 import re
 import requests
 import functools
+from json.decoder import JSONDecodeError
 from . import model
 from . import const
 
+class SessionException(Exception):
+    pass
 
 class Session:
     def __init__(self):
@@ -28,7 +31,10 @@ class Session:
     def schedule(self, year, term):
         raw = self._sess.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]})
         schedule = model.Schedule()
-        schedule.load(raw.json()["kbList"])
+        try:
+            schedule.load(raw.json()["kbList"])
+        except JSONDecodeError:
+            raise SessionException
         return schedule
 
     def _elect(self, params):
