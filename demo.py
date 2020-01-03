@@ -6,4 +6,7 @@ with open("cookie", mode="rb") as f:
 
 sess = api.Session()
 sess.cookies = cookie_jar
-print(sess.schedule(2019, 1).all())
+schedule = sess.schedule(2019, 1)
+print(schedule.all())
+print(schedule.filter(name="高等数学II"))
+print(list(map(lambda x: x["name"], schedule.filter(week=2, day=range(1,3), time=[range(10,12), 1]))))
