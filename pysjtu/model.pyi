@@ -46,6 +46,8 @@ class Scores:
         pass
 
 class Schedule:
+    year: int
+    term: int
     def load(self, data: dict):
         pass
     def all(self) -> List[ScheduleCourse]:

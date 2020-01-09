@@ -78,6 +78,10 @@ class ScheduleCourse:
 class Schedule:
     _courses = []
 
+    def __init__(self, year=None, term=None):
+        self.year = year
+        self.term = term
+
     def load(self, data):
         schema = CourseSchema(many=True)
         self._courses = schema.load(data)
