@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 import arrow
 from ics import Calendar, Event
-import pickle
 from pysjtu import api
 import os
 
@@ -30,16 +29,16 @@ print(sess.student_id)
 schedule = sess.schedule(2019, 1)
 print(schedule.all())
 print(schedule.filter(name="高等数学II"))
-print(list(map(lambda x: x["name"], schedule.filter(week=2, day=range(1,3), time=[range(10,12), 1]))))
+print(list(map(lambda x: x.name, schedule.filter(week=2, day=range(1,3), time=[range(10,12), 1]))))
 
 c = Calendar()
 local_tz = datetime.now(timezone.utc).astimezone().tzinfo
 for lesson in schedule.all():
     e = Event()
-    e.name = lesson["name"]
-    e.begin = arrow.get(datetime(2020, 1, 5 + lesson["day"], *lesson_time[lesson["time"][0]-1][0], tzinfo=local_tz))
-    e.end = arrow.get(datetime(2020, 1, 5 + lesson["day"], *lesson_time[lesson["time"][-1]-1][1], tzinfo=local_tz))
-    e.location = lesson["location"]
+    e.name = lesson.name
+    e.begin = arrow.get(datetime(2020, 1, 5 + lesson.day, *lesson_time[lesson.time[0]-1][0], tzinfo=local_tz))
+    e.end = arrow.get(datetime(2020, 1, 5 + lesson.day, *lesson_time[lesson.time[-1]-1][1], tzinfo=local_tz))
+    e.location = lesson.location
     c.events.add(e)
 
 with open("test.ics", mode="w") as f:
