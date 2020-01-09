@@ -25,6 +25,19 @@ class Schedule:
         return rtn
 
 
+class CourseTeacher(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return
+        return value.split(",")
+
+
 class CourseTime(fields.Field):
     def _deserialize(
             self,
@@ -89,8 +102,8 @@ class CourseSchema(Schema):
     credit = fields.Float(data_key="xf")
     assessment = fields.Str(data_key="khfsmc")
     remark = fields.Str(data_key="xkbz")
-    teacher_name = fields.Str(data_key="xm")
-    teacher_title = fields.Str(data_key="zcmc")
+    teacher_name = CourseTeacher(data_key="xm")
+    teacher_title = CourseTeacher(data_key="zcmc")
     course_code = fields.Str(data_key="kch_id")
     course_code_detail = fields.Str(required=True, data_key="jxbmc")
     course_id = fields.Str(required=True, data_key="jxb_id")
