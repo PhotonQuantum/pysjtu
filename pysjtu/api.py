@@ -22,6 +22,7 @@ class Session:
     def __init__(self, retry=None):
         self._sess = requests.session()
         self._student_id = None
+        self._term_start = None
         if retry: self._retry = retry
 
     def login(self, username, password):
@@ -60,6 +61,13 @@ class Session:
         self._sess.get(const.LOGIN_URL) # refresh JSESSION token
         if "login" in self._sess.get(const.HOME_URL).url:
             raise SessionException
+
+    @property
+    def term_start_date(self):
+        if not self._term_start:
+            raw = self._sess.get(const.CALENDAR_URL + self.student_id)
+            self._term_start = min(re.findall(r"\d{4}-\d{2}-\d{2}", raw.text))
+        return self._term_start
 
     @property
     def student_id(self):
