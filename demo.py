@@ -44,4 +44,10 @@ for lesson in schedule.all():
 with open("test.ics", mode="w") as f:
     f.write(str(c))
 
+score = sess.score(2019, 0)
+print(score.all())
+print(score.all()[0].detail)
+
+print(sess.term_start_date)
+
 sess.dump("cookie")

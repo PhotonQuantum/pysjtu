@@ -6,9 +6,11 @@ import functools
 from urllib.parse import urlparse, parse_qs
 from json.decoder import JSONDecodeError
 from . import model
+from . import schema
 from . import const
 from . import util
 from typing import List
+
 
 class SessionException(Exception):
     pass
@@ -71,6 +73,27 @@ class Session:
         except JSONDecodeError:
             raise SessionException
         return schedule
+
+    def _get_score_detail(self, year, term, class_id) -> List[model.ScoreFactor]:
+        raw = self._sess.post(const.SCORE_DETAIL_URL + self.student_id,
+                              data={"xnm": year, "xqm": const.TERMS[term], "jxb_id": class_id, "_search": False,
+                                    "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                                    "queryModel.currentPage": 1, "queryModel.sortName": "",
+                                    "queryModel.sortOrder": "asc", "time": 1})
+        factors = schema.ScoreFactorSchema(many=True).load(raw.json()["items"][:-1])
+        return factors
+
+    def score(self, year, term) -> model.Scores:
+        raw = self._sess.post(const.SCORE_URL, data={"xnm": year, "xqm": const.TERMS[term], "_search": False,
+                                                     "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                                                     "queryModel.currentPage": 1, "queryModel.sortName": "",
+                                                     "queryModel.sortOrder": "asc", "time": 1})
+        scores = model.Scores(year, term, self._get_score_detail)
+        try:
+            scores.load(raw.json()["items"])
+        except JSONDecodeError:
+            raise SessionException
+        return scores
 
     def _elect(self, params):
         r = self._sess.post(const.ELECT_URL + self.student_id, data=params)
