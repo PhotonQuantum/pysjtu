@@ -63,8 +63,9 @@ class Scores:
 
 
 class ScheduleCourse:
-    _members = ["name", "day", "week", "time", "location", "credit", "assessment", "remark", "teacher", "meta",
-                "class_hour"]
+    _members = ["name", "day", "week", "time", "location", "credit", "assessment", "remark", "teacher_name",
+                "teacher_title", "course_id", "class_name", "class_id", "hour_total", "hour_remark", "hour_week",
+                "field"]
 
     def __init__(self, **kwargs):
         for member in self._members:
