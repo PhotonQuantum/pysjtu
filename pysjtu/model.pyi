@@ -24,17 +24,24 @@ class Score:
     term: int
 
 class ScheduleCourse:
-    name: str = None
-    day: int = None
-    week: list = None
-    time: range = None
-    location: str = None
-    credit: int = None
-    assessment: str = None
-    remark: str = None
-    teacher: list = None
-    meta: list = None
-    class_hour: list = None
+    name: str
+    day: int
+    week: list
+    time: range
+    location: str
+    credit: int
+    assessment: str
+    remark: str
+    teacher_name: List[str]
+    teacher_title: List[str]
+    course_id: str
+    class_name: str
+    class_id: str
+    hour_total: int
+    hour_remark: str
+    hour_week: int
+    field: str
+
 class Scores:
     year: int
     term: int
