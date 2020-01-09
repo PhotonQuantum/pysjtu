@@ -3,9 +3,7 @@ import arrow
 from ics import Calendar, Event
 import pickle
 from pysjtu import api
-
-with open("cookie", mode="rb") as f:
-    cookie_jar = pickle.load(f)
+import os
 
 lesson_time = (((8, 0), (8, 45)),
                ((8, 55), (9, 40)),
@@ -21,8 +19,14 @@ lesson_time = (((8, 0), (8, 45)),
                ((18, 55), (19, 40)),
                ((19, 55), (20, 40)),
                ((20, 55), (21, 40)))
+
 sess = api.Session()
-sess.cookies = cookie_jar
+try:
+    sess.load("cookie")
+except (api.SessionException, FileNotFoundError) as e:
+    print("session invalid, login")
+    sess.login(os.environ["SJTU_USER"], os.environ["SJTU_PASS"])
+print(sess.student_id)
 schedule = sess.schedule(2019, 1)
 print(schedule.all())
 print(schedule.filter(name="高等数学II"))
@@ -40,3 +44,5 @@ for lesson in schedule.all():
 
 with open("test.ics", mode="w") as f:
     f.write(str(c))
+
+sess.dump("cookie")
