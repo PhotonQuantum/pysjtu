@@ -78,7 +78,7 @@ class Session:
 
     def schedule(self, year, term) -> model.Schedule:
         raw = self._sess.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]})
-        schedule = model.Schedule()
+        schedule = model.Schedule(year, term)
         try:
             schedule.load(raw.json()["kbList"])
         except JSONDecodeError:
