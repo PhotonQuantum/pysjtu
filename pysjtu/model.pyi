@@ -1,9 +1,11 @@
 from typing import List
 
+
 class ScoreFactor:
     name: str
     percentage: float
     score: float
+
 
 class Score:
     name: str
@@ -22,6 +24,7 @@ class Score:
     detail: List[ScoreFactor]
     year: int
     term: int
+
 
 class ScheduleCourse:
     name: str
@@ -42,22 +45,30 @@ class ScheduleCourse:
     hour_week: int
     field: str
 
+
 class Scores:
     year: int
     term: int
+
     def load(self, data: dict):
         pass
+
     def all(self) -> List[Score]:
         pass
+
     def filter(self, **param) -> List[Score]:
         pass
+
 
 class Schedule:
     year: int
     term: int
+
     def load(self, data: dict):
         pass
+
     def all(self) -> List[ScheduleCourse]:
         pass
+
     def filter(self, **param) -> List[ScheduleCourse]:
         pass

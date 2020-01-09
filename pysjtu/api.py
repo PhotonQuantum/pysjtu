@@ -1,15 +1,16 @@
+import pickle
 import re
 import time
-import pickle
-import requests
-import functools
-from urllib.parse import urlparse, parse_qs
 from json.decoder import JSONDecodeError
+from typing import List
+from urllib.parse import urlparse, parse_qs
+
+import requests
+
+from . import const
 from . import model
 from . import schema
-from . import const
 from . import util
-from typing import List
 
 
 class SessionException(Exception):
@@ -37,7 +38,7 @@ class Session:
             captcha = util.recognize_captcha(captcha_img)
 
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
-            result = self._sess.post(const.LOGIN_POST_URL, params=login_params, headers=const.headers)
+            result = self._sess.post(const.LOGIN_POST_URL, params=login_params, headers=const.HEADERS)
             if "err=1" not in result.url: return
 
             time.sleep(i)
@@ -58,7 +59,7 @@ class Session:
     def cookies(self, new_cookie):
         self._student_id = None
         self._sess.cookies = new_cookie
-        self._sess.get(const.LOGIN_URL) # refresh JSESSION token
+        self._sess.get(const.LOGIN_URL)  # refresh JSESSION token
         if "login" in self._sess.get(const.HOME_URL).url:
             raise SessionException
 
