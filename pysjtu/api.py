@@ -8,7 +8,7 @@ from json.decoder import JSONDecodeError
 from . import model
 from . import const
 from . import util
-
+from typing import List
 
 class SessionException(Exception):
     pass
@@ -63,7 +63,7 @@ class Session:
         rtn = self._sess.get(const.HOME_URL)
         return re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[0]
 
-    def schedule(self, year, term):
+    def schedule(self, year, term) -> model.Schedule:
         raw = self._sess.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]})
         schedule = model.Schedule()
         try:
