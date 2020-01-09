@@ -1,5 +1,6 @@
-from marshmallow import Schema, fields, EXCLUDE, post_load
 import typing
+
+from marshmallow import Schema, fields, EXCLUDE, post_load
 
 
 class CourseTeacher(fields.Field):
