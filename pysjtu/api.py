@@ -21,9 +21,11 @@ class Session:
 
     def __init__(self, retry=None):
         self._sess = requests.session()
+        self._student_id = None
         if retry: self._retry = retry
 
     def login(self, username, password):
+        self._student_id = None
         for i in self._retry:
             login_page_req = self._sess.get(const.LOGIN_URL)
             uuid = re.findall(r"(?<=uuid\": ').*(?=')", login_page_req.text)[0]
@@ -53,17 +55,18 @@ class Session:
 
     @cookies.setter
     def cookies(self, new_cookie):
-        Session.student_id.fget.cache_clear()
+        self._student_id = None
         self._sess.cookies = new_cookie
         self._sess.get(const.LOGIN_URL) # refresh JSESSION token
         if "login" in self._sess.get(const.HOME_URL).url:
             raise SessionException
 
     @property
-    @functools.lru_cache
     def student_id(self):
-        rtn = self._sess.get(const.HOME_URL)
-        return re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[0]
+        if not self._student_id:
+            rtn = self._sess.get(const.HOME_URL)
+            self._student_id = re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[0]
+        return self._student_id
 
     def schedule(self, year, term) -> model.Schedule:
         raw = self._sess.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]})
