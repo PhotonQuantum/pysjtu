@@ -1,6 +1,42 @@
 from .util import overlap
 
 
+class Exam:
+    _members = ["name", "location", "course_id", "course_name", "class_name", "rebuild", "credit", "self_study",
+                "date", "time"]
+
+    def __init__(self, **kwargs):
+        for member in self._members:
+            setattr(self, member, None)
+        self.__dict__.update(kwargs)
+
+    def __repr__(self):
+        time_out = [time.strftime("%H:%M") for time in self.time]
+        return f"<Exam \"{self.name}\" location={self.location} datetime={self.date}({time_out[0]}-{time_out[1]})>"
+
+
+class Exams:
+    def __init__(self, year=None, term=None):
+        self._exams = []
+        self.year = year
+        self.term = term
+
+    def load(self, data):
+        schema = ExamSchema(many=True)
+        self._exams = schema.load(data)
+
+    def all(self):
+        return self._exams
+
+    def filter(self, **param):
+        rtn = self._exams
+        for (k, v) in param.items():
+            if not hasattr(Exam(), k):
+                raise KeyError("Invalid criteria!")
+            rtn = list(filter(lambda x: getattr(x, k) == v, rtn))
+        return rtn
+
+
 class ScoreFactor:
     def __init__(self, **kwargs):
         self.name = None
@@ -73,7 +109,7 @@ class ScheduleCourse:
         self.__dict__.update(kwargs)
 
     def __repr__(self):
-        return f"<ScheduleCourse name={self.name} week={self.week} day={self.day} time={self.time}>"
+        return f"<ScheduleCourse {self.name} week={self.week} day={self.day} time={self.time}>"
 
 
 class Schedule:

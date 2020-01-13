@@ -1,4 +1,17 @@
 from typing import List
+import datetime
+
+class Exam:
+    name: str
+    location: str
+    course_id: str
+    course_name: str
+    class_name: str
+    rebuild: bool
+    credit: float
+    self_study: bool
+    date: datetime.date
+    time: datetime.time
 
 
 class ScoreFactor:
@@ -44,6 +57,20 @@ class ScheduleCourse:
     hour_remark: str
     hour_week: int
     field: str
+
+
+class Exams:
+    year: int
+    term: int
+
+    def load(self, data: dict):
+        pass
+
+    def all(self) -> List[Exam]:
+        pass
+
+    def filter(self, **param) -> List[Exam]:
+        pass
 
 
 class Scores:
