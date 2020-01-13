@@ -18,6 +18,7 @@ class SessionException(Exception):
 
 
 class Session:
+    _sess: requests.Session
     _retry = [.5] * 5 + list(range(1, 5))
 
     def __init__(self, retry=None):
@@ -50,6 +51,14 @@ class Session:
     def dump(self, fn):
         with open(fn, mode="wb") as f:
             pickle.dump(self._sess.cookies, f)
+
+    @property
+    def proxies(self):
+        return self._sess.proxies
+
+    @proxies.setter
+    def proxies(self, new_proxy: list):
+        self._sess.proxies = new_proxy
 
     @property
     def cookies(self):
