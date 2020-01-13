@@ -17,12 +17,25 @@ class SessionException(Exception):
     pass
 
 
+class ServiceUnavailable(Exception):
+    pass
+
+
 class Session:
     _sess: requests.Session
     _retry = [.5] * 5 + list(range(1, 5))
 
+    @staticmethod
+    def _http_error_handler(req, *args, **kwargs):
+        try:
+            req.raise_for_status()
+        except requests.exceptions.HTTPError:
+            if req.status_code == 503:
+                raise ServiceUnavailable
+
     def __init__(self, retry=None):
         self._sess = requests.session()
+        self._sess.hooks = {"response": Session._http_error_handler}
         self._student_id = None
         self._term_start = None
         if retry: self._retry = retry
