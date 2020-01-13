@@ -69,7 +69,11 @@ class Session:
         bak_cookie = self._sess.cookies
         self._student_id = None
         self._sess.cookies = new_cookie
-        self._sess.get(const.LOGIN_URL)  # refresh JSESSION token
+        try:
+            self._sess.get(const.LOGIN_URL, timeout=5)  # refresh JSESSION token
+        except requests.ReadTimeout:
+            self._sess.cookies = bak_cookie
+            raise SessionException
         if "login" in self._sess.get(const.HOME_URL).url:
             self._sess.cookies = bak_cookie
             raise SessionException
