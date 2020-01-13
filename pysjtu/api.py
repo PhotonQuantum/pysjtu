@@ -135,6 +135,20 @@ class Session:
             raise SessionException
         return scores
 
+    def exam(self, year, term) -> model.Exams:
+        raw = self._sess.post(const.EXAM_URL,
+                              data={"xnm": year, "xqm": const.TERMS[term], "_search": False, "ksmcdmb_id": None,
+                                    "kch": None, "kc": None, "ksrq": None, "kkbm_id": None,
+                                    "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                                    "queryModel.currentPage": 1, "queryModel.sortName": "",
+                                    "queryModel.sortOrder": "asc", "time": 1})
+        scores = model.Exams(year, term)
+        try:
+            scores.load(raw.json()["items"])
+        except JSONDecodeError:
+            raise SessionException
+        return scores
+
     def _elect(self, params):
         r = self._sess.post(const.ELECT_URL + self.student_id, data=params)
         return r.json()

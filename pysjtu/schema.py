@@ -1,4 +1,5 @@
 import typing
+from datetime import datetime
 
 from marshmallow import Schema, fields, EXCLUDE, post_load
 
@@ -168,6 +169,53 @@ class ScoreSchema(Schema):
     @post_load
     def wrap(self, data, **kwargs):
         return Score(**data)
+
+
+class ExamDate(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return
+        return datetime.strptime(value[:value.index("(")], "%Y-%m-%d").date()
+
+
+class ExamTime(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return
+        raw_time = value[value.find("(")+1:-1].split("-")
+        return [datetime.strptime(time, "%H:%M").time() for time in raw_time]
+
+
+class ExamSchema(Schema):
+    class Meta:
+        unknown = EXCLUDE
+
+    name = fields.Str(required=True, data_key="ksmc")
+    location = fields.Str(data_key="cdmc")
+    course_id = fields.Str(data_key="kch")
+    course_name = fields.Str(data_key="kcmc")
+    class_name = fields.Str(data_key="jxbmc")
+    rebuild = ChineseBool(data_key="cxbj")
+    credit = fields.Float(data_Key="xf")
+    self_study = ChineseBool(data_key="zxbj")
+    date = ExamDate(data_key="kssj", load_only=True)
+    time = ExamTime(data_key="kssj", load_only=True)
+
+    @post_load
+    def wrap(self, data, **kwargs):
+        return Exam(**data)
 
 
 from .model import *

@@ -50,6 +50,9 @@ score = sess.score(2019, 0)
 print(score.all())
 print(score.all()[0].detail)
 
+exam = sess.exam(2019, 0)
+print(exam.all())
+
 print(sess.term_start_date)
 
 sess.dump("cookie")
