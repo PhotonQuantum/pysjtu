@@ -10,7 +10,7 @@ class ScoreFactor:
 class Score:
     name: str
     teacher: str
-    score: int
+    score: str
     credit: float
     gp: float
     invalid: bool
