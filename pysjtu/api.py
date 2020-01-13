@@ -66,10 +66,12 @@ class Session:
 
     @cookies.setter
     def cookies(self, new_cookie):
+        bak_cookie = self._sess.cookies
         self._student_id = None
         self._sess.cookies = new_cookie
         self._sess.get(const.LOGIN_URL)  # refresh JSESSION token
         if "login" in self._sess.get(const.HOME_URL).url:
+            self._sess.cookies = bak_cookie
             raise SessionException
 
     @property
