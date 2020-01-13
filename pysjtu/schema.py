@@ -121,7 +121,7 @@ class ScoreFactorPercentage(fields.Field):
         return float(value[value.find("(") + 1:value.find("%")]) / 100
 
 
-class ScoreInvalid(fields.Field):
+class ChineseBool(fields.Field):
     def _deserialize(
             self,
             value: typing.Any,
@@ -140,7 +140,7 @@ class ScoreFactorSchema(Schema):
 
     name = ScoreFactorName(required=True, data_key="xmblmc")
     percentage = ScoreFactorPercentage(required=True, data_key="xmblmc", load_only=True)
-    score = fields.Number(required=True, data_key="xmcj")
+    score = fields.Float(required=True, data_key="xmcj")
 
     @post_load
     def wrap(self, data, **kwargs):
@@ -153,10 +153,10 @@ class ScoreSchema(Schema):
 
     name = fields.Str(required=True, data_key="kcmc")
     teacher = fields.Str(data_key="jsxm")
-    score = fields.Int(required=True, data_key="cj")
-    credit = fields.Number(required=True, data_key="xf")
-    gp = fields.Number(required=True, data_key="jd")
-    invalid = ScoreInvalid(data_key="cjsfzf")
+    score = fields.Str(required=True, data_key="cj")
+    credit = fields.Float(required=True, data_key="xf")
+    gp = fields.Float(required=True, data_key="jd")
+    invalid = ChineseBool(data_key="cjsfzf")
     course_type = fields.Str(data_key="kcbj")
     category = fields.Str(data_key="kclbmc")
     score_type = fields.Str(data_key="kcxz")
