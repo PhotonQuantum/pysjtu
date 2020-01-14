@@ -27,6 +27,7 @@ class CourseTime(fields.Field):
     ):
         if not value:
             return
+        value = value.replace("节", "")
         cs = list(map(int, value.split("-")))
         return list(cs) if len(cs) == 1 else range(cs[0], cs[1] + 1)
 
