@@ -1,4 +1,9 @@
+from math import inf
 import collections
+
+
+def range_list_to_str(range_list):
+    return "或".join((str(x) for x in flatten(range_list)))
 
 
 def recognize_captcha(captcha_img):
@@ -11,6 +16,21 @@ def recognize_captcha(captcha_img):
     table = [0] * 128 + [1] * 128
     img = img.point(table, '1')
     return pytesseract.image_to_string(img, config="-c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyz --psm 7")
+
+
+def range_in_set(set_in):
+    if len(set_in) == 0:
+        return set()
+    else:
+        last_elem = -inf
+        start = None
+        for elem in set_in:
+            if elem != last_elem + 1:
+                if start:
+                    yield range(start, last_elem+1)
+                start = elem
+            last_elem = elem
+        yield range(start, last_elem+1)
 
 
 def overlap(list1, list2):
