@@ -1,6 +1,46 @@
-from typing import List
+from typing import List, Callable, Union, Tuple, Generator
 import datetime
 
+
+class QueryResult:
+    _ref: Callable
+    _post_ref: Callable
+    _query_params: dict
+    _length: int
+    _cache: dict
+    _cached_items: set
+    _page_size: int
+
+    def __init__(self, method_ref: Callable, post_ref: Callable, query_params: dict, page_size: int=15):
+        pass
+
+    def __getitem__(self, arg: Union[int, slice]) -> LibCourse: # for now
+        pass
+
+    def _handle_result_by_index(self, idx: int) -> list:
+        pass
+
+    def _handle_result_by_idx_slice(self, idx: slice) -> list:
+        pass
+
+    @property
+    def __len__(self) -> int:
+        pass
+
+    def flush_cache(self):
+        pass
+
+    def _update_cache(self, start: int, end: int):
+        pass
+
+    def _fetch_range(self, page: int, count: int) -> Tuple[int, int]:
+        pass
+
+    def _query(self, page: int, count: int) -> dict:
+        pass
+
+    def __iter__(self) -> Generator:
+        pass
 class Exam:
     name: str
     location: str

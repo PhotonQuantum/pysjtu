@@ -1,4 +1,86 @@
-from .util import overlap
+from .util import overlap, flatten, range_in_set
+
+
+class QueryResult:
+    def __init__(self, method_ref, post_ref, query_params, page_size=15):
+        self._ref = method_ref
+        self._post_ref = post_ref
+        self._query_params = query_params
+        self._length = None
+        self._cache = [None] * len(self)
+        self._cached_items = set()
+        self._page_size = page_size
+
+    def __getitem__(self, arg):
+        data = None
+        if isinstance(arg, int):
+            data = self._handle_result_by_index(arg)
+        elif isinstance(arg, slice):
+            if arg.start is None and arg.stop is None:
+                data = self._handle_result_by_idx_slice(slice(0, -1))
+            else:
+                data = self._handle_result_by_idx_slice(arg)
+        if data is None:
+            raise KeyError
+        data = self._post_ref(data)
+        return data
+
+    def _handle_result_by_index(self, idx):
+        self._update_cache(idx, idx)
+        return self._cache[idx]
+
+    def _handle_result_by_idx_slice(self, idx):
+        if idx.start is None:
+            start = 0
+        elif idx.start < 0:
+            start = len(self) + idx.start
+        else:
+            start = idx.start
+
+        if idx.stop is None:
+            end = 0
+        elif idx.stop < 0:
+            end = len(self) + idx.stop
+        else:
+            end = idx.stop
+
+        self._update_cache(start, end)
+        return self._cache[idx]
+
+    def __len__(self):
+        if not self._length:
+            rtn = self._query(1, 1)
+            self._length = rtn["totalResult"]
+        return self._length
+
+    def flush_cache(self):
+        self._length = None
+        self._cache = [None] * len(self)
+        self._cached_items = set()
+
+    def _update_cache(self, start, end):
+        fetch_set = set(set(range(start, end + 1)) - self._cached_items)
+        while len(fetch_set) != 0:
+            fetch_range = next(range_in_set(fetch_set))
+            page = int(fetch_range.start / self._page_size) + 1
+            self._cached_items.update(range(*self._fetch_range(page, self._page_size)))
+            fetch_set = set(set(range(start, end + 1)) - self._cached_items)
+
+    def _fetch_range(self, page, count):
+        rtn = self._query(page, count)["items"]
+        for item in zip(range(count * (page - 1), count * (page - 1) + len(rtn)), rtn):
+            self._cache[item[0]] = item[1]
+        return count * (page - 1), count * (page - 1) + len(rtn)
+
+    def _query(self, page, count):
+        new_params = self._query_params
+        new_params["queryModel.showCount"] = count
+        new_params["queryModel.currentPage"] = page
+        return self._ref(data=new_params).json()
+
+    def __iter__(self):
+        for i in range(len(self)):
+            yield self[i]
 
 
 class Exam:
