@@ -53,6 +53,12 @@ print(score.all()[0].detail)
 exam = sess.exam(2019, 0)
 print(exam.all())
 
+query = sess.query_courses(2019, 0, name="高等数学")
+print(query[3:18])
+for item in query:
+    print(item, end=" ")
+print()
+
 print(sess.term_start_date)
 
 sess.dump("cookie")

@@ -41,6 +41,30 @@ class QueryResult:
 
     def __iter__(self) -> Generator:
         pass
+
+
+class LibCourse:
+    name: str
+    day: int
+    week: list
+    time: range
+    location: str
+    locations: List[str]
+    faculty: str
+    credit: float
+    teacher_name: List[str]
+    teacher_title: List[str]
+    course_id: str
+    class_name: str
+    class_id: str
+    class_composition: List[str]
+    hour_total: int
+    hour_remark: dict
+    seats: int
+    students_elected: int
+    students_planned: int
+
+
 class Exam:
     name: str
     location: str
@@ -94,7 +118,7 @@ class ScheduleCourse:
     class_name: str
     class_id: str
     hour_total: int
-    hour_remark: str
+    hour_remark: dict
     hour_week: int
     field: str
 

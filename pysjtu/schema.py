@@ -218,4 +218,46 @@ class ExamSchema(Schema):
         return Exam(**data)
 
 
+class ColonSplitted(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return
+        return value.split(";")
+
+
+class LibCourseSchema(Schema):
+    class Meta:
+        unknown = EXCLUDE
+
+    name = fields.Str(required=True, data_key="kcmc")
+    day = fields.Int(data_key="xqj")
+    week = CourseWeek(data_key="qzjsz")
+    time = CourseTime(data_key="skjc")
+    location = fields.Str(data_key="cdmc")
+    locations = ColonSplitted(data_key="jxdd")
+    faculty = fields.Str(data_key="kkxy")
+    credit = fields.Float(data_key="xf")
+    teacher_name = CourseTeacher(data_key="zjs")
+    teacher_title = CourseTeacher(data_key="jszc")
+    course_id = fields.Str(data_key="kch_id")
+    class_name = fields.Str(data_key="jxbmc")
+    class_id = fields.Str(data_key="jxb_id")
+    class_composition = ColonSplitted(data_key="jxbzc")
+    hour_total = fields.Int(data_key="rwzxs")
+    hour_remark = CreditHourDetail(data_key="kcxszc")
+    seats = fields.Int(data_key="zws")
+    students_elected = fields.Int(data_key="xkrs")
+    students_planned = fields.Int(data_key="jxbrs")
+
+
+    @post_load
+    def wrap(self, data, **kwargs):
+        return LibCourse(**data)
+
 from .model import *

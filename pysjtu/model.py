@@ -83,6 +83,20 @@ class QueryResult:
             yield self[i]
 
 
+class LibCourse:
+    _members = ["name", "day", "week", "time", "location", "locations", "faculty", "credit", "teacher_name",
+                "teacher_title", "course_id", "class_name", "class_id", "class_composition", "hour_total",
+                "hour_remark", "seats", "students_elected", "students_planned"]
+
+    def __init__(self, **kwargs):
+        for member in self._members:
+            setattr(self, member, None)
+        self.__dict__.update(kwargs)
+
+    def __repr__(self):
+        return f"<LibCourse {self.name} class_name={self.class_name}>"
+
+
 class Exam:
     _members = ["name", "location", "course_id", "course_name", "class_name", "rebuild", "credit", "self_study",
                 "date", "time"]

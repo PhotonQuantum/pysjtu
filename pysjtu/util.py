@@ -2,6 +2,15 @@ from math import inf
 import collections
 
 
+def schema_post_loader(schema_ref, data):
+    if isinstance(data, list):
+        return schema_ref(many=True).load(data)
+    elif isinstance(data, dict):
+        return schema_ref().load(data)
+    else:
+        raise ValueError
+
+
 def range_list_to_str(range_list):
     return "或".join((str(x) for x in flatten(range_list)))
 
