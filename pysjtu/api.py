@@ -1,6 +1,7 @@
 import pickle
 import re
 import time
+from functools import partial
 from json.decoder import JSONDecodeError
 from typing import List
 from urllib.parse import urlparse, parse_qs
@@ -148,6 +149,24 @@ class Session:
         except JSONDecodeError:
             raise SessionException
         return scores
+
+    def query_courses(self, year, term, name=None, teacher=None, day_of_week=None, week=None, time_of_day=None):
+        _args = {"year": "xnm", "term": "xqm", "name": "kch_id", "teacher": "jqh_id", "day_of_week": "xqj", "week": "qsjsz", "time_of_day": "skjc"}
+        year = year
+        term = const.TERMS[term]
+        name = name
+        teacher = teacher
+        day_of_week = util.range_list_to_str(day_of_week) if day_of_week else None
+        week = util.range_list_to_str(week) if week else None
+        time_of_day = util.range_list_to_str(time_of_day) if time_of_day else None
+        req_params = {}
+        for (k, v) in _args.items():
+            if k in dir():
+                req_params[v] = locals()[k]
+
+        req = partial(self._sess.post, const.COURSELIB_URL + self.student_id)
+
+        return model.QueryResult(req, partial(util.schema_post_loader, schema.LibCourseSchema), req_params)
 
     def _elect(self, params):
         r = self._sess.post(const.ELECT_URL + self.student_id, data=params)
