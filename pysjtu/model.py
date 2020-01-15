@@ -26,6 +26,7 @@ class QueryResult:
         return data
 
     def _handle_result_by_index(self, idx):
+        idx = len(self) + idx if idx < 0 else idx
         self._update_cache(idx, idx)
         return self._cache[idx]
 
