@@ -26,6 +26,17 @@ class Session:
     _sess: requests.Session
     _retry = [.5] * 5 + list(range(1, 5))
 
+    def _secure_req(self, ref):
+        try:
+            return ref()
+        except requests.exceptions.ConnectionError as e:
+            req = e.request
+            if req.url[:7] == "http://":
+                req.url = req.url.replace("http://", "https://")
+            else:
+                raise e
+            return self._sess.send(req)
+
     @staticmethod
     def _http_error_handler(req, *args, **kwargs):
         try:
@@ -44,7 +55,7 @@ class Session:
     def login(self, username, password):
         self._student_id = None
         for i in self._retry:
-            login_page_req = self._sess.get(const.LOGIN_URL)
+            login_page_req = self._secure_req(partial(self._sess.get, const.LOGIN_URL))
             uuid = re.findall(r"(?<=uuid\": ').*(?=')", login_page_req.text)[0]
             login_params = parse_qs(urlparse(login_page_req.url).query)
             login_params = dict(map(lambda x: (x[0], x[1][0]), login_params.items()))
@@ -53,7 +64,8 @@ class Session:
             captcha = util.recognize_captcha(captcha_img)
 
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
-            result = self._sess.post(const.LOGIN_POST_URL, params=login_params, headers=const.HEADERS)
+            result = self._secure_req(
+                partial(self._sess.post, const.LOGIN_POST_URL, params=login_params, headers=const.HEADERS))
             if "err=1" not in result.url: return
 
             time.sleep(i)
@@ -84,7 +96,7 @@ class Session:
         self._student_id = None
         self._sess.cookies = new_cookie
         try:
-            self._sess.get(const.LOGIN_URL, timeout=5)  # refresh JSESSION token
+            self._secure_req(partial(self._sess.get, const.LOGIN_URL, timeout=5))  # refresh JSESSION token
         except requests.ReadTimeout:
             self._sess.cookies = bak_cookie
             raise SessionException
@@ -151,7 +163,8 @@ class Session:
         return scores
 
     def query_courses(self, year, term, name=None, teacher=None, day_of_week=None, week=None, time_of_day=None):
-        _args = {"year": "xnm", "term": "xqm", "name": "kch_id", "teacher": "jqh_id", "day_of_week": "xqj", "week": "qsjsz", "time_of_day": "skjc"}
+        _args = {"year": "xnm", "term": "xqm", "name": "kch_id", "teacher": "jqh_id", "day_of_week": "xqj",
+                 "week": "qsjsz", "time_of_day": "skjc"}
         year = year
         term = const.TERMS[term]
         name = name
