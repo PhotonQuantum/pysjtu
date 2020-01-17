@@ -63,9 +63,9 @@ print(sess.term_start_date)
 
 query_params = sess.default_gpa_query_params
 
-print(sess.query_gpa(query_params))
+print(sess.query_gpa(query_params, 10))
 
 query_params.course_range = model.CourseRange.ALL
-print(sess.query_gpa(query_params))
+print(sess.query_gpa(query_params, 10))
 
 sess.dump("cookie")
