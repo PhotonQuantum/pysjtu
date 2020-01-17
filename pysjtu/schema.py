@@ -1,7 +1,10 @@
 import typing
+from copy import deepcopy
 from datetime import datetime
 
-from marshmallow import Schema, fields, EXCLUDE, post_load
+from marshmallow import Schema, fields, EXCLUDE, pre_load, post_load, pre_dump, post_dump
+
+from .util import replace_keys
 
 
 class CourseTeacher(fields.Field):
@@ -231,6 +234,153 @@ class ColonSplitted(fields.Field):
             return
         return value.split(";")
 
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        return ";".join([str(item) for item in value])
+
+
+class CommaSplitted(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return
+        return value.split(",")
+
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        return ",".join([str(item) for item in value])
+
+
+class HasRoll(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return
+        if "1" in value.split(","):
+            return True
+        elif "2" in value.split(","):
+            return False
+        else:
+            return
+
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        if value is True:
+            return 1
+        elif value is False:
+            return 0
+        else:
+            return -1
+
+
+class Registered(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return None
+        if "3" in value.split(","):
+            return True
+        elif "4" in value.split(","):
+            return False
+        else:
+            return
+
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        if value is True:
+            return 1
+        elif value is False:
+            return 0
+        else:
+            return -1
+
+
+class Attending(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return None
+        if "5" in value.split(","):
+            return True
+        elif "6" in value.split(","):
+            return False
+        else:
+            return
+
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        if value is True:
+            return 1
+        elif value is False:
+            return 0
+        else:
+            return -1
+
+
+class ConditionLogic(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return None
+        if value == 0:
+            return LogicEnum.AND
+        elif value == 1:
+            return LogicEnum.OR
+
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        if not value:
+            return 0
+        if value == LogicEnum.AND:
+            return 0
+        elif value == LogicEnum.OR:
+            return 1
+        else:
+            raise KeyError
+
+
+class MakeupAsPass(fields.Field):
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        return "bk" if value else ""
+
+
+class RebuildAsPass(fields.Field):
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        return "cx" if value else ""
+
+
+class RankingField(fields.Field):
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        if not isinstance(value, Ranking):
+            raise KeyError
+        return value.value
+
+
+class CourseRangeField(fields.Field):
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        if not isinstance(value, CourseRange):
+            raise KeyError
+        return value.value
+
 
 class LibCourseSchema(Schema):
     class Meta:
@@ -256,9 +406,134 @@ class LibCourseSchema(Schema):
     students_elected = fields.Int(data_key="xkrs")
     students_planned = fields.Int(data_key="jxbrs")
 
-
     @post_load
     def wrap(self, data, **kwargs):
         return LibCourse(**data)
+
+
+class GPAQueryParamsSchema(Schema):
+    class Meta:
+        unknown = EXCLUDE
+
+    start_term = fields.Int(dump_key="qsXnxq", dump_only=True)
+    end_term = fields.Int(dump_key="zzXnxq", dump_only=True)
+    condition_logic = ConditionLogic(dump_key="tjgx", dump_only=True)
+    makeup_as_60 = MakeupAsPass(dump_only=True)
+    rebuild_as_60 = RebuildAsPass(dump_only=True)
+    gp_round = fields.Int(load_key="cjblws", dump_key="sspjfblws")
+    gpa_round = fields.Int(load_key="jdblws", dump_key="pjjdblws")
+    exclude_credit = fields.Str(data_key="bjjd")
+    exclude_gp = fields.Str(data_key="bjpjf")
+    course_whole = CommaSplitted(load_key="tjqckc", dump_key="kch_id")
+    course_range = CourseRangeField(dump_key="kcfw", dump_only=True)
+    ranking = RankingField(dump_key="tjfw", dump_only=True)
+    has_roll = HasRoll(data_key="atjc", load_only=True)
+    registered = Registered(data_key="atjc", load_only=True)
+    attending = Attending(data_key="atjc", load_only=True)
+    has_roll_dump = HasRoll(data_key="xjzt", dump_only=True)
+    registered_dump = Registered(data_key="zczt", dump_only=True)
+    attending_dump = Attending(data_key="sfzx", dump_only=True)
+
+    @pre_load
+    def wrap_pre_load(self, data, **kwargs):
+        pairs = tuple(
+            (field.metadata['load_key'], field.data_key or field_name)
+            for field_name, field in self.fields.items() if 'load_key' in field.metadata
+        )
+        return replace_keys(data, pairs)
+
+    @post_load
+    def wrap_post_load(self, data, **kwargs):
+        return GPAQueryParams(makeup_as_60=False, rebuild_as_60=False, ranking=Ranking.GRADE_AND_FIELD,
+                              course_range=CourseRange.CORE, start_term=None, end_term=None,
+                              condition_logic=LogicEnum.AND, **data)
+
+    @pre_dump
+    def wrap_pre_dump(self, data, **kwargs):
+        pre_dict = deepcopy(data.__dict__)
+        pre_dict["has_roll_dump"] = pre_dict.pop("has_roll")
+        pre_dict["registered_dump"] = pre_dict.pop("registered")
+        pre_dict["attending_dump"] = pre_dict.pop("attending")
+        return pre_dict
+
+    @post_dump
+    def wrap_post_dump(self, data, **kwargs):
+        pairs = tuple(
+            (field.data_key or field_name, field.metadata['dump_key'])
+            for field_name, field in self.fields.items() if 'dump_key' in field.metadata
+        )
+        data = replace_keys(data, pairs)
+
+        parse_fields = ["xjzt", "zczt", "sfzx"]
+        data["alsfj"] = data.pop("makeup_as_60") + data.pop("rebuild_as_60")
+        for field in parse_fields:
+            if data[field] == -1: data.pop(field)
+
+        parse_fields = ["qsXnxq", "zzXnxq"]
+        for field in parse_fields:
+            if data[field] is None: data[field] = ''
+        return data
+
+
+class Percentage(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return
+        return float(value.replace("%", "")) / 100
+
+
+class RankingField(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return
+        return value.split("/")[0]
+
+
+class StudentCountFromRanking(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return
+        return value.split("/")[1]
+
+
+class GPASchema(Schema):
+    class Meta:
+        unknown = EXCLUDE
+
+    total_score = fields.Int(data_key="zf")
+    course_count = fields.Int(data_key="mc")
+    fail_count = fields.Int(data_key="bjgms")
+    total_credit = fields.Float(data_key="zxf")
+    acquired_credit = fields.Float(data_key="hdxf")
+    failed_credit = fields.Float(data_key="bjgxf")
+    pass_rate = Percentage(data_key="tgl")
+    gp = fields.Float(data_key="xjf")
+    gp_ranking = RankingField(data_key="xjfpm")
+    gpa = fields.Float(data_key="gpa")
+    gpa_ranking = RankingField(data_key="gpapm", load_only=True)
+    total_students = StudentCountFromRanking(data_key="gpapm", load_only=True)
+
+    @post_load
+    def wrap(self, data, **kwargs):
+        return GPA(**data)
+
 
 from .model import *

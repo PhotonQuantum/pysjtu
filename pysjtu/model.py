@@ -1,4 +1,18 @@
 from .util import overlap, flatten, range_in_set
+from enum import Enum
+
+class LogicEnum(Enum):
+    AND = 0
+    OR = 1
+
+
+class CourseRange(Enum):
+    ALL = "qbkc"
+    CORE = "hxkc"
+
+
+class Ranking(Enum):
+    GRADE_AND_FIELD = "njzy"
 
 
 class QueryResult:
@@ -82,6 +96,33 @@ class QueryResult:
     def __iter__(self):
         for i in range(len(self)):
             yield self[i]
+
+
+class GPAQueryParams:
+    _members = ["start_term", "end_term", "condition_logic", "makeup_as_60", "rebuild_as_60", "gp_round", "gpa_round",
+                "exclude_credit", "exclude_gp", "course_whole", "course_range", "ranking", "has_roll",
+                "registered", "attending"]
+
+    def __init__(self, **kwargs):
+        for member in self._members:
+            setattr(self, member, None)
+        self.__dict__.update(kwargs)
+
+    def __repr__(self):
+        return f"<GPAQueryParams {self.__dict__}>"
+
+
+class GPA:
+    _members = ["total_score", "course_count", "fail_count", "total_credit", "acquired_credit", "failed_credit",
+                "pass_rate", "gp", "gp_ranking", "gpa", "gpa_ranking", "total_students"]
+
+    def __init__(self, **kwargs):
+        for member in self._members:
+            setattr(self, member, None)
+        self.__dict__.update(kwargs)
+
+    def __repr__(self):
+        return f"<LibCourse gp={self.gp} {self.gp_ranking}/{self.total_students} gpa={self.gpa} {self.gpa_ranking}/{self.total_students}>"
 
 
 class LibCourse:
