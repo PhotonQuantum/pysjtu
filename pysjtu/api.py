@@ -177,12 +177,12 @@ class Session:
             raise SessionException
         return scores
 
-        raw = self._client.post(const.EXAM_URL,
-                                data={"xnm": year, "xqm": const.TERMS[term], "_search": False, "ksmcdmb_id": None,
-                                    "kch": None, "kc": None, "ksrq": None, "kkbm_id": None,
-                                    "nd": int(time.time() * 1000), "queryModel.showCount": 15,
-                                    "queryModel.currentPage": 1, "queryModel.sortName": "",
     def exam(self, year, term, timeout=httpx.config.UNSET) -> model.Exams:
+        raw = self._client.post(const.EXAM_URL + self.student_id,
+                                data={"xnm": year, "xqm": const.TERMS[term], "_search": False, "ksmcdmb_id": '',
+                                      "kch": '', "kc": '', "ksrq": '', "kkbm_id": '',
+                                      "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                                      "queryModel.currentPage": 1, "queryModel.sortName": "",
                                       "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Exams(year, term)
         try:
@@ -197,11 +197,11 @@ class Session:
                  "week": "qsjsz", "time_of_day": "skjc"}
         year = year
         term = const.TERMS[term]
-        name = name
-        teacher = teacher
-        day_of_week = util.range_list_to_str(day_of_week) if day_of_week else None
-        week = util.range_list_to_str(week) if week else None
-        time_of_day = util.range_list_to_str(time_of_day) if time_of_day else None
+        name = name if name else ''
+        teacher = teacher if teacher else ''
+        day_of_week = util.range_list_to_str(day_of_week) if day_of_week else ''
+        week = util.range_list_to_str(week) if week else ''
+        time_of_day = util.range_list_to_str(time_of_day) if time_of_day else ''
         req_params = {}
         for (k, v) in _args.items():
             if k in dir():
