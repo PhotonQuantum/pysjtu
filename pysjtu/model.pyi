@@ -22,14 +22,14 @@ class QueryResult:
     _post_ref: Callable
     _query_params: dict
     _length: int
-    _cache: dict
+    _cache: list
     _cached_items: set
     _page_size: int
 
-    def __init__(self, method_ref: Callable, post_ref: Callable, query_params: dict, page_size: int=15):
+    def __init__(self, method_ref: Callable, post_ref: Callable, query_params: dict, page_size: int = 15):
         pass
 
-    def __getitem__(self, arg: Union[int, slice]) -> LibCourse: # for now
+    def __getitem__(self, arg: Union[int, slice]) -> LibCourse:  # for now
         pass
 
     def _handle_result_by_index(self, idx: int) -> list:
@@ -56,6 +56,39 @@ class QueryResult:
 
     def __iter__(self) -> Generator:
         pass
+
+
+class GPAQueryParams:
+    start_term: int
+    end_term: int
+    condition_logic: LogicEnum
+    makeup_as_60: bool
+    rebuild_as_60: bool
+    gp_round: int
+    gpa_round: int
+    exclude_credit: str
+    exclude_gp: str
+    course_whole: List[str]
+    course_range: CourseRange
+    ranking: Ranking
+    has_roll: bool
+    registered: bool
+    attending: bool
+
+
+class GPA:
+    total_score: int
+    course_count: int
+    fail_count: int
+    total_credit: float
+    acquired_credit: float
+    failed_credit: float
+    pass_rate: float
+    gp: float
+    gp_ranking: int
+    gpa: float
+    gpa_ranking: int
+    total_students: int
 
 
 class LibCourse:
