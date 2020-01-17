@@ -1,12 +1,11 @@
-import pickle
 import re
 import time
 from functools import partial
+from http.cookiejar import LWPCookieJar
 from json.decoder import JSONDecodeError
 from typing import List
 from urllib.parse import urlparse, parse_qs
 
-from http.cookiejar import LWPCookieJar
 import httpx
 
 from . import const
@@ -67,7 +66,8 @@ class Session:
             login_params = parse_qs(urlparse(str(login_page_req.url)).query)
             login_params = {k: v[0] for k, v in login_params.items()}
 
-            captcha_img = self._client.get(const.CAPTCHA_URL, params={"uuid": uuid, "t": int(time.time() * 1000)}).content
+            captcha_img = self._client.get(const.CAPTCHA_URL,
+                                           params={"uuid": uuid, "t": int(time.time() * 1000)}).content
             captcha = util.recognize_captcha(captcha_img)
 
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
@@ -103,7 +103,7 @@ class Session:
         self._student_id = None
         self._client.cookies = new_cookie
         try:
-            self._secure_req(partial(self._client.get, const.LOGIN_URL, timeout=5))  # refresh JSESSION token
+            self._secure_req(partial(self._client.get, const.LOGIN_URL))  # refresh JSESSION token
         except httpx.ReadTimeout:
             self._client.cookies = bak_cookie
             raise SessionException
@@ -159,16 +159,16 @@ class Session:
     def _get_score_detail(self, year, term, class_id, timeout=httpx.config.UNSET) -> List[model.ScoreFactor]:
         raw = self._client.post(const.SCORE_DETAIL_URL + self.student_id,
                                 data={"xnm": year, "xqm": const.TERMS[term], "jxb_id": class_id, "_search": False,
-                                    "nd": int(time.time() * 1000), "queryModel.showCount": 15,
-                                    "queryModel.currentPage": 1, "queryModel.sortName": "",
+                                      "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                                      "queryModel.currentPage": 1, "queryModel.sortName": "",
                                       "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         factors = schema.ScoreFactorSchema(many=True).load(raw.json()["items"][:-1])
         return factors
 
     def score(self, year, term, timeout=httpx.config.UNSET) -> model.Scores:
         raw = self._client.post(const.SCORE_URL, data={"xnm": year, "xqm": const.TERMS[term], "_search": False,
-                                                     "nd": int(time.time() * 1000), "queryModel.showCount": 15,
-                                                     "queryModel.currentPage": 1, "queryModel.sortName": "",
+                                                       "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                                                       "queryModel.currentPage": 1, "queryModel.sortName": "",
                                                        "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Scores(year, term, self._get_score_detail)
         try:

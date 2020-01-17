@@ -1,5 +1,7 @@
-from .util import overlap, flatten, range_in_set
 from enum import Enum
+
+from .util import overlap, range_in_set
+
 
 class LogicEnum(Enum):
     AND = 0

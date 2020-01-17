@@ -198,7 +198,7 @@ class ExamTime(fields.Field):
     ):
         if not value:
             return
-        raw_time = value[value.find("(")+1:-1].split("-")
+        raw_time = value[value.find("(") + 1:-1].split("-")
         return [datetime.strptime(time, "%H:%M").time() for time in raw_time]
 
 

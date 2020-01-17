@@ -1,5 +1,5 @@
-from math import inf
 import collections
+from math import inf
 
 
 def replace_keys(data, pairs):
@@ -43,10 +43,10 @@ def range_in_set(set_in):
         for elem in set_in:
             if elem != last_elem + 1:
                 if start:
-                    yield range(start, last_elem+1)
+                    yield range(start, last_elem + 1)
                 start = elem
             last_elem = elem
-        yield range(start, last_elem+1)
+        yield range(start, last_elem + 1)
 
 
 def overlap(list1, list2):
