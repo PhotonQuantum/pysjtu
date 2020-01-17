@@ -112,6 +112,19 @@ class Session:
             raise SessionException
 
     @property
+    def timeout(self):
+        return self._client.timeout
+
+    @timeout.setter
+    def timeout(self, new_timeout):
+        if isinstance(new_timeout, int):
+            self._client.timeout = httpx.Timeout(new_timeout)
+        elif isinstance(new_timeout, httpx.Timeout):
+            self._client.timeout = new_timeout
+        else:
+            raise TypeError
+
+    @property
     def term_start_date(self):
         if not self._term_start:
             raw = self._client.get(const.CALENDAR_URL + self.student_id)
@@ -134,8 +147,8 @@ class Session:
 
         return self._default_gpa_query_params
 
-    def schedule(self, year, term) -> model.Schedule:
-        raw = self._client.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]})
+    def schedule(self, year, term, timeout=httpx.config.UNSET) -> model.Schedule:
+        raw = self._client.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]}, timeout=timeout)
         schedule = model.Schedule(year, term)
         try:
             schedule.load(raw.json()["kbList"])
@@ -143,20 +156,20 @@ class Session:
             raise SessionException
         return schedule
 
-    def _get_score_detail(self, year, term, class_id) -> List[model.ScoreFactor]:
+    def _get_score_detail(self, year, term, class_id, timeout=httpx.config.UNSET) -> List[model.ScoreFactor]:
         raw = self._client.post(const.SCORE_DETAIL_URL + self.student_id,
                                 data={"xnm": year, "xqm": const.TERMS[term], "jxb_id": class_id, "_search": False,
                                     "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                     "queryModel.currentPage": 1, "queryModel.sortName": "",
-                                    "queryModel.sortOrder": "asc", "time": 1})
+                                      "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         factors = schema.ScoreFactorSchema(many=True).load(raw.json()["items"][:-1])
         return factors
 
-    def score(self, year, term) -> model.Scores:
+    def score(self, year, term, timeout=httpx.config.UNSET) -> model.Scores:
         raw = self._client.post(const.SCORE_URL, data={"xnm": year, "xqm": const.TERMS[term], "_search": False,
                                                      "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                                      "queryModel.currentPage": 1, "queryModel.sortName": "",
-                                                     "queryModel.sortOrder": "asc", "time": 1})
+                                                       "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Scores(year, term, self._get_score_detail)
         try:
             scores.load(raw.json()["items"])
@@ -164,13 +177,13 @@ class Session:
             raise SessionException
         return scores
 
-    def exam(self, year, term) -> model.Exams:
         raw = self._client.post(const.EXAM_URL,
                                 data={"xnm": year, "xqm": const.TERMS[term], "_search": False, "ksmcdmb_id": None,
                                     "kch": None, "kc": None, "ksrq": None, "kkbm_id": None,
                                     "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                     "queryModel.currentPage": 1, "queryModel.sortName": "",
-                                    "queryModel.sortOrder": "asc", "time": 1})
+    def exam(self, year, term, timeout=httpx.config.UNSET) -> model.Exams:
+                                      "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Exams(year, term)
         try:
             scores.load(raw.json()["items"])
@@ -178,7 +191,8 @@ class Session:
             raise SessionException
         return scores
 
-    def query_courses(self, year, term, name=None, teacher=None, day_of_week=None, week=None, time_of_day=None):
+    def query_courses(self, year, term, name=None, teacher=None, day_of_week=None, week=None, time_of_day=None,
+                      timeout=httpx.config.UNSET):
         _args = {"year": "xnm", "term": "xqm", "name": "kch_id", "teacher": "jqh_id", "day_of_week": "xqj",
                  "week": "qsjsz", "time_of_day": "skjc"}
         year = year
@@ -193,19 +207,19 @@ class Session:
             if k in dir():
                 req_params[v] = locals()[k]
 
-        req = partial(self._client.post, const.COURSELIB_URL + self.student_id)
+        req = partial(self._client.post, const.COURSELIB_URL + self.student_id, timeout=timeout)
 
         return model.QueryResult(req, partial(util.schema_post_loader, schema.LibCourseSchema), req_params)
 
-    def query_gpa(self, query_params: model.GPAQueryParams):
+    def query_gpa(self, query_params: model.GPAQueryParams, timeout=httpx.config.UNSET):
         compiled_params = schema.GPAQueryParamsSchema().dump(query_params)
-        calc_rtn = self._client.post(const.GPA_CALC_URL + self.student_id, data=compiled_params)
+        calc_rtn = self._client.post(const.GPA_CALC_URL + self.student_id, data=compiled_params, timeout=timeout)
         if calc_rtn.text != "\"统计成功！\"": raise GPACalculationException
         compiled_params.update({"_search": False,
                                 "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                 "queryModel.currentPage": 1, "queryModel.sortName": "",
                                 "queryModel.sortOrder": "asc", "time": 0})
-        raw = self._client.post(const.GPA_QUERY_URL + self.student_id, data=compiled_params)
+        raw = self._client.post(const.GPA_QUERY_URL + self.student_id, data=compiled_params, timeout=timeout)
         return schema.GPASchema().load(raw.json()["items"][0])
 
     def _elect(self, params):
