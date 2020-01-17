@@ -1,5 +1,20 @@
 from typing import List, Callable, Union, Tuple, Generator
+from enum import Enum
 import datetime
+
+
+class LogicEnum(Enum):
+    AND = 0
+    OR = 1
+
+
+class CourseRange(Enum):
+    ALL = 0
+    CORE = 1
+
+
+class Ranking(Enum):
+    GRADE_AND_FIELD = 0
 
 
 class QueryResult:

@@ -2,6 +2,13 @@ from math import inf
 import collections
 
 
+def replace_keys(data, pairs):
+    for from_key, to_key in pairs:
+        if from_key in data:
+            data[to_key] = data.pop(from_key)
+    return data
+
+
 def schema_post_loader(schema_ref, data):
     if isinstance(data, list):
         return schema_ref(many=True).load(data)

@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import arrow
 from ics import Calendar, Event
 
-from pysjtu import api
+from pysjtu import api, model
 
 lesson_time = (((8, 0), (8, 45)),
                ((8, 55), (9, 40)),
@@ -60,5 +60,12 @@ for item in query:
 print()
 
 print(sess.term_start_date)
+
+query_params = sess.default_gpa_query_params
+
+print(sess.query_gpa(query_params))
+
+query_params.course_range = model.CourseRange.ALL
+print(sess.query_gpa(query_params))
 
 sess.dump("cookie")

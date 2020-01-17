@@ -15,6 +15,10 @@ from . import schema
 from . import util
 
 
+class GPACalculationException(Exception):
+    pass
+
+
 class SessionException(Exception):
     pass
 
@@ -52,6 +56,7 @@ class Session:
         self._client.hooks = {"response": Session._http_error_handler}
         self._student_id = None
         self._term_start = None
+        self._default_gpa_query_params = None
         if retry: self._retry = retry
 
     def login(self, username, password):
@@ -120,6 +125,15 @@ class Session:
             self._student_id = re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[0]
         return self._student_id
 
+    @property
+    def default_gpa_query_params(self) -> model.GPAQueryParams:
+        if not self._default_gpa_query_params:
+            rtn = self._client.get(const.GPA_PARAMS_URL, params={"_": int(time.time() * 1000), "su": self.student_id})
+            raw_params = {item["zdm"]: item["szz"] for item in filter(lambda x: "szz" in x.keys(), rtn.json())}
+            self._default_gpa_query_params = schema.GPAQueryParamsSchema().load(raw_params)
+
+        return self._default_gpa_query_params
+
     def schedule(self, year, term) -> model.Schedule:
         raw = self._client.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]})
         schedule = model.Schedule(year, term)
@@ -182,6 +196,17 @@ class Session:
         req = partial(self._client.post, const.COURSELIB_URL + self.student_id)
 
         return model.QueryResult(req, partial(util.schema_post_loader, schema.LibCourseSchema), req_params)
+
+    def query_gpa(self, query_params: model.GPAQueryParams):
+        compiled_params = schema.GPAQueryParamsSchema().dump(query_params)
+        calc_rtn = self._client.post(const.GPA_CALC_URL + self.student_id, data=compiled_params)
+        if calc_rtn.text != "\"统计成功！\"": raise GPACalculationException
+        compiled_params.update({"_search": False,
+                                "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                                "queryModel.currentPage": 1, "queryModel.sortName": "",
+                                "queryModel.sortOrder": "asc", "time": 0})
+        raw = self._client.post(const.GPA_QUERY_URL + self.student_id, data=compiled_params)
+        return schema.GPASchema().load(raw.json()["items"][0])
 
     def _elect(self, params):
         r = self._client.post(const.ELECT_URL + self.student_id, data=params)

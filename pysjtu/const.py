@@ -9,6 +9,9 @@ SCORE_DETAIL_URL = "https://i.sjtu.edu.cn/cjcx/cjcx_cxXsXmcjList.html?gnmkdm=N30
 EXAM_URL = "https://i.sjtu.edu.cn/kwgl/kscx_cxXsksxxIndex.html?doType=query&gnmkdm=N358105&su="
 CALENDAR_URL = "https://i.sjtu.edu.cn/xtgl/index_cxshjdAreaFive.html?localeKey=zh_CN&gnmkdm=index&su="
 COURSELIB_URL = "https://i.sjtu.edu.cn/design/funcData_cxFuncDataList.html?func_widget_guid=DA1B5BB30E1F4CB99D1F6F526537777B&gnmkdm=N219904&su="
+GPA_PARAMS_URL = "https://i.sjtu.edu.cn/cjgl/common_cxGnzdxxList.html?gnmkdm=N309130"
+GPA_CALC_URL = "https://i.sjtu.edu.cn/cjpmtj/gpapmtj_tjGpapmtj.html?gnmkdm=N309131&su="
+GPA_QUERY_URL = "https://i.sjtu.edu.cn/cjpmtj/gpapmtj_cxGpaxjfcxIndex.html?doType=query&gnmkdm=N309131&su="
 HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0",
            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
 TERMS = [3, 12, 16]
