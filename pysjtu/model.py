@@ -124,7 +124,7 @@ class GPA:
         self.__dict__.update(kwargs)
 
     def __repr__(self):
-        return f"<LibCourse gp={self.gp} {self.gp_ranking}/{self.total_students} gpa={self.gpa} {self.gpa_ranking}/{self.total_students}>"
+        return f"<GPA gp={self.gp} {self.gp_ranking}/{self.total_students} gpa={self.gpa} {self.gpa_ranking}/{self.total_students}>"
 
 
 class LibCourse:
