@@ -1,12 +1,13 @@
 import re
 import time
+import typing
 from functools import partial
 from http.cookiejar import LWPCookieJar
 from json.decoder import JSONDecodeError
-from typing import List
 from urllib.parse import urlparse, parse_qs
 
 import httpx
+from httpx.config import UNSET
 
 from . import const
 from . import model
@@ -42,12 +43,14 @@ class Session:
             return self._client.send(req)
 
     @staticmethod
-    def _http_error_handler(req, *args, **kwargs):
+    def _http_error_handler(response: httpx.Response):
         try:
-            req.raise_for_status()
+            response.raise_for_status()
         except httpx.exceptions.HTTPError:
-            if req.status_code == httpx.codes.SERVICE_UNAVAILABLE:
+            if response.status_code == httpx.codes.SERVICE_UNAVAILABLE:
                 raise ServiceUnavailable
+        if response.url.full_path == '/xtgl/login_slogin.html':
+            raise SessionException
 
     def __init__(self, retry=None):
         self._client = httpx.Client()
@@ -58,21 +61,56 @@ class Session:
         self._default_gpa_query_params = None
         if retry: self._retry = retry
 
+    def get(self, *args, **kwargs):
+        rtn = self._client.get(*args, **kwargs)
+        Session._http_error_handler(rtn)
+        return rtn
+
+    def options(self, *args, **kwargs):
+        rtn = self._client.options(*args, **kwargs)
+        Session._http_error_handler(rtn)
+        return rtn
+
+    def head(self, *args, **kwargs):
+        rtn = self._client.head(*args, **kwargs)
+        Session._http_error_handler(rtn)
+        return rtn
+
+    def post(self, *args, **kwargs):
+        rtn = self._client.post(*args, **kwargs)
+        Session._http_error_handler(rtn)
+        return rtn
+
+    def put(self, *args, **kwargs):
+        rtn = self._client.put(*args, **kwargs)
+        Session._http_error_handler(rtn)
+        return rtn
+
+    def patch(self, *args, **kwargs):
+        rtn = self._client.patch(*args, **kwargs)
+        Session._http_error_handler(rtn)
+        return rtn
+
+    def delete(self, *args, **kwargs):
+        rtn = self._client.delete(*args, **kwargs)
+        Session._http_error_handler(rtn)
+        return rtn
+
     def login(self, username, password):
         self._student_id = None
         for i in self._retry:
-            login_page_req = self._secure_req(partial(self._client.get, const.LOGIN_URL))
+            login_page_req = self._secure_req(partial(self.get, const.LOGIN_URL))
             uuid = re.findall(r"(?<=uuid\": ').*(?=')", login_page_req.text)[0]
             login_params = parse_qs(urlparse(str(login_page_req.url)).query)
             login_params = {k: v[0] for k, v in login_params.items()}
 
-            captcha_img = self._client.get(const.CAPTCHA_URL,
-                                           params={"uuid": uuid, "t": int(time.time() * 1000)}).content
+            captcha_img = self.get(const.CAPTCHA_URL,
+                                   params={"uuid": uuid, "t": int(time.time() * 1000)}).content
             captcha = util.recognize_captcha(captcha_img)
 
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
             result = self._secure_req(
-                partial(self._client.post, const.LOGIN_POST_URL, params=login_params, headers=const.HEADERS))
+                partial(self.post, const.LOGIN_POST_URL, params=login_params, headers=const.HEADERS))
             if "err=1" not in result.url.query: return
 
             time.sleep(i)
@@ -102,12 +140,8 @@ class Session:
         bak_cookie = self._client.cookies
         self._student_id = None
         self._client.cookies = new_cookie
-        try:
-            self._secure_req(partial(self._client.get, const.LOGIN_URL))  # refresh JSESSION token
-        except httpx.ReadTimeout:
-            self._client.cookies = bak_cookie
-            raise SessionException
-        if "login" in self._client.get(const.HOME_URL).url.path:
+        self._secure_req(partial(self.get, const.LOGIN_URL))  # refresh JSESSION token
+        if "login" in self.get(const.HOME_URL).url.path:
             self._client.cookies = bak_cookie
             raise SessionException
 
@@ -127,28 +161,28 @@ class Session:
     @property
     def term_start_date(self):
         if not self._term_start:
-            raw = self._client.get(const.CALENDAR_URL + self.student_id)
+            raw = self.get(const.CALENDAR_URL + self.student_id)
             self._term_start = min(re.findall(r"\d{4}-\d{2}-\d{2}", raw.text))
         return self._term_start
 
     @property
     def student_id(self):
         if not self._student_id:
-            rtn = self._client.get(const.HOME_URL)
+            rtn = self.get(const.HOME_URL)
             self._student_id = re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[0]
         return self._student_id
 
     @property
     def default_gpa_query_params(self) -> model.GPAQueryParams:
         if not self._default_gpa_query_params:
-            rtn = self._client.get(const.GPA_PARAMS_URL, params={"_": int(time.time() * 1000), "su": self.student_id})
+            rtn = self.get(const.GPA_PARAMS_URL, params={"_": int(time.time() * 1000), "su": self.student_id})
             raw_params = {item["zdm"]: item["szz"] for item in filter(lambda x: "szz" in x.keys(), rtn.json())}
             self._default_gpa_query_params = schema.GPAQueryParamsSchema().load(raw_params)
 
         return self._default_gpa_query_params
 
-    def schedule(self, year, term, timeout=httpx.config.UNSET) -> model.Schedule:
-        raw = self._client.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]}, timeout=timeout)
+    def schedule(self, year, term, timeout=UNSET) -> model.Schedule:
+        raw = self.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]}, timeout=timeout)
         schedule = model.Schedule(year, term)
         try:
             schedule.load(raw.json()["kbList"])
@@ -156,20 +190,20 @@ class Session:
             raise SessionException
         return schedule
 
-    def _get_score_detail(self, year, term, class_id, timeout=httpx.config.UNSET) -> List[model.ScoreFactor]:
-        raw = self._client.post(const.SCORE_DETAIL_URL + self.student_id,
-                                data={"xnm": year, "xqm": const.TERMS[term], "jxb_id": class_id, "_search": False,
-                                      "nd": int(time.time() * 1000), "queryModel.showCount": 15,
-                                      "queryModel.currentPage": 1, "queryModel.sortName": "",
-                                      "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
+    def _get_score_detail(self, year, term, class_id, timeout=UNSET) -> typing.List[model.ScoreFactor]:
+        raw = self.post(const.SCORE_DETAIL_URL + self.student_id,
+                        data={"xnm": year, "xqm": const.TERMS[term], "jxb_id": class_id, "_search": False,
+                              "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                              "queryModel.currentPage": 1, "queryModel.sortName": "",
+                              "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         factors = schema.ScoreFactorSchema(many=True).load(raw.json()["items"][:-1])
         return factors
 
-    def score(self, year, term, timeout=httpx.config.UNSET) -> model.Scores:
-        raw = self._client.post(const.SCORE_URL, data={"xnm": year, "xqm": const.TERMS[term], "_search": False,
-                                                       "nd": int(time.time() * 1000), "queryModel.showCount": 15,
-                                                       "queryModel.currentPage": 1, "queryModel.sortName": "",
-                                                       "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
+    def score(self, year, term, timeout=UNSET) -> model.Scores:
+        raw = self.post(const.SCORE_URL, data={"xnm": year, "xqm": const.TERMS[term], "_search": False,
+                                               "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                                               "queryModel.currentPage": 1, "queryModel.sortName": "",
+                                               "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Scores(year, term, self._get_score_detail)
         try:
             scores.load(raw.json()["items"])
@@ -177,13 +211,13 @@ class Session:
             raise SessionException
         return scores
 
-    def exam(self, year, term, timeout=httpx.config.UNSET) -> model.Exams:
-        raw = self._client.post(const.EXAM_URL + self.student_id,
-                                data={"xnm": year, "xqm": const.TERMS[term], "_search": False, "ksmcdmb_id": '',
-                                      "kch": '', "kc": '', "ksrq": '', "kkbm_id": '',
-                                      "nd": int(time.time() * 1000), "queryModel.showCount": 15,
-                                      "queryModel.currentPage": 1, "queryModel.sortName": "",
-                                      "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
+    def exam(self, year, term, timeout=UNSET) -> model.Exams:
+        raw = self.post(const.EXAM_URL + self.student_id,
+                        data={"xnm": year, "xqm": const.TERMS[term], "_search": False, "ksmcdmb_id": '',
+                              "kch": '', "kc": '', "ksrq": '', "kkbm_id": '',
+                              "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                              "queryModel.currentPage": 1, "queryModel.sortName": "",
+                              "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Exams(year, term)
         try:
             scores.load(raw.json()["items"])
@@ -192,7 +226,7 @@ class Session:
         return scores
 
     def query_courses(self, year, term, name=None, teacher=None, day_of_week=None, week=None, time_of_day=None,
-                      timeout=httpx.config.UNSET):
+                      timeout=UNSET):
         _args = {"year": "xnm", "term": "xqm", "name": "kch_id", "teacher": "jqh_id", "day_of_week": "xqj",
                  "week": "qsjsz", "time_of_day": "skjc"}
         year = year
@@ -207,21 +241,21 @@ class Session:
             if k in dir():
                 req_params[v] = locals()[k]
 
-        req = partial(self._client.post, const.COURSELIB_URL + self.student_id, timeout=timeout)
+        req = partial(self.post, const.COURSELIB_URL + self.student_id, timeout=timeout)
 
         return model.QueryResult(req, partial(util.schema_post_loader, schema.LibCourseSchema), req_params)
 
-    def query_gpa(self, query_params: model.GPAQueryParams, timeout=httpx.config.UNSET):
+    def query_gpa(self, query_params: model.GPAQueryParams, timeout=UNSET):
         compiled_params = schema.GPAQueryParamsSchema().dump(query_params)
-        calc_rtn = self._client.post(const.GPA_CALC_URL + self.student_id, data=compiled_params, timeout=timeout)
+        calc_rtn = self.post(const.GPA_CALC_URL + self.student_id, data=compiled_params, timeout=timeout)
         if calc_rtn.text != "\"统计成功！\"": raise GPACalculationException
         compiled_params.update({"_search": False,
                                 "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                 "queryModel.currentPage": 1, "queryModel.sortName": "",
                                 "queryModel.sortOrder": "asc", "time": 0})
-        raw = self._client.post(const.GPA_QUERY_URL + self.student_id, data=compiled_params, timeout=timeout)
+        raw = self.post(const.GPA_QUERY_URL + self.student_id, data=compiled_params, timeout=timeout)
         return schema.GPASchema().load(raw.json()["items"][0])
 
     def _elect(self, params):
-        r = self._client.post(const.ELECT_URL + self.student_id, data=params)
+        r = self.post(const.ELECT_URL + self.student_id, data=params)
         return r.json()
