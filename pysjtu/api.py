@@ -55,7 +55,6 @@ class Session:
     def __init__(self, retry=None):
         self._client = httpx.Client()
         self._client.cookies.jar = LWPCookieJar()
-        self._client.hooks = {"response": Session._http_error_handler}
         self._student_id = None
         self._term_start = None
         self._default_gpa_query_params = None
