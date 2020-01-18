@@ -424,7 +424,7 @@ class GPAQueryParamsSchema(Schema):
     gpa_round = fields.Int(load_key="jdblws", dump_key="pjjdblws")
     exclude_credit = fields.Str(data_key="bjjd")
     exclude_gp = fields.Str(data_key="bjpjf")
-    course_whole = CommaSplitted(load_key="tjqckc", dump_key="kch_id")
+    course_whole = CommaSplitted(load_key="tjqckc", dump_key="kch_ids")
     course_range = CourseRangeField(dump_key="kcfw", dump_only=True)
     ranking = RankingField(dump_key="tjfw", dump_only=True)
     has_roll = HasRoll(data_key="atjc", load_only=True)
