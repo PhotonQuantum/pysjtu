@@ -1,10 +1,11 @@
+import pickle
 import re
 import time
 import typing
 from functools import partial
-from http.cookiejar import LWPCookieJar
-from json.decoder import JSONDecodeError
+from http.cookiejar import CookieJar
 from urllib.parse import urlparse, parse_qs
+import warnings
 
 import httpx
 from httpx.config import UNSET
@@ -15,6 +16,14 @@ from . import schema
 from . import util
 
 
+class LoadWarning(UserWarning):
+    pass
+
+
+class DumpWarning(UserWarning):
+    pass
+
+
 class GPACalculationException(Exception):
     pass
 
@@ -23,12 +32,16 @@ class SessionException(Exception):
     pass
 
 
+class LoginException(Exception):
+    pass
+
+
 class ServiceUnavailable(Exception):
     pass
 
 
 class Session:
-    _client: httpx.Client
+    _client = None
     _retry = [.5] * 5 + list(range(1, 5))
 
     def _secure_req(self, ref):
@@ -42,58 +55,55 @@ class Session:
                 raise e
             return self._client.send(req)
 
-    @staticmethod
-    def _http_error_handler(response: httpx.Response):
-        try:
-            response.raise_for_status()
-        except httpx.exceptions.HTTPError:
-            if response.status_code == httpx.codes.SERVICE_UNAVAILABLE:
-                raise ServiceUnavailable
-        if response.url.full_path == '/xtgl/login_slogin.html':
-            raise SessionException
-
     def __init__(self, retry=None):
         self._client = httpx.Client()
-        self._client.cookies.jar = LWPCookieJar()
+        self._username = None
+        self._password = None
         self._student_id = None
         self._term_start = None
         self._default_gpa_query_params = None
         if retry: self._retry = retry
 
-    def get(self, *args, **kwargs):
-        rtn = self._client.get(*args, **kwargs)
-        Session._http_error_handler(rtn)
+    def request(self, *args, **kwargs):
+        rtn = self._client.request(*args, **kwargs)
+        try:
+            rtn.raise_for_status()
+        except httpx.exceptions.HTTPError as e:
+            if rtn.status_code == httpx.codes.SERVICE_UNAVAILABLE:
+                raise ServiceUnavailable
+            else:
+                raise e
+        if rtn.url.full_path == "/xtgl/login_slogin.html":
+            self._secure_req(partial(self.get, const.LOGIN_URL))  # refresh JSESSION token
+            # Sometimes the old session will be retrieved, so we won't need to login again
+            if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":
+                if self._username and self._password:
+                    self.login(self._username, self._password)
+                else:
+                    raise SessionException
+            rtn = self._client.request(*args, **kwargs)
         return rtn
+
+    def get(self, *args, **kwargs):
+        return self.request("GET", *args, **kwargs)
 
     def options(self, *args, **kwargs):
-        rtn = self._client.options(*args, **kwargs)
-        Session._http_error_handler(rtn)
-        return rtn
+        return self.request("OPTIONS", *args, **kwargs)
 
     def head(self, *args, **kwargs):
-        rtn = self._client.head(*args, **kwargs)
-        Session._http_error_handler(rtn)
-        return rtn
+        return self.request("HEAD", *args, **kwargs)
 
     def post(self, *args, **kwargs):
-        rtn = self._client.post(*args, **kwargs)
-        Session._http_error_handler(rtn)
-        return rtn
+        return self.request("POST", *args, **kwargs)
 
     def put(self, *args, **kwargs):
-        rtn = self._client.put(*args, **kwargs)
-        Session._http_error_handler(rtn)
-        return rtn
+        return self.request("PUT", *args, **kwargs)
 
     def patch(self, *args, **kwargs):
-        rtn = self._client.patch(*args, **kwargs)
-        Session._http_error_handler(rtn)
-        return rtn
+        return self.request("PATCH", *args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        rtn = self._client.delete(*args, **kwargs)
-        Session._http_error_handler(rtn)
-        return rtn
+        return self.request("DELETE", *args, **kwargs)
 
     def login(self, username, password):
         self._student_id = None
@@ -110,17 +120,58 @@ class Session:
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
             result = self._secure_req(
                 partial(self.post, const.LOGIN_POST_URL, params=login_params, headers=const.HEADERS))
-            if "err=1" not in result.url.query: return
+            if "err=1" not in result.url.query:
+                self._username = username
+                self._password = password
+                return
 
             time.sleep(i)
 
-    def load(self, fn):
-        new_cookie = LWPCookieJar(fn)
-        new_cookie.load(ignore_discard=True)
-        self.cookies = new_cookie
+        raise LoginException
 
-    def dump(self, fn):
-        self._client.cookies.jar.save(fn, ignore_discard=True)
+    def logout(self, purge_session=True):
+        cookie_bak = self._client.cookies
+        self._client.get(const.LOGOUT_URL, params={"t": int(time.time()*1000), "login_type": ""})
+        if purge_session:
+            self._username = None
+            self._password = None
+        else:
+            self._client.cookies = cookie_bak
+
+    def loads(self, d):
+        renew_required = True
+
+        if "username" not in d.keys() or "password" not in d.keys() or not d["username"] or not d["password"]:
+            warnings.warn("Missing username or password field", LoadWarning)
+            renew_required = False
+        else:
+            self._username = d["username"]
+            self._password = d["password"]
+
+        if "cookies" in d.keys():
+            cj = CookieJar()
+            cj._cookies = d["cookies"]
+            try:
+                self.cookies = cj
+                renew_required = False
+            except SessionException:
+                pass
+
+        if renew_required:
+            self.login(self._username, self._password)
+
+    def load(self, fp):
+        conf = pickle.load(fp)
+        self.loads(conf)
+
+    def dumps(self):
+        if not self._username or not self._password:
+            warnings.warn("Missing username or password field", DumpWarning)
+        return {"username": self._username, "password": self._password,
+                "cookies": self._client.cookies.jar._cookies}
+
+    def dump(self, fp):
+        pickle.dump(self.dumps(), fp)
 
     @property
     def proxies(self):
@@ -140,7 +191,7 @@ class Session:
         self._student_id = None
         self._client.cookies = new_cookie
         self._secure_req(partial(self.get, const.LOGIN_URL))  # refresh JSESSION token
-        if "login" in self.get(const.HOME_URL).url.path:
+        if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":
             self._client.cookies = bak_cookie
             raise SessionException
 
@@ -183,10 +234,7 @@ class Session:
     def schedule(self, year, term, timeout=UNSET) -> model.Schedule:
         raw = self.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]}, timeout=timeout)
         schedule = model.Schedule(year, term)
-        try:
-            schedule.load(raw.json()["kbList"])
-        except JSONDecodeError:
-            raise SessionException
+        schedule.load(raw.json()["kbList"])
         return schedule
 
     def _get_score_detail(self, year, term, class_id, timeout=UNSET) -> typing.List[model.ScoreFactor]:
@@ -204,10 +252,7 @@ class Session:
                                                "queryModel.currentPage": 1, "queryModel.sortName": "",
                                                "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Scores(year, term, self._get_score_detail)
-        try:
-            scores.load(raw.json()["items"])
-        except JSONDecodeError:
-            raise SessionException
+        scores.load(raw.json()["items"])
         return scores
 
     def exam(self, year, term, timeout=UNSET) -> model.Exams:
@@ -218,10 +263,7 @@ class Session:
                               "queryModel.currentPage": 1, "queryModel.sortName": "",
                               "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Exams(year, term)
-        try:
-            scores.load(raw.json()["items"])
-        except JSONDecodeError:
-            raise SessionException
+        scores.load(raw.json()["items"])
         return scores
 
     def query_courses(self, year, term, name=None, teacher=None, day_of_week=None, week=None, time_of_day=None,
