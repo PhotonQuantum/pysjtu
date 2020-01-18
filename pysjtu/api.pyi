@@ -20,11 +20,23 @@ from httpx.models import (
 from . import model
 
 
+class LoadWarning(UserWarning):
+    pass
+
+
+class DumpWarning(UserWarning):
+    pass
+
+
 class GPACalculationException(Exception):
     pass
 
 
 class SessionException(Exception):
+    pass
+
+
+class LoginException(Exception):
     pass
 
 
@@ -35,15 +47,30 @@ class ServiceUnavailable(Exception):
 class Session:
     _client: httpx.Client
     _retry: list
+    _username: str
+    _password: str
 
     def _secure_req(self, ref):
         pass
 
-    @staticmethod
-    def _http_error_handler(response: httpx.Response):
+    def __init__(self, retry=None):
         pass
 
-    def __init__(self, retry=None):
+    def request(
+            self,
+            method: str,
+            url: URLTypes,
+            *,
+            data: RequestData = None,
+            files: RequestFiles = None,
+            json: typing.Any = None,
+            params: QueryParamTypes = None,
+            headers: HeaderTypes = None,
+            cookies: CookieTypes = None,
+            auth: AuthTypes = None,
+            allow_redirects: bool = True,
+            timeout: typing.Union[TimeoutTypes, UnsetType] = UNSET,
+    ) -> Response:
         pass
 
     def get(
@@ -149,10 +176,19 @@ class Session:
     def login(self, username, password):
         pass
 
-    def load(self, fn):
+    def logout(self, purge_session: bool = True):
         pass
 
-    def dump(self, fn):
+    def loads(self, d: dict):
+        pass
+
+    def load(self, fp: typing.BinaryIO):
+        pass
+
+    def dumps(self) -> dict:
+        pass
+
+    def dump(self, fp: typing.BinaryIO):
         pass
 
     @property

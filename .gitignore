@@ -130,4 +130,4 @@ dmypy.json
 .pyre/
 
 # private files
-cookie
+session

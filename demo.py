@@ -23,7 +23,8 @@ lesson_time = (((8, 0), (8, 45)),
 
 sess = api.Session()
 try:
-    sess.load("cookie")
+    with open("session", mode="rb") as f:
+        sess.load(f)
 except (api.SessionException, FileNotFoundError) as e:
     print("session invalid, login")
     sess.login(os.environ["SJTU_USER"], os.environ["SJTU_PASS"])
@@ -68,4 +69,5 @@ print(sess.query_gpa(query_params, 10))
 query_params.course_range = model.CourseRange.ALL
 print(sess.query_gpa(query_params, 10))
 
-sess.dump("cookie")
+with open("session", mode="wb") as f:
+    sess.dump(f)
