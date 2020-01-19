@@ -182,6 +182,15 @@ class Session:
         self._client.proxies = new_proxy
 
     @property
+    def _cookies(self):
+        return self._client.cookies
+
+    @_cookies.setter
+    def _cookies(self, new_cookie):
+        self._student_id = None
+        self._client.cookies = new_cookie
+
+    @property
     def cookies(self):
         return self._client.cookies
 
@@ -193,7 +202,7 @@ class Session:
         self._secure_req(partial(self.get, const.LOGIN_URL))  # refresh JSESSION token
         if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":
             self._client.cookies = bak_cookie
-            raise SessionException
+            raise SessionException("Invalid cookies. You may skip this validation by setting _cookies")
 
     @property
     def timeout(self):
