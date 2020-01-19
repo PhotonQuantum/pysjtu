@@ -77,7 +77,7 @@ class Session:
             if not auto_renew:
                 raise SessionException("Session expired.")
             else:
-                self._secure_req(partial(self.get, const.LOGIN_URL))  # refresh JSESSION token
+                self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh JSESSION token
                 # Sometimes the old session will be retrieved, so we won't need to login again
                 if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":
                     if self._username and self._password:
@@ -112,7 +112,7 @@ class Session:
     def login(self, username, password):
         self._student_id = None
         for i in self._retry:
-            login_page_req = self._secure_req(partial(self.get, const.LOGIN_URL))
+            login_page_req = self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))
             uuid = re.findall(r"(?<=uuid\": ').*(?=')", login_page_req.text)[0]
             login_params = parse_qs(urlparse(str(login_page_req.url)).query)
             login_params = {k: v[0] for k, v in login_params.items()}
@@ -203,7 +203,7 @@ class Session:
         bak_cookie = self._client.cookies
         self._student_id = None
         self._client.cookies = new_cookie
-        self._secure_req(partial(self.get, const.LOGIN_URL))  # refresh JSESSION token
+        self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh JSESSION token
         if self.get(const.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html":
             self._client.cookies = bak_cookie
             raise SessionException("Invalid cookies. You may skip this validation by setting _cookies")
