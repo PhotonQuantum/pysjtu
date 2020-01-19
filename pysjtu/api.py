@@ -64,7 +64,7 @@ class Session:
         self._default_gpa_query_params = None
         if retry: self._retry = retry
 
-    def request(self, *args, **kwargs):
+    def request(self, *args, validate_session=True, auto_renew=True, **kwargs):
         rtn = self._client.request(*args, **kwargs)
         try:
             rtn.raise_for_status()
@@ -73,15 +73,19 @@ class Session:
                 raise ServiceUnavailable
             else:
                 raise e
-        if rtn.url.full_path == "/xtgl/login_slogin.html":
-            self._secure_req(partial(self.get, const.LOGIN_URL))  # refresh JSESSION token
-            # Sometimes the old session will be retrieved, so we won't need to login again
-            if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":
-                if self._username and self._password:
-                    self.login(self._username, self._password)
-                else:
-                    raise SessionException
-            rtn = self._client.request(*args, **kwargs)
+        if validate_session and rtn.url.full_path == "/xtgl/login_slogin.html":
+            if not auto_renew:
+                raise SessionException("Session expired.")
+            else:
+                self._secure_req(partial(self.get, const.LOGIN_URL))  # refresh JSESSION token
+                # Sometimes the old session will be retrieved, so we won't need to login again
+                if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":
+                    if self._username and self._password:
+                        self.login(self._username, self._password)
+                    else:
+                        raise SessionException("Session expired. Unable to renew session due to missing username or "
+                                               "password")
+                rtn = self._client.request(*args, **kwargs)
         return rtn
 
     def get(self, *args, **kwargs):
@@ -131,7 +135,7 @@ class Session:
 
     def logout(self, purge_session=True):
         cookie_bak = self._client.cookies
-        self._client.get(const.LOGOUT_URL, params={"t": int(time.time()*1000), "login_type": ""})
+        self.get(const.LOGOUT_URL, params={"t": int(time.time()*1000), "login_type": ""}, validate_session=False)
         if purge_session:
             self._username = None
             self._password = None
@@ -200,7 +204,7 @@ class Session:
         self._student_id = None
         self._client.cookies = new_cookie
         self._secure_req(partial(self.get, const.LOGIN_URL))  # refresh JSESSION token
-        if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":
+        if self.get(const.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html":
             self._client.cookies = bak_cookie
             raise SessionException("Invalid cookies. You may skip this validation by setting _cookies")
 

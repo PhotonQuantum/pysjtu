@@ -70,6 +70,8 @@ class Session:
             auth: AuthTypes = None,
             allow_redirects: bool = True,
             timeout: typing.Union[TimeoutTypes, UnsetType] = UNSET,
+            validate_session: bool = True,
+            auto_renew: bool = True
     ) -> Response:
         pass
 
@@ -83,6 +85,8 @@ class Session:
             auth: AuthTypes = None,
             allow_redirects: bool = True,
             timeout: typing.Union[TimeoutTypes, UnsetType] = UNSET,
+            validate_session: bool = True,
+            auto_renew: bool = True
     ) -> Response:
         pass
 
@@ -96,6 +100,8 @@ class Session:
             auth: AuthTypes = None,
             allow_redirects: bool = True,
             timeout: typing.Union[TimeoutTypes, UnsetType] = UNSET,
+            validate_session: bool = True,
+            auto_renew: bool = True
     ) -> Response:
         pass
 
@@ -109,6 +115,8 @@ class Session:
             auth: AuthTypes = None,
             allow_redirects: bool = False,  # NOTE: Differs to usual default.
             timeout: typing.Union[TimeoutTypes, UnsetType] = UNSET,
+            validate_session: bool = True,
+            auto_renew: bool = True
     ) -> Response:
         pass
 
@@ -125,6 +133,8 @@ class Session:
             auth: AuthTypes = None,
             allow_redirects: bool = True,
             timeout: typing.Union[TimeoutTypes, UnsetType] = UNSET,
+            validate_session: bool = True,
+            auto_renew: bool = True
     ) -> Response:
         pass
 
@@ -141,6 +151,8 @@ class Session:
             auth: AuthTypes = None,
             allow_redirects: bool = True,
             timeout: typing.Union[TimeoutTypes, UnsetType] = UNSET,
+            validate_session: bool = True,
+            auto_renew: bool = True
     ) -> Response:
         pass
 
@@ -157,6 +169,8 @@ class Session:
             auth: AuthTypes = None,
             allow_redirects: bool = True,
             timeout: typing.Union[TimeoutTypes, UnsetType] = UNSET,
+            validate_session: bool = True,
+            auto_renew: bool = True
     ) -> Response:
         pass
 
@@ -170,6 +184,8 @@ class Session:
             auth: AuthTypes = None,
             allow_redirects: bool = True,
             timeout: typing.Union[TimeoutTypes, UnsetType] = UNSET,
+            validate_session: bool = True,
+            auto_renew: bool = True
     ) -> Response:
         pass
 
