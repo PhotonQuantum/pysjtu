@@ -9,7 +9,8 @@ SCORE_URL = "https://i.sjtu.edu.cn/cjcx/cjcx_cxDgXscj.html?doType=query&gnmkdm=N
 SCORE_DETAIL_URL = "https://i.sjtu.edu.cn/cjcx/cjcx_cxXsXmcjList.html?gnmkdm=N305007&su="
 EXAM_URL = "https://i.sjtu.edu.cn/kwgl/kscx_cxXsksxxIndex.html?doType=query&gnmkdm=N358105&su="
 CALENDAR_URL = "https://i.sjtu.edu.cn/xtgl/index_cxshjdAreaFive.html?localeKey=zh_CN&gnmkdm=index&su="
-COURSELIB_URL = "https://i.sjtu.edu.cn/design/funcData_cxFuncDataList.html?func_widget_guid=DA1B5BB30E1F4CB99D1F6F526537777B&gnmkdm=N219904&su="
+COURSELIB_URL = "https://i.sjtu.edu.cn/design/funcData_cxFuncDataList.html?" \
+                "func_widget_guid=DA1B5BB30E1F4CB99D1F6F526537777B&gnmkdm=N219904&su="
 GPA_PARAMS_URL = "https://i.sjtu.edu.cn/cjgl/common_cxGnzdxxList.html?gnmkdm=N309130"
 GPA_CALC_URL = "https://i.sjtu.edu.cn/cjpmtj/gpapmtj_tjGpapmtj.html?gnmkdm=N309131&su="
 GPA_QUERY_URL = "https://i.sjtu.edu.cn/cjpmtj/gpapmtj_cxGpaxjfcxIndex.html?doType=query&gnmkdm=N309131&su="

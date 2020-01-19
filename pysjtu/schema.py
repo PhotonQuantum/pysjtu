@@ -95,6 +95,7 @@ class CourseSchema(Schema):
     hour_week = fields.Int(data_key="zhxs")
     field = fields.Str(data_key="zyfxmc")
 
+    # noinspection PyUnusedLocal
     @post_load
     def wrap(self, data, **kwargs):
         return ScheduleCourse(**data)
@@ -147,6 +148,7 @@ class ScoreFactorSchema(Schema):
     percentage = ScoreFactorPercentage(required=True, data_key="xmblmc", load_only=True)
     score = fields.Float(required=True, data_key="xmcj")
 
+    # noinspection PyUnusedLocal
     @post_load
     def wrap(self, data, **kwargs):
         return ScoreFactor(**data)
@@ -170,6 +172,7 @@ class ScoreSchema(Schema):
     class_name = fields.Str(data_key="jxbmc")
     class_id = fields.Str(data_key="jxb_id")
 
+    # noinspection PyUnusedLocal
     @post_load
     def wrap(self, data, **kwargs):
         return Score(**data)
@@ -217,6 +220,7 @@ class ExamSchema(Schema):
     date = ExamDate(data_key="kssj", load_only=True)
     time = ExamTime(data_key="kssj", load_only=True)
 
+    # noinspection PyUnusedLocal
     @post_load
     def wrap(self, data, **kwargs):
         return Exam(**data)
@@ -406,6 +410,7 @@ class LibCourseSchema(Schema):
     students_elected = fields.Int(data_key="xkrs")
     students_planned = fields.Int(data_key="jxbrs")
 
+    # noinspection PyUnusedLocal
     @post_load
     def wrap(self, data, **kwargs):
         return LibCourse(**data)
@@ -422,8 +427,8 @@ class GPAQueryParamsSchema(Schema):
     rebuild_as_60 = RebuildAsPass(dump_only=True)
     gp_round = fields.Int(load_key="cjblws", dump_key="sspjfblws")
     gpa_round = fields.Int(load_key="jdblws", dump_key="pjjdblws")
-    exclude_credit = fields.Str(data_key="bjjd")
-    exclude_gp = fields.Str(data_key="bjpjf")
+    exclude_gp = fields.Str(data_key="bjjd")
+    exclude_gpa = fields.Str(data_key="bjpjf")
     course_whole = CommaSplitted(load_key="tjqckc", dump_key="kch_ids")
     course_range = CourseRangeField(dump_key="kcfw", dump_only=True)
     ranking = RankingField(dump_key="tjfw", dump_only=True)
@@ -434,6 +439,7 @@ class GPAQueryParamsSchema(Schema):
     registered_dump = Registered(data_key="zczt", dump_only=True)
     attending_dump = Attending(data_key="sfzx", dump_only=True)
 
+    # noinspection PyUnusedLocal
     @pre_load
     def wrap_pre_load(self, data, **kwargs):
         pairs = tuple(
@@ -442,12 +448,14 @@ class GPAQueryParamsSchema(Schema):
         )
         return replace_keys(data, pairs)
 
+    # noinspection PyUnusedLocal
     @post_load
     def wrap_post_load(self, data, **kwargs):
         return GPAQueryParams(makeup_as_60=False, rebuild_as_60=False, ranking=Ranking.GRADE_AND_FIELD,
                               course_range=CourseRange.CORE, start_term=None, end_term=None,
                               condition_logic=LogicEnum.AND, **data)
 
+    # noinspection PyUnusedLocal
     @pre_dump
     def wrap_pre_dump(self, data, **kwargs):
         pre_dict = deepcopy(data.__dict__)
@@ -456,6 +464,7 @@ class GPAQueryParamsSchema(Schema):
         pre_dict["attending_dump"] = pre_dict.pop("attending")
         return pre_dict
 
+    # noinspection PyUnusedLocal
     @post_dump
     def wrap_post_dump(self, data, **kwargs):
         pairs = tuple(
@@ -467,11 +476,13 @@ class GPAQueryParamsSchema(Schema):
         parse_fields = ["xjzt", "zczt", "sfzx"]
         data["alsfj"] = data.pop("makeup_as_60") + data.pop("rebuild_as_60")
         for field in parse_fields:
-            if data[field] == -1: data.pop(field)
+            if data[field] == -1:
+                data.pop(field)
 
         parse_fields = ["qsXnxq", "zzXnxq"]
         for field in parse_fields:
-            if data[field] is None: data[field] = ''
+            if data[field] is None:
+                data[field] = ''
         return data
 
 
@@ -488,7 +499,7 @@ class Percentage(fields.Field):
         return float(value.replace("%", "")) / 100
 
 
-class RankingField(fields.Field):
+class RankingResultField(fields.Field):
     def _deserialize(
             self,
             value: typing.Any,
@@ -526,11 +537,12 @@ class GPASchema(Schema):
     failed_credit = fields.Float(data_key="bjgxf")
     pass_rate = Percentage(data_key="tgl")
     gp = fields.Float(data_key="xjf")
-    gp_ranking = RankingField(data_key="xjfpm")
+    gp_ranking = RankingResultField(data_key="xjfpm")
     gpa = fields.Float(data_key="gpa")
-    gpa_ranking = RankingField(data_key="gpapm", load_only=True)
+    gpa_ranking = RankingResultField(data_key="gpapm", load_only=True)
     total_students = StudentCountFromRanking(data_key="gpapm", load_only=True)
 
+    # noinspection PyUnusedLocal
     @post_load
     def wrap(self, data, **kwargs):
         return GPA(**data)

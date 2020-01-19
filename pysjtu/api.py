@@ -1,11 +1,10 @@
 import pickle
 import re
 import time
-import typing
+import warnings
 from functools import partial
 from http.cookiejar import CookieJar
 from urllib.parse import urlparse, parse_qs
-import warnings
 
 import httpx
 from httpx.config import UNSET
@@ -13,38 +12,44 @@ from httpx.config import UNSET
 from . import const
 from . import model
 from . import schema
-from . import util
-
-
-class LoadWarning(UserWarning):
-    pass
-
-
-class DumpWarning(UserWarning):
-    pass
-
-
-class GPACalculationException(Exception):
-    pass
-
-
-class SessionException(Exception):
-    pass
-
-
-class LoginException(Exception):
-    pass
-
-
-class ServiceUnavailable(Exception):
-    pass
+from .exceptions import *
+from .util import has_callable, range_list_to_str, recognize_captcha, schema_post_loader
 
 
 class Session:
-    _client = None
-    _retry = [.5] * 5 + list(range(1, 5))
+    """
+    A pysjtu session with login management, cookie persistence, etc.
+
+    Usage::
+
+        >>> import pysjtu
+        >>> s = pysjtu.Session()
+        >>> s.login('user@sjtu.edu.cn', 'something_secret')
+        >>> s.get('https://i.sjtu.edu.cn')
+        <Response [200 OK]>
+        >>> s.dump(open('session_file', mode='wb'))
+
+    Or as a context manager::
+
+        >>> with pysjtu.Session(username='user@sjtu.edu.cn', password='something_secret') as s:
+        ...     s.get('https://i.sjtu.edu.cn')
+        ...     s.dump(open('session_file', mode='wb'))
+        <Response [200 OK]>
+
+        >>> with pysjtu.Session(session_file='session_file', mode='r+b')) as s:
+        ...     s.get('https://i.sjtu.edu.cn')
+        <Response [200 OK]>
+    """
+    _client = None  # httpx session
+    _retry = [.5] * 5 + list(range(1, 5))  # retry list
 
     def _secure_req(self, ref):
+        """
+        Send a request using HTTPS explicitly to work around an upstream bug.
+
+        :param ref: a partial request call.
+        :return: the response of the original request.
+        """
         try:
             return ref()
         except httpx.exceptions.NetworkError as e:
@@ -55,16 +60,40 @@ class Session:
                 raise e
             return self._client.send(req)
 
-    def __init__(self, retry=None):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._client.close()
+        if self._session_file:
+            self.dump(self._session_file)
+
+    def __init__(self, username="", password="", cookies=None, session_file=None, retry=None):
         self._client = httpx.Client()
-        self._username = None
-        self._password = None
-        self._student_id = None
-        self._term_start = None
-        self._default_gpa_query_params = None
-        if retry: self._retry = retry
+        self._username = ""
+        self._password = ""
+        self._cache_store = {}
+        # noinspection PyTypeChecker
+        self._session_file = None
+        if retry:
+            self._retry = retry
+
+        if session_file:
+            self.load(session_file)
+            self._session_file = session_file
+        elif cookies or (username and password):
+            self.loads({"username": username, "password": password, "cookies": cookies})
 
     def request(self, *args, validate_session=True, auto_renew=True, **kwargs):
+        """
+        Send a request. If asked, validate the current session and renew it when necessary.
+
+        :param args: same as httpx.request.
+        :param validate_session: (optional) Whether to validate the current session.
+        :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
+        :param kwargs: same as httpx.request.
+        :return: an :class:`Response` object.
+        """
         rtn = self._client.request(*args, **kwargs)
         try:
             rtn.raise_for_status()
@@ -88,29 +117,99 @@ class Session:
                 rtn = self._client.request(*args, **kwargs)
         return rtn
 
-    def get(self, *args, **kwargs):
-        return self.request("GET", *args, **kwargs)
+    def get(self, *args, validate_session=True, auto_renew=True, **kwargs):
+        """
+        Send a GET request. If asked, validate the current session and renew it when necessary.
 
-    def options(self, *args, **kwargs):
-        return self.request("OPTIONS", *args, **kwargs)
+        :param args: same as httpx.request.
+        :param validate_session: (optional) Whether to validate the current session.
+        :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
+        :param kwargs: same as httpx.request.
+        :return: an :class:`Response` object.
+        """
+        return self.request("GET", *args, validate_session=validate_session, auto_renew=auto_renew, **kwargs)
 
-    def head(self, *args, **kwargs):
-        return self.request("HEAD", *args, **kwargs)
+    def options(self, *args, validate_session=True, auto_renew=True, **kwargs):
+        """
+        Send a OPTIONS request. If asked, validate the current session and renew it when necessary.
 
-    def post(self, *args, **kwargs):
-        return self.request("POST", *args, **kwargs)
+        :param args: same as httpx.request.
+        :param validate_session: (optional) Whether to validate the current session.
+        :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
+        :param kwargs: same as httpx.request.
+        :return: an :class:`Response` object.
+        """
+        return self.request("OPTIONS", *args, validate_session=validate_session, auto_renew=auto_renew, **kwargs)
 
-    def put(self, *args, **kwargs):
-        return self.request("PUT", *args, **kwargs)
+    def head(self, *args, validate_session=True, auto_renew=True, **kwargs):
+        """
+        Send a HEAD request. If asked, validate the current session and renew it when necessary.
 
-    def patch(self, *args, **kwargs):
-        return self.request("PATCH", *args, **kwargs)
+        :param args: same as httpx.request.
+        :param validate_session: (optional) Whether to validate the current session.
+        :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
+        :param kwargs: same as httpx.request.
+        :return: an :class:`Response` object.
+        """
+        return self.request("HEAD", *args, validate_session=validate_session, auto_renew=auto_renew, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        return self.request("DELETE", *args, **kwargs)
+    def post(self, *args, validate_session=True, auto_renew=True, **kwargs):
+        """
+        Send a POST request. If asked, validate the current session and renew it when necessary.
+
+        :param args: same as httpx.request.
+        :param validate_session: (optional) Whether to validate the current session.
+        :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
+        :param kwargs: same as httpx.request.
+        :return: an :class:`Response` object.
+        """
+        return self.request("POST", *args, validate_session=validate_session, auto_renew=auto_renew, **kwargs)
+
+    def put(self, *args, validate_session=True, auto_renew=True, **kwargs):
+        """
+        Send a PUT request. If asked, validate the current session and renew it when necessary.
+
+        :param args: same as httpx.request.
+        :param validate_session: (optional) Whether to validate the current session.
+        :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
+        :param kwargs: same as httpx.request.
+        :return: an :class:`Response` object
+        """
+        return self.request("PUT", *args, validate_session=validate_session, auto_renew=auto_renew, **kwargs)
+
+    def patch(self, *args, validate_session=True, auto_renew=True, **kwargs):
+        """
+        Sends a PATCH request. If asked, validates the current session and renews it when necessary.
+
+        :param args: same as httpx.request.
+        :param validate_session: (optional) Whether to validate the current session.
+        :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
+        :param kwargs: same as httpx.request
+        :return: an :class:`Response` object.
+        """
+        return self.request("PATCH", *args, validate_session=validate_session, auto_renew=auto_renew, **kwargs)
+
+    def delete(self, *args, validate_session=True, auto_renew=True, **kwargs):
+        """
+        Sends a DELETE request. If asked, validates the current session and renews it when necessary.
+
+        :param args: same as httpx.request.
+        :param validate_session: (optional) Whether to validate the current session.
+        :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
+        :param kwargs: same as httpx.request.
+        :return: an :class:`Response` object.
+        """
+        return self.request("DELETE", *args, validate_session=validate_session, auto_renew=auto_renew, **kwargs)
 
     def login(self, username, password):
-        self._student_id = None
+        """
+        Log in JAccount using given username & password.
+
+        :param username: JAccount username.
+        :param password: JAccount password.
+        :raises LoginException: Failed to login after several attempts.
+        """
+        self._cache_store = {}
         for i in self._retry:
             login_page_req = self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))
             uuid = re.findall(r"(?<=uuid\": ').*(?=')", login_page_req.text)[0]
@@ -119,7 +218,7 @@ class Session:
 
             captcha_img = self.get(const.CAPTCHA_URL,
                                    params={"uuid": uuid, "t": int(time.time() * 1000)}).content
-            captcha = util.recognize_captcha(captcha_img)
+            captcha = recognize_captcha(captcha_img)
 
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
             result = self._secure_req(
@@ -134,15 +233,26 @@ class Session:
         raise LoginException
 
     def logout(self, purge_session=True):
+        """
+        Log out JAccount.
+
+        :param purge_session: (optional) Whether to purge local session info. May causes inconsistency, so use with
+            caution.
+        """
         cookie_bak = self._client.cookies
-        self.get(const.LOGOUT_URL, params={"t": int(time.time()*1000), "login_type": ""}, validate_session=False)
+        self.get(const.LOGOUT_URL, params={"t": int(time.time() * 1000), "login_type": ""}, validate_session=False)
         if purge_session:
-            self._username = None
-            self._password = None
+            self._username = ''
+            self._password = ''
         else:
             self._client.cookies = cookie_bak
 
     def loads(self, d):
+        """
+        Read a session from a given dict. A warning will be given if username or password field is missing.
+
+        :param d: a dict contains a session.
+        """
         renew_required = True
 
         if "username" not in d.keys() or "password" not in d.keys() or not d["username"] or not d["password"]:
@@ -152,7 +262,7 @@ class Session:
             self._username = d["username"]
             self._password = d["password"]
 
-        if "cookies" in d.keys():
+        if "cookies" in d.keys() and d["cookies"]:
             cj = CookieJar()
             cj._cookies = d["cookies"]
             try:
@@ -165,28 +275,50 @@ class Session:
             self.login(self._username, self._password)
 
     def load(self, fp):
+        """
+        Read a session from a given file. A warning will be given if username or password field is missing.
+
+        :param fp: a file-like object contains a session.
+        """
         conf = pickle.load(fp)
         self.loads(conf)
 
+    # noinspection PyProtectedMember
     def dumps(self):
+        """
+        Return a dict represents the current session. A warning will be given if username or password field is missing.
+
+        :return: a dict represents the current session.
+        """
         if not self._username or not self._password:
             warnings.warn("Missing username or password field", DumpWarning)
         return {"username": self._username, "password": self._password,
                 "cookies": self._client.cookies.jar._cookies}
 
     def dump(self, fp):
+        """
+        Write the current session to a given file. A warning will be given if username or password field is missing.
+
+        :param fp: a file-like object as the destination of session data.
+        """
         pickle.dump(self.dumps(), fp)
 
     @property
     def proxies(self):
+        """
+        Get or set the proxy to be used on each request.
+        """
         return self._client.proxies
 
     @proxies.setter
-    def proxies(self, new_proxy: list):
+    def proxies(self, new_proxy):
         self._client.proxies = new_proxy
 
     @property
     def _cookies(self):
+        """
+        Get or set the cookie to be used on each request. This protected property skips session validation.
+        """
         return self._client.cookies
 
     @_cookies.setter
@@ -196,20 +328,28 @@ class Session:
 
     @property
     def cookies(self):
+        """
+        Get or set the cookie to be used on each request. Session validation is performed on each set event.
+
+        :raises SessionException: when given cookie doesn't contain a valid session.
+        """
         return self._client.cookies
 
     @cookies.setter
     def cookies(self, new_cookie):
         bak_cookie = self._client.cookies
-        self._student_id = None
         self._client.cookies = new_cookie
         self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh JSESSION token
         if self.get(const.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html":
             self._client.cookies = bak_cookie
             raise SessionException("Invalid cookies. You may skip this validation by setting _cookies")
+        self._cache_store = {}
 
     @property
     def timeout(self):
+        """
+        Get or set the timeout to be used on each request.
+        """
         return self._client.timeout
 
     @timeout.setter
@@ -221,95 +361,186 @@ class Session:
         else:
             raise TypeError
 
+
+class Client:
+    """
+    A pysjtu client with schedule query, score query, exam query, etc.
+
+    Usage::
+
+        >>> import pysjtu
+        >>> s = pysjtu.Session(username="user@sjtu.edu.cn", password="something_secret")
+        >>> client = pysjtu.Client(session=s)
+        >>> sched = client.schedule(2019, 0)
+        >>> sched.all()
+        [<ScheduleCourse 军事理论 week=[range(9, 17)] day=1 time=range(1, 3)>, ...]
+        >>> sched.filter(time=range(3,5), day=range(2, 4))
+        [<ScheduleCourse 程序设计思想与方法（C++） week=[range(1, 10), range(11, 17)] day=2 time=range(3, 5)>,
+        <ScheduleCourse 大学英语（4） week=[range(1, 17)] day=3 time=range(3, 5)>]
+    """
+
+    def __init__(self, session):
+        _session_callable = ["get", "post"]
+
+        _available_callable = map(lambda x: has_callable(session, x), ["get", "post"])
+        if False in _available_callable:
+            _missing_callable = [item[0] for item in zip(_session_callable, _available_callable) if not item[1]]
+            raise KeyError(f"Missing callable(s) in given session object: {_missing_callable}")
+
+        if not isinstance(getattr(session, "_cache_store", None), dict):
+            raise KeyError("Missing dict in given session object: _cache_store")
+
+        self._session = session
+
+        self._term_start = None
+        self._default_gpa_query_params = None
+
     @property
     def term_start_date(self):
+        """
+        Get the term start date for the current term.
+        """
         if not self._term_start:
-            raw = self.get(const.CALENDAR_URL + self.student_id)
+            raw = self._session.get(const.CALENDAR_URL + self.student_id)
             self._term_start = min(re.findall(r"\d{4}-\d{2}-\d{2}", raw.text))
         return self._term_start
 
+    # noinspection PyProtectedMember
     @property
     def student_id(self):
-        if not self._student_id:
-            rtn = self.get(const.HOME_URL)
-            self._student_id = re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[0]
-        return self._student_id
+        """
+        Get the student id of the current session.
+        """
+        if "student_id" not in self._session._cache_store:
+            rtn = self._session.get(const.HOME_URL)
+            self._session._cache_store["student_id"] = re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[
+                0]
+        return self._session._cache_store["student_id"]
 
     @property
-    def default_gpa_query_params(self) -> model.GPAQueryParams:
+    def default_gpa_query_params(self):
+        """
+        Get default gpa query params defined by the website.
+        """
         if not self._default_gpa_query_params:
-            rtn = self.get(const.GPA_PARAMS_URL, params={"_": int(time.time() * 1000), "su": self.student_id})
+            rtn = self._session.get(const.GPA_PARAMS_URL, params={"_": int(time.time() * 1000), "su": self.student_id})
             raw_params = {item["zdm"]: item["szz"] for item in filter(lambda x: "szz" in x.keys(), rtn.json())}
             self._default_gpa_query_params = schema.GPAQueryParamsSchema().load(raw_params)
 
         return self._default_gpa_query_params
 
-    def schedule(self, year, term, timeout=UNSET) -> model.Schedule:
-        raw = self.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]}, timeout=timeout)
+    def schedule(self, year, term, timeout=UNSET):
+        """
+        Fetch your course schedule of specific year & term.
+
+        :param year: year for the new :class:`Schedule` object.
+        :param term: term for the new :class:`Schedule` object.
+        :param timeout: (optional) How long to wait for the server to send data before giving up.
+        :return: A new :class:`Schedule` object.
+        """
+        raw = self._session.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]}, timeout=timeout)
         schedule = model.Schedule(year, term)
         schedule.load(raw.json()["kbList"])
         return schedule
 
-    def _get_score_detail(self, year, term, class_id, timeout=UNSET) -> typing.List[model.ScoreFactor]:
-        raw = self.post(const.SCORE_DETAIL_URL + self.student_id,
-                        data={"xnm": year, "xqm": const.TERMS[term], "jxb_id": class_id, "_search": False,
-                              "nd": int(time.time() * 1000), "queryModel.showCount": 15,
-                              "queryModel.currentPage": 1, "queryModel.sortName": "",
-                              "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
+    def _get_score_detail(self, year, term, class_id, timeout=UNSET):
+        raw = self._session.post(const.SCORE_DETAIL_URL + self.student_id,
+                                 data={"xnm": year, "xqm": const.TERMS[term], "jxb_id": class_id, "_search": False,
+                                       "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                                       "queryModel.currentPage": 1, "queryModel.sortName": "",
+                                       "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         factors = schema.ScoreFactorSchema(many=True).load(raw.json()["items"][:-1])
         return factors
 
-    def score(self, year, term, timeout=UNSET) -> model.Scores:
-        raw = self.post(const.SCORE_URL, data={"xnm": year, "xqm": const.TERMS[term], "_search": False,
-                                               "nd": int(time.time() * 1000), "queryModel.showCount": 15,
-                                               "queryModel.currentPage": 1, "queryModel.sortName": "",
-                                               "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
+    def score(self, year, term, timeout=UNSET):
+        """
+        Fetch your scores of specific year & term.
+
+        :param year: year for the new :class:`Scores` object.
+        :param term: term for the new :class:`Scores` object.
+        :param timeout: (optional) How long to wait for the server to send data before giving up.
+        :return: A new :class:`Scores` object.
+        """
+        raw = self._session.post(const.SCORE_URL, data={"xnm": year, "xqm": const.TERMS[term], "_search": False,
+                                                        "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                                                        "queryModel.currentPage": 1, "queryModel.sortName": "",
+                                                        "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Scores(year, term, self._get_score_detail)
         scores.load(raw.json()["items"])
         return scores
 
-    def exam(self, year, term, timeout=UNSET) -> model.Exams:
-        raw = self.post(const.EXAM_URL + self.student_id,
-                        data={"xnm": year, "xqm": const.TERMS[term], "_search": False, "ksmcdmb_id": '',
-                              "kch": '', "kc": '', "ksrq": '', "kkbm_id": '',
-                              "nd": int(time.time() * 1000), "queryModel.showCount": 15,
-                              "queryModel.currentPage": 1, "queryModel.sortName": "",
-                              "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
+    def exam(self, year, term, timeout=UNSET):
+        """
+        Fetch your exams schedule of specific year & term.
+
+        :param year: year for the new :class:`Exams` object.
+        :param term: term for the new :class:`Exams` object.
+        :param timeout: (optional) How long to wait for the server to send data before giving up.
+        :return: A new :class:`Exams` object.
+        """
+        raw = self._session.post(const.EXAM_URL + self.student_id,
+                                 data={"xnm": year, "xqm": const.TERMS[term], "_search": False, "ksmcdmb_id": '',
+                                       "kch": '', "kc": '', "ksrq": '', "kkbm_id": '',
+                                       "nd": int(time.time() * 1000), "queryModel.showCount": 15,
+                                       "queryModel.currentPage": 1, "queryModel.sortName": "",
+                                       "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Exams(year, term)
         scores.load(raw.json()["items"])
         return scores
 
     def query_courses(self, year, term, name=None, teacher=None, day_of_week=None, week=None, time_of_day=None,
                       timeout=UNSET):
+        """
+        Query courses matching given criteria from the whole course lib of SJTU.
+
+        :param year: year in which target courses are given.
+        :param term: term in which target courses are given.
+        :param name: (optional) Name (can be fuzzy) of target courses.
+        :param teacher: (optional) Teacher name of target courses.
+        :param day_of_week: (optional) Day of week of target courses.
+        :param week: (optional) Week of target courses.
+        :param time_of_day: (optional) Time of day of target courses.
+        :param timeout: (optional) How long to wait for the server to send data before giving up.
+        :return: A new :class:`QueryResult` object.
+        """
         _args = {"year": "xnm", "term": "xqm", "name": "kch_id", "teacher": "jqh_id", "day_of_week": "xqj",
                  "week": "qsjsz", "time_of_day": "skjc"}
         year = year
         term = const.TERMS[term]
         name = name if name else ''
         teacher = teacher if teacher else ''
-        day_of_week = util.range_list_to_str(day_of_week) if day_of_week else ''
-        week = util.range_list_to_str(week) if week else ''
-        time_of_day = util.range_list_to_str(time_of_day) if time_of_day else ''
+        day_of_week = range_list_to_str(day_of_week) if day_of_week else ''
+        week = range_list_to_str(week) if week else ''
+        time_of_day = range_list_to_str(time_of_day) if time_of_day else ''
         req_params = {}
         for (k, v) in _args.items():
             if k in dir():
                 req_params[v] = locals()[k]
 
-        req = partial(self.post, const.COURSELIB_URL + self.student_id, timeout=timeout)
+        req = partial(self._session.post, const.COURSELIB_URL + self.student_id, timeout=timeout)
 
-        return model.QueryResult(req, partial(util.schema_post_loader, schema.LibCourseSchema), req_params)
+        return model.QueryResult(req, partial(schema_post_loader, schema.LibCourseSchema), req_params)
 
-    def query_gpa(self, query_params: model.GPAQueryParams, timeout=UNSET):
+    def query_gpa(self, query_params, timeout=UNSET):
+        """
+        Query your GP & GPA and their rankings of specific year & term.
+
+        :param query_params: parameters for this query.
+            A default one can be fetched by property `default_gpa_query_params`.
+        :param timeout: (optional) How long to wait for the server to send data before giving up.
+        :return: A new :class:`GPA` object.
+        """
         compiled_params = schema.GPAQueryParamsSchema().dump(query_params)
-        calc_rtn = self.post(const.GPA_CALC_URL + self.student_id, data=compiled_params, timeout=timeout)
-        if calc_rtn.text != "\"统计成功！\"": raise GPACalculationException
+        calc_rtn = self._session.post(const.GPA_CALC_URL + self.student_id, data=compiled_params, timeout=timeout)
+        if calc_rtn.text != "\"统计成功！\"":
+            raise GPACalculationException
         compiled_params.update({"_search": False,
                                 "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                 "queryModel.currentPage": 1, "queryModel.sortName": "",
                                 "queryModel.sortOrder": "asc", "time": 0})
-        raw = self.post(const.GPA_QUERY_URL + self.student_id, data=compiled_params, timeout=timeout)
+        raw = self._session.post(const.GPA_QUERY_URL + self.student_id, data=compiled_params, timeout=timeout)
         return schema.GPASchema().load(raw.json()["items"][0])
 
     def _elect(self, params):
-        r = self.post(const.ELECT_URL + self.student_id, data=params)
+        r = self._session.post(const.ELECT_URL + self.student_id, data=params)
         return r.json()
