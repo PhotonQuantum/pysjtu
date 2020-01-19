@@ -4,25 +4,47 @@ from .util import overlap, range_in_set
 
 
 class LogicEnum(Enum):
+    """ Used by :class:`GPAQueryParams` to specify condition logic. """
     AND = 0
     OR = 1
 
 
 class CourseRange(Enum):
+    """ Used by :class:`GPAQueryParams` to specify courses taken into account when ranking """
     ALL = "qbkc"
     CORE = "hxkc"
 
 
 class Ranking(Enum):
+    """ Used by :class:`GPAQueryParams` to specify student range upon which to rank """
     GRADE_AND_FIELD = "njzy"
 
 
 class QueryResult:
+    """
+    A key accessible, sliceable, and iterable interface to query result collections.
+    A QueryResult object is constructed with a raw data callable reference.
+    A QueryResult object is returned by a query operation, and isn't meant to be constructed by a user.
+    A QueryResult object is lazy, which means network I/Os won't be performed until items are actually accessed.
+
+    Usage::
+
+        >>> query = ... # something that returns a QueryResult, for example pysjtu.Client().query_courses(...)
+        >>> len(query)
+        90
+        >>> query[-1]
+        <LibCourse 高等数学I class_name=(2019-2020-1)-MA248-20>
+        >>> query[14:16]
+        [<LibCourse 高等数学III class_name=(2019-2020-1)-MA172-1>, <LibCourse 高等数学IV class_name=(2019-2020-1)-MA173-1>]
+        >>> list(query)
+        [<LibCourse 高等数学A1 class_name=(2019-2020-1)-VV156-1>, <LibCourse 高等数学B1 class_name=(2019-2020-1)-VV186-1>, ...]
+    """
+
     def __init__(self, method_ref, post_ref, query_params, page_size=15):
         self._ref = method_ref
         self._post_ref = post_ref
         self._query_params = query_params
-        self._length = None
+        self._length = 0
         self._cache = [None] * len(self)
         self._cached_items = set()
         self._page_size = page_size
@@ -71,7 +93,10 @@ class QueryResult:
         return self._length
 
     def flush_cache(self):
-        self._length = None
+        """
+        Flush caches. Local caches are dropped and data will be fetched from remote.
+        """
+        self._length = 0
         self._cache = [None] * len(self)
         self._cached_items = set()
 
@@ -101,8 +126,28 @@ class QueryResult:
 
 
 class GPAQueryParams:
+    """
+    A model which describes GPA query parameters. Used when performing gpa queries (pysjtu.Client().query_gpa(...)).
+    You may leave fields empty if you don't want to filter by them.
+
+    :param start_term: begin term of the query.
+    :param end_term: end term of the query.
+    :param condition_logic: logic applied between `has_roll`, `registered` and `attending`.
+    :param makeup_as_60: treat makeup scores (P) as 60.
+    :param rebuild_as_60: treat rebuild scores (P) as 60.
+    :param gp_round: round gp to a given precision in decimal digits.
+    :param gpa_round: round gpa to a given precision in decimal digits.
+    :param exclude_credit: exclude courses matching given criteria when calculating gp.
+    :param exclude_gp: exclude courses matching given criteria when calculating gpa.
+    :param course_whole: unknown parameter.
+    :param course_range: courses taken into account when ranking
+    :param ranking: student range upon which to rank
+    :param has_roll: only include students who are enrolled in school.
+    :param registered: only include students who are registered.
+    :param attending: only include students who are attending school now.
+    """
     _members = ["start_term", "end_term", "condition_logic", "makeup_as_60", "rebuild_as_60", "gp_round", "gpa_round",
-                "exclude_credit", "exclude_gp", "course_whole", "course_range", "ranking", "has_roll",
+                "exclude_gp", "exclude_gpa", "course_whole", "course_range", "ranking", "has_roll",
                 "registered", "attending"]
 
     def __init__(self, **kwargs):
@@ -115,7 +160,23 @@ class GPAQueryParams:
 
 
 class GPA:
-    _members = ["total_score", "course_count", "fail_count", "total_credit", "acquired_credit", "failed_credit",
+    """
+    A model which describes GP & GPA and rankings.
+
+    :param total_score: summed score of all matched courses.
+    :param course_count: number of all matched courses.
+    :param fail_count: number of failed courses.
+    :param total_credit: summed credit of all matched courses.
+    :param acquired_credit: summed credit of passed courses.
+    :param failed_credit: summed credit of failed courses.
+    :param pass_rate: the pass rate of all matched courses.
+    :param gp: summed gp of all matched courses.
+    :param gp_ranking: ranking of the gp.
+    :param gpa: gpa of all matched courses.
+    :param gpa_ranking: ranking of the gpa.
+    :param total_students: number of students participates in the ranking.
+    """
+    _members = ["total_score", "course_count", "fail_count", "total_gp", "acquired_gp", "failed_gp",
                 "pass_rate", "gp", "gp_ranking", "gpa", "gpa_ranking", "total_students"]
 
     def __init__(self, **kwargs):
@@ -124,10 +185,34 @@ class GPA:
         self.__dict__.update(kwargs)
 
     def __repr__(self):
-        return f"<GPA gp={self.gp} {self.gp_ranking}/{self.total_students} gpa={self.gpa} {self.gpa_ranking}/{self.total_students}>"
+        return f"<GPA gp={self.gp} {self.gp_ranking}/{self.total_students} " \
+               f"gpa={self.gpa} {self.gpa_ranking}/{self.total_students}>"
 
 
 class LibCourse:
+    """
+    A model which describes a course in CourseLib. Some fields may be empty.
+
+    :param name: literal name of the course.
+    :param day: in which day(s) of weeks classes are given.
+    :param week: in which week(s) classes are given.
+    :param time: at which time of days classes are given.
+    :param location: the place where classes are given.
+    :param locations: the places where classes are given.
+    :param faculty: the faculty which offers this course.
+    :param credit: credits that the course provides.
+    :param teacher_name: the teacher who offers this course.
+    :param teacher_title: title of the course's teacher.
+    :param course_id: course id.
+    :param class_name: class name (constant between years).
+    :param class_id: class id (variable between years).
+    :param class_composition: students from which faculties do the course consists of.
+    :param hour_total: credit hours of the course.
+    :param hour_remark: detailed explanation of the credit hours.
+    :param seats: number of seats available in this course.
+    :param students_elected: number of students elected this course.
+    :param students_planned: number of students planned when setting this course.
+    """
     _members = ["name", "day", "week", "time", "location", "locations", "faculty", "credit", "teacher_name",
                 "teacher_title", "course_id", "class_name", "class_id", "class_composition", "hour_total",
                 "hour_remark", "seats", "students_elected", "students_planned"]
@@ -142,6 +227,20 @@ class LibCourse:
 
 
 class Exam:
+    """
+    A model which describes an exam. Some fields may be empty.
+
+    :param name: name of the course on which you are being examined.
+    :param location: the place where this exam is held.
+    :param course_id: course id of the course on which you are being examined.
+    :param course_name: course name of the course on which you are being examined.
+    :param class_name: class name of the class you are attending on the course which are being examined.
+    :param rebuild: whether this exam is a rebuild test.
+    :param credit: credits that the course provides.
+    :param self_study: whether this course is a self study course.
+    :param date: date of the exam
+    :param time: time range of the exam
+    """
     _members = ["name", "location", "course_id", "course_name", "class_name", "rebuild", "credit", "self_study",
                 "date", "time"]
 
@@ -156,19 +255,48 @@ class Exam:
 
 
 class Exams:
-    def __init__(self, year=None, term=None):
+    """
+    Encapsulates a list of dicts. An Exams object is constructed by loading a list of dicts into it, and used to get
+    either all Exam objects constructed by dicts, or filtered ones according to specified criteria.
+
+    Usage::
+
+        >>> exams = ... # something that returns a Exams, for example pysjtu.Client().exam(...)
+        >>> exams.all()
+        [<Exam "2019-2020-1数学期中考" location=东上院509 datetime=2019-11-06(13:10-15:10)>, ...]
+        >>> from datetime import date
+        >>> exams.filter(date=date(2019, 12, 31))
+        [<Exam "2019-2020-1一专期末考（2019级）" location=东上院509 datetime=2019-12-31(08:00-10:00)>]
+    """
+
+    def __init__(self, year=0, term=0):
         self._exams = []
         self.year = year
         self.term = term
 
     def load(self, data):
+        """
+        Load a list of dicts into Exams, and deserialize dicts to Exam objects.
+        :param data: a list of dicts contains exam schedule.
+        """
         schema = ExamSchema(many=True)
         self._exams = schema.load(data)
 
     def all(self):
+        """
+        Get all the Exam objects.
+
+        :return: all Exam objects.
+        """
         return self._exams
 
     def filter(self, **param):
+        """
+        Get Exam objects matching specific criteria.
+
+        :param param: query criteria
+        :return: Exam objects matching given criteria
+        """
         rtn = self._exams
         for (k, v) in param.items():
             if not hasattr(Exam(), k):
@@ -178,8 +306,16 @@ class Exams:
 
 
 class ScoreFactor:
+    """
+    A model which describes detailed composition of a course's score.
+
+    :param name: item name
+    :param percentage: item factor
+    :param score: item score
+    """
+
     def __init__(self, **kwargs):
-        self.name = None
+        self.name = ""
         self.percentage = 0.0
         self.score = 0.0
         self.__dict__.update(kwargs)
@@ -189,6 +325,24 @@ class ScoreFactor:
 
 
 class Score:
+    """
+    A model which describes the score of a specific course. Some fields may be empty.
+
+    :param name: literal name of the course.
+    :param teacher: the teacher who offers this course.
+    :param score: score of this course
+    :param credit: credits that the course provides.
+    :param gp: gp earned in this course.
+    :param invalid: whether this score is voided.
+    :param detail: a ScoreFactor object representing detailed composition of the score.
+    :param course_type: type of this course. (compulsory, elective, etc)
+    :param category: category of this course. (specialized, general, PE, etc)
+    :param score_type: type of your score. (acquired by normal examination, etc)
+    :param method: assessment method of this course. (exams, assesses, etc)
+    :param course_id: course id.
+    :param class_name: class name (constant between years).
+    :param class_id: class id (variable between years).
+    """
     _members = ["name", "teacher", "score", "credit", "gp", "invalid", "course_type", "category", "score_type",
                 "method", "course_id", "class_name", "class_id"]
 
@@ -197,8 +351,8 @@ class Score:
             setattr(self, member, None)
         self.__dict__.update(kwargs)
         self._detail = None
-        self.year = None
-        self.term = None
+        self.year = 0
+        self.term = 0
         self._func_detail = None
 
     def __repr__(self):
@@ -212,13 +366,30 @@ class Score:
 
 
 class Scores:
-    def __init__(self, year=None, term=None, func_detail=None):
+    """
+    Encapsulates a list of dicts. An Scores object is constructed by loading a list of dicts into it, and used to get
+    either all Score objects constructed by dicts, or filtered ones according to specified criteria.
+
+    Usage::
+
+        >>> scores = ... # something that returns a Exams, for example pysjtu.Client().score(...)
+        >>> scores.all()
+        [<Score 大学化学 score=xx credit=x.x gp=x.x>, ...>
+        >>> scores.filter(gp=4)
+        [<Score xxxxx score=91 credit=2.0 gp=4.0>, ...]
+    """
+
+    def __init__(self, year=0, term=0, func_detail=None):
         self._scores = []
         self.year = year
         self.term = term
         self._func_detail = func_detail
 
     def load(self, data):
+        """
+        Load a list of dicts into Scores, and deserialize dicts to Score objects.
+        :param data: a list of dicts contains scores.
+        """
         schema = ScoreSchema(many=True)
         self._scores = schema.load(data)
         for item in self._scores:
@@ -227,9 +398,20 @@ class Scores:
             item._func_detail = self._func_detail
 
     def all(self):
+        """
+        Get all the Score objects.
+
+        :return: all Score objects.
+        """
         return self._scores
 
     def filter(self, **param):
+        """
+        Get Score objects matching specific criteria.
+
+        :param param: query criteria
+        :return: Score objects matching given criteria
+        """
         rtn = self._scores
         for (k, v) in param.items():
             if not hasattr(Score(), k):
@@ -239,6 +421,28 @@ class Scores:
 
 
 class ScheduleCourse:
+    """
+    A model which describes a course in CourseLib. Some fields may be empty.
+
+    :param name: literal name of the course.
+    :param day: in which day(s) of weeks classes are given.
+    :param week: in which week(s) classes are given.
+    :param time: at which time of days classes are given.
+    :param location: the place where classes are given.
+    :param credit: credits that the course provides.
+    :param assessment: assessment method of this course. (exams, assesses, etc)
+    :param remark: remarks of this course.
+    :param teacher_name: the teacher who offers this course.
+    :param teacher_title: title of the course's teacher.
+    :param course_id: course id.
+    :param class_name: class name (constant between years).
+    :param class_id: class id (variable between years).
+    :param hour_total: credit hours of the course.
+    :param hour_remark: detailed explanation of the credit hours.
+    :param hour_week: credit hours of the course every week.
+    :param field: professional field of this course.
+    """
+
     _members = ["name", "day", "week", "time", "location", "credit", "assessment", "remark", "teacher_name",
                 "teacher_title", "course_id", "class_name", "class_id", "hour_total", "hour_remark", "hour_week",
                 "field"]
@@ -253,20 +457,50 @@ class ScheduleCourse:
 
 
 class Schedule:
+    """
+    Encapsulates a list of dicts. An Schedule object is constructed by loading a list of dicts into it, and used to get
+    either all ScheduleCourse objects constructed by dicts, or filtered ones according to specified criteria.
 
-    def __init__(self, year=None, term=None):
+    Usage::
+
+        >>> sched = ... # something that returns a Exams, for example pysjtu.Client().schedule(...)
+        >>> sched.all()
+        [<ScheduleCourse 军事理论 week=[range(9, 17)] day=1 time=range(1, 3)>, ...]
+        >>> sched.filter(time=[1, range(5, 7)], day=[2, range(4, 5)]))
+        [<ScheduleCourse 线性代数 week=[range(1, 7), range(8, 17)] day=2 time=range(1, 3)>,
+        <ScheduleCourse 线性代数 week=[7] day=2 time=range(1, 3)>,
+        <ScheduleCourse 思想道德修养与法律基础 week=[range(1, 17)] day=2 time=range(6, 9)>,
+        <ScheduleCourse 程序设计思想与方法（C++） week=[range(1, 16, 2)] day=4 time=range(1, 3)>]
+    """
+
+    def __init__(self, year=0, term=0):
         self._courses = []
         self.year = year
         self.term = term
 
     def load(self, data):
+        """
+        Load a list of dicts into Schedule, and deserialize dicts to ScheduleCourse objects.
+        :param data: a list of dicts contains a schedule.
+        """
         schema = CourseSchema(many=True)
         self._courses = schema.load(data)
 
     def all(self):
+        """
+        Get all the ScheduleCourse objects.
+
+        :return: all ScheduleCourse objects.
+        """
         return self._courses
 
     def filter(self, **param):
+        """
+        Get ScheduleCourse objects matching specific criteria.
+
+        :param param: query criteria
+        :return: ScheduleCourse objects matching given criteria
+        """
         rtn = self._courses
         for (k, v) in param.items():
             if not hasattr(ScheduleCourse(), k):

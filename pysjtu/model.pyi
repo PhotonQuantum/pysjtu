@@ -1,6 +1,6 @@
-from typing import List, Callable, Union, Tuple, Generator
-from enum import Enum
 import datetime
+from enum import Enum
+from typing import List, Callable, Union, Tuple, Generator
 
 
 class LogicEnum(Enum):
@@ -59,6 +59,7 @@ class QueryResult:
 
 
 class GPAQueryParams:
+    _members: list
     start_term: int
     end_term: int
     condition_logic: LogicEnum
@@ -66,8 +67,8 @@ class GPAQueryParams:
     rebuild_as_60: bool
     gp_round: int
     gpa_round: int
-    exclude_credit: str
     exclude_gp: str
+    exclude_gpa: str
     course_whole: List[str]
     course_range: CourseRange
     ranking: Ranking
@@ -75,8 +76,15 @@ class GPAQueryParams:
     registered: bool
     attending: bool
 
+    def __init__(self, **kwargs):
+        pass
+
+    def __repr__(self):
+        pass
+
 
 class GPA:
+    _members: list
     total_score: int
     course_count: int
     fail_count: int
@@ -90,8 +98,15 @@ class GPA:
     gpa_ranking: int
     total_students: int
 
+    def __init__(self, **kwargs):
+        pass
+
+    def __repr__(self):
+        pass
+
 
 class LibCourse:
+    _members: list
     name: str
     day: int
     week: list
@@ -112,8 +127,15 @@ class LibCourse:
     students_elected: int
     students_planned: int
 
+    def __init__(self, **kwargs):
+        pass
+
+    def __repr__(self):
+        pass
+
 
 class Exam:
+    _members: list
     name: str
     location: str
     course_id: str
@@ -123,7 +145,13 @@ class Exam:
     credit: float
     self_study: bool
     date: datetime.date
-    time: datetime.time
+    time: List[datetime.time]
+
+    def __init__(self, **kwargs):
+        pass
+
+    def __repr__(self):
+        pass
 
 
 class ScoreFactor:
@@ -131,8 +159,15 @@ class ScoreFactor:
     percentage: float
     score: float
 
+    def __init__(self, **kwargs):
+        pass
+
+    def __repr(self):
+        pass
+
 
 class Score:
+    _members: list
     name: str
     teacher: str
     score: str
@@ -150,8 +185,15 @@ class Score:
     year: int
     term: int
 
+    def __init__(self, **kwargs):
+        pass
+
+    def __repr(self):
+        pass
+
 
 class ScheduleCourse:
+    _members: list
     name: str
     day: int
     week: list
@@ -170,10 +212,20 @@ class ScheduleCourse:
     hour_week: int
     field: str
 
+    def __init__(self, **kwargs):
+        pass
+
+    def __repr(self):
+        pass
+
 
 class Exams:
     year: int
     term: int
+    _exams: List[Exam]
+
+    def __init__(self, year: int = 0, term: int = 0):
+        pass
 
     def load(self, data: dict):
         pass
@@ -188,6 +240,11 @@ class Exams:
 class Scores:
     year: int
     term: int
+    _func_detail: Callable
+    _scores: List[Score]
+
+    def __init__(self, year: int = 0, term: int = 0, func_detail: Callable = None):
+        pass
 
     def load(self, data: dict):
         pass
@@ -202,6 +259,10 @@ class Scores:
 class Schedule:
     year: int
     term: int
+    _courses: List[ScheduleCourse]
+
+    def __init__(self, year: int = 0, term: int = 0):
+        pass
 
     def load(self, data: dict):
         pass
