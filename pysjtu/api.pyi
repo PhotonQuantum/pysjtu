@@ -200,11 +200,19 @@ class Session:
         pass
 
     @property
+    def _cookies(self):
+        pass
+
+    @property
+    def _cookies(self, new_cookie: CookieTypes):
+        pass
+
+    @property
     def cookies(self):
         pass
 
     @cookies.setter
-    def cookies(self, new_cookie):
+    def cookies(self, new_cookie: CookieTypes):
         pass
 
     @property
