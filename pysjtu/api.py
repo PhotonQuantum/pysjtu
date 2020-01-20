@@ -257,6 +257,8 @@ class Session:
 
         if "username" not in d.keys() or "password" not in d.keys() or not d["username"] or not d["password"]:
             warnings.warn("Missing username or password field", LoadWarning)
+            self._username = ""
+            self._password = ""
             renew_required = False
         else:
             self._username = d["username"]
@@ -270,6 +272,8 @@ class Session:
                 renew_required = False
             except SessionException:
                 pass
+        else:
+            self._cookies = {}
 
         if renew_required:
             self.login(self._username, self._password)
