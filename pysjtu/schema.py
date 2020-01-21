@@ -359,7 +359,7 @@ class ConditionLogic(fields.Field):
         elif value == LogicEnum.OR:
             return 1
         else:
-            raise KeyError
+            raise ValueError
 
 
 class MakeupAsPass(fields.Field):
@@ -375,14 +375,14 @@ class RebuildAsPass(fields.Field):
 class RankingField(fields.Field):
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if not isinstance(value, Ranking):
-            raise KeyError
+            raise TypeError
         return value.value
 
 
 class CourseRangeField(fields.Field):
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if not isinstance(value, CourseRange):
-            raise KeyError
+            raise TypeError
         return value.value
 
 

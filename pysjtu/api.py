@@ -389,10 +389,10 @@ class Client:
         _available_callable = map(lambda x: has_callable(session, x), ["get", "post"])
         if False in _available_callable:
             _missing_callable = [item[0] for item in zip(_session_callable, _available_callable) if not item[1]]
-            raise KeyError(f"Missing callable(s) in given session object: {_missing_callable}")
+            raise TypeError(f"Missing callable(s) in given session object: {_missing_callable}")
 
         if not isinstance(getattr(session, "_cache_store", None), dict):
-            raise KeyError("Missing dict in given session object: _cache_store")
+            raise TypeError("Missing dict in given session object: _cache_store")
 
         self._session = session
 
