@@ -1,6 +1,6 @@
 from enum import Enum
 
-from .util import overlap, range_in_set
+from .utils import overlap, range_in_set
 
 
 class LogicEnum(Enum):

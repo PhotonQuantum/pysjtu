@@ -13,7 +13,7 @@ from . import const
 from . import model
 from . import schema
 from .exceptions import *
-from .util import has_callable, range_list_to_str, recognize_captcha, schema_post_loader
+from .utils import has_callable, range_list_to_str, recognize_captcha, schema_post_loader
 
 
 class Session:

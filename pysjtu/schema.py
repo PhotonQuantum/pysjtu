@@ -4,7 +4,7 @@ from datetime import datetime
 
 from marshmallow import Schema, fields, EXCLUDE, pre_load, post_load, pre_dump, post_dump
 
-from .util import replace_keys
+from .utils import replace_keys
 
 
 class CourseTeacher(fields.Field):
