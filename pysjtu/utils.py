@@ -66,7 +66,7 @@ def overlap(list1, list2):
 
 def flatten(obj):
     for el in obj:
-        if isinstance(el, collections.Iterable) and not isinstance(el, (str, bytes)):
+        if isinstance(el, collections.abc.Iterable) and not isinstance(el, (str, bytes)):
             yield from flatten(el)
         else:
             yield el
