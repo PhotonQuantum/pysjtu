@@ -19,7 +19,7 @@ def schema_post_loader(schema_ref, data):
     elif isinstance(data, dict):
         return schema_ref().load(data)
     else:
-        raise ValueError
+        raise TypeError
 
 
 def range_list_to_str(range_list):
