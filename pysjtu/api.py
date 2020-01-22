@@ -13,7 +13,8 @@ from . import const
 from . import model
 from . import schema
 from .exceptions import *
-from .utils import has_callable, range_list_to_str, recognize_captcha, schema_post_loader
+from .utils import has_callable, range_list_to_str, schema_post_loader
+from .ocr import Recognizer
 
 
 class Session:
@@ -68,8 +69,9 @@ class Session:
         if self._session_file:
             self.dump(self._session_file)
 
-    def __init__(self, username="", password="", cookies=None, session_file=None, retry=None):
+    def __init__(self, username="", password="", cookies=None, ocr_file="model.pickle", session_file=None, retry=None):
         self._client = httpx.Client()
+        self._ocr = Recognizer(ocr_file)
         self._username = ""
         self._password = ""
         self._cache_store = {}
@@ -218,7 +220,7 @@ class Session:
 
             captcha_img = self.get(const.CAPTCHA_URL,
                                    params={"uuid": uuid, "t": int(time.time() * 1000)}).content
-            captcha = recognize_captcha(captcha_img)
+            captcha = self._ocr.recognize(captcha_img)
 
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
             result = self._secure_req(

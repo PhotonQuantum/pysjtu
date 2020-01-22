@@ -26,18 +26,6 @@ def range_list_to_str(range_list):
     return "或".join((str(x) for x in flatten(range_list)))
 
 
-def recognize_captcha(captcha_img):
-    from io import BytesIO
-    from PIL import Image
-    import pytesseract
-    raw_png = BytesIO(captcha_img)
-    img = Image.open(raw_png)
-    img = img.convert("L")
-    table = [0] * 128 + [1] * 128
-    img = img.point(table, '1')
-    return pytesseract.image_to_string(img, config="-c tessedit_char_whitelist=abcdefghijklmnopqrstuvwxyz --psm 7")
-
-
 def range_in_set(set_in):
     if len(set_in) == 0:
         return set()
