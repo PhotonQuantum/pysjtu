@@ -19,10 +19,12 @@ from httpx.models import (
 )
 
 from . import model
+from .ocr import Recognizer
 
 
 class Session:
     _client: httpx.Client
+    _ocr: Recognizer
     _retry: list
     _username: str
     _password: str
@@ -40,7 +42,7 @@ class Session:
         pass
 
     def __init__(self, username: str = "", password: str = "", cookies: CookieTypes = None,
-                 session_file: typing.BinaryIO = None, retry: list = None):
+                 ocr_file: str = None, session_file: typing.BinaryIO = None, retry: list = None):
         pass
 
     def request(

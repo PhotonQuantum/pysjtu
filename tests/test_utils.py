@@ -4,17 +4,9 @@ from os import path
 import pytest
 
 from pysjtu.utils import has_callable, replace_keys, schema_post_loader, range_list_to_str, range_in_set, overlap, \
-    flatten, recognize_captcha
+    flatten
 
 DATA_DIR = path.join(path.dirname(path.abspath(__file__)), 'data')
-
-
-@pytest.mark.xfail(reason="pytesseract doesn't recognize captcha correctly sometime.")
-@pytest.mark.parametrize("captcha", [
-    "mwgi", "qkxvx", "qrdxb", "rysv", "zwtco"
-])
-def test_recognize_captcha(captcha):
-    assert recognize_captcha(open(path.join(DATA_DIR, captcha + ".jpg"), mode="rb").read()) == captcha
 
 
 def test_has_callable():
