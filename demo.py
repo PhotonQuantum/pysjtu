@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import arrow
 from ics import Calendar, Event
 
-from pysjtu import Session, Client, CourseRange
+from pysjtu import Session, Client, CourseRange, NNRecognizer
 
 lesson_time = (((8, 0), (8, 45)),
                ((8, 55), (9, 40)),
@@ -25,7 +25,7 @@ try:
     sess_file = open("session", mode="r+b")
 except FileNotFoundError:
     sess_file = None
-sess = Session()
+sess = Session(ocr=NNRecognizer())
 
 with Session(session_file=sess_file) if sess_file else Session(username=os.environ["SJTU_USER"],
                                                                password=os.environ["SJTU_PASS"]) as sess:
