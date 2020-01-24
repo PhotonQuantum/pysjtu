@@ -42,7 +42,7 @@ class Session:
         pass
 
     def __init__(self, username: str = "", password: str = "", cookies: CookieTypes = None,
-                 ocr_file: str = None, session_file: typing.BinaryIO = None, retry: list = None):
+                 ocr: Recognizer = None, session_file: typing.BinaryIO = None, retry: list = None):
         pass
 
     def request(

@@ -14,7 +14,7 @@ from . import model
 from . import schema
 from .exceptions import *
 from .utils import has_callable, range_list_to_str, schema_post_loader
-from .ocr import Recognizer
+from .ocr import SVMRecognizer
 
 
 class Session:
@@ -69,9 +69,10 @@ class Session:
         if self._session_file:
             self.dump(self._session_file)
 
-    def __init__(self, username="", password="", cookies=None, ocr_file="model.pickle", session_file=None, retry=None):
+    def __init__(self, username="", password="", cookies=None, ocr=None, session_file=None, retry=None):
         self._client = httpx.Client()
-        self._ocr = Recognizer(ocr_file)
+        if not ocr:
+            self._ocr = SVMRecognizer()
         self._username = ""
         self._password = ""
         self._cache_store = {}
