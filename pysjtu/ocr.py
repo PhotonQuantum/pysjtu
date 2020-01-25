@@ -133,7 +133,7 @@ class NNRecognizer(Recognizer):
 
     It feeds the image directly into a pre-trained ResNet-20 model to predict the answer.
 
-    It consumes more memory and computing power than :class:`SVMRecognizer`. The accuracy is around 98%.
+    It consumes more memory and computing power than :class:`SVMRecognizer`. The accuracy is around 99%.
 
     This recognizer requires pytorch and torchvision to work.
 
