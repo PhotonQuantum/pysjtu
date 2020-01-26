@@ -73,7 +73,7 @@ class CourseWeek(fields.Field):
         return rtn
 
 
-class CourseSchema(Schema):
+class ScheduleCourseSchema(Schema):
     class Meta:
         unknown = EXCLUDE
 
