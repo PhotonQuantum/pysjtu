@@ -442,6 +442,7 @@ class GPAQueryParamsSchema(Schema):
     # noinspection PyUnusedLocal
     @pre_load
     def wrap_pre_load(self, data, **kwargs):
+        data = {item["zdm"]: item["szz"] for item in filter(lambda x: "szz" in x.keys(), data)}
         pairs = tuple(
             (field.metadata['load_key'], field.data_key or field_name)
             for field_name, field in self.fields.items() if 'load_key' in field.metadata

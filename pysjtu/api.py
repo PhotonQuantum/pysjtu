@@ -431,8 +431,7 @@ class Client:
         """
         if not self._default_gpa_query_params:
             rtn = self._session.get(const.GPA_PARAMS_URL, params={"_": int(time.time() * 1000), "su": self.student_id})
-            raw_params = {item["zdm"]: item["szz"] for item in filter(lambda x: "szz" in x.keys(), rtn.json())}
-            self._default_gpa_query_params = schema.GPAQueryParamsSchema().load(raw_params)
+            self._default_gpa_query_params = schema.GPAQueryParamsSchema().load(rtn.json())
 
         return self._default_gpa_query_params
 
