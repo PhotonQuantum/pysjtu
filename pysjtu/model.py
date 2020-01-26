@@ -483,7 +483,7 @@ class Schedule:
         Load a list of dicts into Schedule, and deserialize dicts to ScheduleCourse objects.
         :param data: a list of dicts contains a schedule.
         """
-        schema = CourseSchema(many=True)
+        schema = ScheduleCourseSchema(many=True)
         self._courses = schema.load(data)
 
     def all(self):
