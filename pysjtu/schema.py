@@ -52,7 +52,7 @@ class CreditHourDetail(fields.Field):
         rtn = dict()
         for item in class_hour_details:
             name, hour = item.split(":")
-            rtn[name] = hour
+            rtn[name] = float(hour)
         return rtn
 
 
@@ -169,7 +169,7 @@ class ScoreSchema(Schema):
     invalid = ChineseBool(data_key="cjsfzf")
     course_type = fields.Str(data_key="kcbj")
     category = fields.Str(data_key="kclbmc")
-    score_type = fields.Str(data_key="kcxz")
+    score_type = fields.Str(data_key="ksxz")
     method = fields.Str(data_key="khfsmc")
     course_id = fields.Str(data_key="kch_id")
     class_name = fields.Str(data_key="jxbmc")
@@ -218,7 +218,7 @@ class ExamSchema(Schema):
     course_name = fields.Str(data_key="kcmc")
     class_name = fields.Str(data_key="jxbmc")
     rebuild = ChineseBool(data_key="cxbj")
-    credit = fields.Float(data_Key="xf")
+    credit = fields.Float(data_key="xf")
     self_study = ChineseBool(data_key="zxbj")
     date = ExamDate(data_key="kssj", load_only=True)
     time = ExamTime(data_key="kssj", load_only=True)
@@ -339,14 +339,12 @@ class ConditionLogic(fields.Field):
             return LogicEnum.OR
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
-        if not value:
-            return 0
+        if not isinstance(value, LogicEnum):
+            raise TypeError
         if value == LogicEnum.AND:
             return 0
-        elif value == LogicEnum.OR:
-            return 1
-        else:
-            raise ValueError
+        elif value == LogicEnum.OR:  # pragma: no cover
+            return 1  # pragma: no cover
 
 
 class MakeupAsPass(fields.Field):
@@ -373,25 +371,43 @@ class CourseRangeField(fields.Field):
         return value.value
 
 
+class LibCreditHourDetail(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return  # pragma: no cover
+        class_hour_details = value.split("-")
+        rtn = dict()
+        for item in class_hour_details:
+            name, hour = item.split("(")
+            rtn[name] = float(hour[:-1])
+        return rtn
+
+
 class LibCourseSchema(Schema):
     class Meta:
         unknown = EXCLUDE
 
     name = fields.Str(required=True, data_key="kcmc")
     day = fields.Int(data_key="xqj")
-    week = CourseWeek(data_key="qzjsz")
+    week = CourseWeek(data_key="qsjsz")
     time = CourseTime(data_key="skjc")
     location = fields.Str(data_key="cdmc")
     locations = ColonSplitted(data_key="jxdd")
     faculty = fields.Str(data_key="kkxy")
     credit = fields.Float(data_key="xf")
-    course_id = fields.Str(data_key="kch_id")
     teacher = CommaSplitted(data_key="zjs")
+    course_id = fields.Str(data_key="kch")
     class_name = fields.Str(data_key="jxbmc")
     class_id = fields.Str(data_key="jxb_id")
     class_composition = ColonSplitted(data_key="jxbzc")
     hour_total = fields.Int(data_key="rwzxs")
-    hour_remark = CreditHourDetail(data_key="kcxszc")
+    hour_remark = LibCreditHourDetail(data_key="zhxs")
     seats = fields.Int(data_key="zws")
     students_elected = fields.Int(data_key="xkrs")
     students_planned = fields.Int(data_key="jxbrs")
