@@ -1,0 +1,78 @@
+[
+  {
+    "date": "二○二○年一月二十六日",
+    "dateDigit": "2020年1月26日",
+    "dateDigitSeparator": "2020-1-26",
+    "day": "26",
+    "jgpxzd": "1",
+    "listnav": "false",
+    "localeKey": "zh_CN",
+    "month": "1",
+    "pageable": true,
+    "queryModel": {
+      "currentPage": 1,
+      "currentResult": 0,
+      "entityOrField": false,
+      "limit": 15,
+      "offset": 0,
+      "pageNo": 0,
+      "pageSize": 15,
+      "showCount": 10,
+      "sorts": [],
+      "totalCount": 0,
+      "totalPage": 0,
+      "totalResult": 0
+    },
+    "rangeable": true,
+    "totalResult": "0",
+    "userModel": {
+      "monitor": false,
+      "roleCount": 0,
+      "roleKeys": "",
+      "roleValues": "",
+      "status": 0,
+      "usable": false
+    },
+    "xmblmc": "平时(40%)",
+    "xmcj": "93",
+    "year": "2020"
+  },
+  {
+    "date": "二○二○年一月二十六日",
+    "dateDigit": "2020年1月26日",
+    "dateDigitSeparator": "2020-1-26",
+    "day": "26",
+    "jgpxzd": "1",
+    "listnav": "false",
+    "localeKey": "zh_CN",
+    "month": "1",
+    "pageable": true,
+    "queryModel": {
+      "currentPage": 1,
+      "currentResult": 0,
+      "entityOrField": false,
+      "limit": 15,
+      "offset": 0,
+      "pageNo": 0,
+      "pageSize": 15,
+      "showCount": 10,
+      "sorts": [],
+      "totalCount": 0,
+      "totalPage": 0,
+      "totalResult": 0
+    },
+    "rangeable": true,
+    "totalResult": "0",
+    "userModel": {
+      "monitor": false,
+      "roleCount": 0,
+      "roleKeys": "",
+      "roleValues": "",
+      "status": 0,
+      "usable": false
+    },
+    "xmblmc": "期末(60%)",
+    "xmcj": "90",
+    "year": "2020"
+  }
+]
