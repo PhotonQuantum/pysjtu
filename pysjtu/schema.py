@@ -7,7 +7,7 @@ from marshmallow import Schema, fields, EXCLUDE, pre_load, post_load, pre_dump, 
 from .utils import replace_keys
 
 
-class CourseTeacher(fields.Field):
+class CommaSplitted(fields.Field):
     def _deserialize(
             self,
             value: typing.Any,
@@ -18,6 +18,9 @@ class CourseTeacher(fields.Field):
         if not value:
             return
         return value.split(",")
+
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        return ",".join([str(item) for item in value])
 
 
 class CourseTime(fields.Field):
@@ -85,8 +88,8 @@ class ScheduleCourseSchema(Schema):
     credit = fields.Float(data_key="xf")
     assessment = fields.Str(data_key="khfsmc")
     remark = fields.Str(data_key="xkbz")
-    teacher_name = CourseTeacher(data_key="xm")
-    teacher_title = CourseTeacher(data_key="zcmc")
+    teacher_name = CommaSplitted(data_key="xm")
+    teacher_title = CommaSplitted(data_key="zcmc")
     course_id = fields.Str(required=True, data_key="kch_id")
     class_name = fields.Str(required=True, data_key="jxbmc")
     class_id = fields.Str(required=True, data_key="jxb_id")
@@ -242,22 +245,6 @@ class ColonSplitted(fields.Field):
         return ";".join([str(item) for item in value])
 
 
-class CommaSplitted(fields.Field):
-    def _deserialize(
-            self,
-            value: typing.Any,
-            attr: typing.Optional[str],
-            data: typing.Optional[typing.Mapping[str, typing.Any]],
-            **kwargs
-    ):
-        if not value:
-            return
-        return value.split(",")
-
-    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
-        return ",".join([str(item) for item in value])
-
-
 class HasRoll(fields.Field):
     def _deserialize(
             self,
@@ -398,9 +385,8 @@ class LibCourseSchema(Schema):
     locations = ColonSplitted(data_key="jxdd")
     faculty = fields.Str(data_key="kkxy")
     credit = fields.Float(data_key="xf")
-    teacher_name = CourseTeacher(data_key="zjs")
-    teacher_title = CourseTeacher(data_key="jszc")
     course_id = fields.Str(data_key="kch_id")
+    teacher = CommaSplitted(data_key="zjs")
     class_name = fields.Str(data_key="jxbmc")
     class_id = fields.Str(data_key="jxb_id")
     class_composition = ColonSplitted(data_key="jxbzc")
