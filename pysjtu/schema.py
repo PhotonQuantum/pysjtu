@@ -16,7 +16,7 @@ class CommaSplitted(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         return value.split(",")
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
@@ -32,7 +32,7 @@ class CourseTime(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         value = value.replace("节", "")
         cs = list(map(int, value.split("-")))
         return list(cs) if len(cs) == 1 else range(cs[0], cs[1] + 1)
@@ -47,7 +47,7 @@ class CreditHourDetail(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         class_hour_details = value.split(",")
         rtn = dict()
         for item in class_hour_details:
@@ -113,7 +113,7 @@ class ScoreFactorName(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         return value[:value.find("(")]
 
 
@@ -126,7 +126,7 @@ class ScoreFactorPercentage(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         return float(value[value.find("(") + 1:value.find("%")]) / 100
 
 
@@ -139,7 +139,7 @@ class ChineseBool(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         return value == "是"
 
 
@@ -190,7 +190,7 @@ class ExamDate(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         return datetime.strptime(value[:value.index("(")], "%Y-%m-%d").date()
 
 
@@ -203,7 +203,7 @@ class ExamTime(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         raw_time = value[value.find("(") + 1:-1].split("-")
         return [datetime.strptime(time, "%H:%M").time() for time in raw_time]
 
@@ -238,11 +238,11 @@ class ColonSplitted(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         return value.split(";")
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
-        return ";".join([str(item) for item in value])
+        return ";".join([str(item) for item in value])  # pragma: no cover
 
 
 class HasRoll(fields.Field):
@@ -254,13 +254,13 @@ class HasRoll(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         if "1" in value.split(","):
             return True
-        elif "2" in value.split(","):
-            return False
+        elif "2" in value.split(","):  # pragma: no cover
+            return False  # pragma: no cover
         else:
-            return
+            return  # pragma: no cover
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if value is True:
@@ -268,7 +268,7 @@ class HasRoll(fields.Field):
         elif value is False:
             return 0
         else:
-            return -1
+            return -1  # pragma: no cover
 
 
 class Registered(fields.Field):
@@ -280,21 +280,21 @@ class Registered(fields.Field):
             **kwargs
     ):
         if not value:
-            return None
+            return None  # pragma: no cover
         if "3" in value.split(","):
-            return True
+            return True  # pragma: no cover
         elif "4" in value.split(","):
-            return False
+            return False  # pragma: no cover
         else:
             return
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if value is True:
             return 1
-        elif value is False:
-            return 0
+        elif value is False:  # pragma: no cover
+            return 0  # pragma: no cover
         else:
-            return -1
+            return -1  # pragma: no cover
 
 
 class Attending(fields.Field):
@@ -306,19 +306,19 @@ class Attending(fields.Field):
             **kwargs
     ):
         if not value:
-            return None
+            return None  # pragma: no cover
         if "5" in value.split(","):
             return True
-        elif "6" in value.split(","):
-            return False
+        elif "6" in value.split(","):  # pragma: no cover
+            return False  # pragma: no cover
         else:
-            return
+            return  # pragma: no cover
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if value is True:
             return 1
         elif value is False:
-            return 0
+            return 0  # pragma: no cover
         else:
             return -1
 
@@ -331,12 +331,10 @@ class ConditionLogic(fields.Field):
             data: typing.Optional[typing.Mapping[str, typing.Any]],
             **kwargs
     ):
-        if not value:
-            return None
-        if value == 0:
-            return LogicEnum.AND
-        elif value == 1:
-            return LogicEnum.OR
+        if value == 0:  # pragma: no cover
+            return LogicEnum.AND  # pragma: no cover
+        elif value == 1:  # pragma: no cover
+            return LogicEnum.OR  # pragma: no cover
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if not isinstance(value, LogicEnum):
@@ -498,7 +496,7 @@ class Percentage(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         return float(value.replace("%", "")) / 100
 
 
@@ -511,7 +509,7 @@ class RankingResultField(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         return value.split("/")[0]
 
 
@@ -524,7 +522,7 @@ class StudentCountFromRanking(fields.Field):
             **kwargs
     ):
         if not value:
-            return
+            return  # pragma: no cover
         return value.split("/")[1]
 
 
