@@ -539,7 +539,10 @@ class Client:
         compiled_params = schema.GPAQueryParamsSchema().dump(query_params)
         calc_rtn = self._session.post(const.GPA_CALC_URL + self.student_id, data=compiled_params, timeout=timeout)
         if calc_rtn.text != "\"统计成功！\"":
-            raise GPACalculationException
+            if calc_rtn.text == "\"统计失败！\"":
+                raise GPACalculationException("Calculation failure.")
+            if "无功能权限" in calc_rtn.text:
+                raise GPACalculationException("Unauthorized.")
         compiled_params.update({"_search": False,
                                 "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                 "queryModel.currentPage": 1, "queryModel.sortName": "",
