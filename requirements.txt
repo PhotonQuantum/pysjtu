@@ -1,0 +1,11 @@
+alabaster
+httpx~=0.11.0
+marshmallow
+numpy
+onnxruntime
+Pillow>=7.0.0
+pytest
+pytest-cov
+Sphinx
+sphinx-rtd-theme
+typing
