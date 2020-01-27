@@ -187,13 +187,13 @@ class Session:
     def loads(self, d: dict):
         pass
 
-    def load(self, fp: typing.BinaryIO):
+    def load(self, fp: typing.Union[typing.BinaryIO, str]):
         pass
 
     def dumps(self) -> dict:
         pass
 
-    def dump(self, fp: typing.BinaryIO):
+    def dump(self, fp: typing.Union[typing.BinaryIO, str]):
         pass
 
     @property
