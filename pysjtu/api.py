@@ -1,3 +1,4 @@
+import io
 import pickle
 import re
 import time
@@ -28,13 +29,13 @@ class Session:
         >>> s.login('user@sjtu.edu.cn', 'something_secret')
         >>> s.get('https://i.sjtu.edu.cn')
         <Response [200 OK]>
-        >>> s.dump(open('session_file', mode='wb'))
+        >>> s.dump('session_file')
 
     Or as a context manager::
 
         >>> with pysjtu.Session(username='user@sjtu.edu.cn', password='something_secret') as s:
         ...     s.get('https://i.sjtu.edu.cn')
-        ...     s.dump(open('session_file', mode='wb'))
+        ...     s.dump('session_file')
         <Response [200 OK]>
 
         >>> with pysjtu.Session(session_file='session_file', mode='r+b')) as s:
@@ -285,9 +286,15 @@ class Session:
         """
         Read a session from a given file. A warning will be given if username or password field is missing.
 
-        :param fp: a file-like object contains a session.
+        :param fp: a binary file object / filepath contains a session.
         """
-        conf = pickle.load(fp)
+        if isinstance(fp, (io.RawIOBase, io.BufferedIOBase)):
+            conf = pickle.load(fp)
+        elif isinstance(fp, str):
+            with open(fp, mode="rb") as f:
+                conf = pickle.load(f)
+        else:
+            raise TypeError
         self.loads(conf)
 
     # noinspection PyProtectedMember
@@ -306,9 +313,15 @@ class Session:
         """
         Write the current session to a given file. A warning will be given if username or password field is missing.
 
-        :param fp: a file-like object as the destination of session data.
+        :param fp: a binary file object/ filepath as the destination of session data.
         """
-        pickle.dump(self.dumps(), fp)
+        if isinstance(fp, (io.RawIOBase, io.BufferedIOBase)):
+            pickle.dump(self.dumps(), fp)
+        elif isinstance(fp, str):
+            with open(fp, mode="wb") as f:
+                pickle.dump(self.dumps(), f)
+        else:
+            raise TypeError
 
     @property
     def proxies(self):
