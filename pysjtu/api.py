@@ -14,7 +14,7 @@ from . import model
 from . import schema
 from .exceptions import *
 from .utils import has_callable, range_list_to_str, schema_post_loader
-from .ocr import SVMRecognizer
+from .ocr import NNRecognizer
 
 
 class Session:
@@ -72,7 +72,7 @@ class Session:
     def __init__(self, username="", password="", cookies=None, ocr=None, session_file=None, retry=None):
         self._client = httpx.Client()
         if not ocr:
-            self._ocr = SVMRecognizer()
+            self._ocr = NNRecognizer()
         self._username = ""
         self._password = ""
         self._cache_store = {}
