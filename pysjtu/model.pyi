@@ -115,8 +115,7 @@ class LibCourse:
     locations: List[str]
     faculty: str
     credit: float
-    teacher_name: List[str]
-    teacher_title: List[str]
+    teacher: List[str]
     course_id: str
     class_name: str
     class_id: str
@@ -155,6 +154,7 @@ class Exam:
 
 
 class ScoreFactor:
+    _members: list
     name: str
     percentage: float
     score: float
