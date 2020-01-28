@@ -1,6 +1,7 @@
 from enum import Enum
 
-from .utils import overlap, range_in_set
+from .utils import overlap, range_in_set, parse_slice
+from collections.abc import Callable
 
 
 class LogicEnum(Enum):
@@ -54,35 +55,40 @@ class QueryResult:
         if isinstance(arg, int):
             data = self._handle_result_by_index(arg)
         elif isinstance(arg, slice):
-            if arg.start is None and arg.stop is None:
-                data = self._handle_result_by_idx_slice(slice(0, -1))
-            else:
-                data = self._handle_result_by_idx_slice(arg)
+            data = self._handle_result_by_idx_slice(arg)
         if data is None:
-            raise KeyError
+            raise TypeError("QueryResult indices must be integers or slices, not " + type(arg).__name__)
         data = self._post_ref(data)
         return data
 
     def _handle_result_by_index(self, idx):
         idx = len(self) + idx if idx < 0 else idx
-        self._update_cache(idx, idx)
+        if idx >= len(self) or idx < 0: raise IndexError("index out of range")
+        self._update_cache(idx, idx + 1)
         return self._cache[idx]
 
     def _handle_result_by_idx_slice(self, idx):
-        if idx.start is None:
+        idx_start = parse_slice(idx.start)
+        idx_stop = parse_slice(idx.stop)
+
+        if idx_start is None:
             start = 0
-        elif idx.start < 0:
+        elif idx_start < 0:
             start = len(self) + idx.start
         else:
             start = idx.start
 
-        if idx.stop is None:
-            end = 0
-        elif idx.stop < 0:
-            end = len(self) + idx.stop
+        if idx_stop is None:
+            end = len(self) - 1
+        elif idx_stop < 0:
+            end = len(self) + idx.stop - 1
         else:
             end = idx.stop
 
+        if end > len(self):
+            end = len(self)
+        if start >= end:
+            return []
         self._update_cache(start, end)
         return self._cache[idx]
 
@@ -101,12 +107,12 @@ class QueryResult:
         self._cached_items = set()
 
     def _update_cache(self, start, end):
-        fetch_set = set(set(range(start, end + 1)) - self._cached_items)
+        fetch_set = set(set(range(start, end)) - self._cached_items)
         while len(fetch_set) != 0:
             fetch_range = next(range_in_set(fetch_set))
             page = int(fetch_range.start / self._page_size) + 1
             self._cached_items.update(range(*self._fetch_range(page, self._page_size)))
-            fetch_set = set(set(range(start, end + 1)) - self._cached_items)
+            fetch_set = set(set(range(start, end)) - self._cached_items)
 
     def _fetch_range(self, page, count):
         rtn = self._query(page, count)["items"]

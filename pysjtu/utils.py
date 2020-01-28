@@ -2,6 +2,16 @@ import collections
 from math import inf
 
 
+def parse_slice(val):
+    if isinstance(val, int):
+        return val
+    if hasattr(val, "__index__") and isinstance(val.__index__, collections.abc.Callable):
+        return val.__index__()
+    if val is None:
+        return val
+    raise AttributeError("slice indices must be integers or None or have an __index__ method")
+
+
 def has_callable(obj, name):
     return callable(getattr(obj, name, None))
 
