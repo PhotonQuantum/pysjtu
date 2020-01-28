@@ -1,7 +1,6 @@
 from enum import Enum
 
 from .utils import overlap, range_in_set, parse_slice
-from collections.abc import Callable
 
 
 class LogicEnum(Enum):
@@ -63,7 +62,8 @@ class QueryResult:
 
     def _handle_result_by_index(self, idx):
         idx = len(self) + idx if idx < 0 else idx
-        if idx >= len(self) or idx < 0: raise IndexError("index out of range")
+        if idx >= len(self) or idx < 0:
+            raise IndexError("index out of range")
         self._update_cache(idx, idx + 1)
         return self._cache[idx]
 
