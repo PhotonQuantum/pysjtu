@@ -6,6 +6,7 @@ onnxruntime
 Pillow>=7.0.0
 pytest
 pytest-cov
+pytest-mock
 Sphinx
 sphinx-rtd-theme
 typing
