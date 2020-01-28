@@ -4,9 +4,26 @@ from os import path
 import pytest
 
 from pysjtu.utils import has_callable, replace_keys, schema_post_loader, range_list_to_str, range_in_set, overlap, \
-    flatten
+    flatten, parse_slice
 
 DATA_DIR = path.join(path.dirname(path.abspath(__file__)), 'data')
+
+
+def test_parse_slice():
+    class DummyObj1:
+        __index__ = 0
+
+    class DummyObj2:
+        def __index__(self):
+            return 0
+
+    assert parse_slice(3) == 3
+    assert parse_slice(DummyObj2()) == 0
+    assert parse_slice(None) is None
+    with pytest.raises(AttributeError):
+        fail = parse_slice(1.5)
+    with pytest.raises(AttributeError):
+        fail = parse_slice(DummyObj1())
 
 
 def test_has_callable():
