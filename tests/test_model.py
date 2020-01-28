@@ -1,8 +1,9 @@
+from functools import partial
+from math import ceil
+
 import pytest
 
 from pysjtu.model import QueryResult
-from functools import partial
-from math import ceil
 
 
 @pytest.fixture
@@ -37,10 +38,12 @@ def dummy_req():
     return DummyReq()
 
 
+# noinspection PyStatementEffect
 def test_query_result(dummy_req):
-    post_ref = lambda x: {"post": x}
+    def dummy_post_func(x):
+        return {"post": x}
 
-    result = QueryResult(partial(dummy_req, 200), post_ref, {"validate": "Lorem Ipsum"}, page_size=10)
+    result = QueryResult(partial(dummy_req, 200), dummy_post_func, {"validate": "Lorem Ipsum"}, page_size=10)
 
     assert len(result) == 200
 
@@ -48,11 +51,12 @@ def test_query_result(dummy_req):
     assert result[-2] == {"post": 199}
     assert result[-200] == {"post": 1}
     with pytest.raises(IndexError):
-        overflow = result[200]
+        result[200]
     with pytest.raises(IndexError):
-        overflow = result[-201]
+        result[-201]
     with pytest.raises(TypeError):
-        fail = result[1.5]
+        # noinspection PyTypeChecker
+        result[1.5]
 
     assert result[:10] == {"post": list(range(1, 11))}
     assert result[:15] == {"post": list(range(1, 16))}
@@ -64,16 +68,16 @@ def test_query_result(dummy_req):
     assert result[-1:999] == {"post": [200]}
     assert list(result) == [{"post": item} for item in range(1, 201)]
     with pytest.raises(AttributeError):
-        fail = result[1.5:]
+        result[1.5:]
     with pytest.raises(AttributeError):
-        fail = result[:1.5]
+        result[:1.5]
 
     dummy_obj = dummy_req
-    result = QueryResult(partial(dummy_obj, 200), post_ref, {"validate": "Lorem Ipsum"}, page_size=10)
-    rtn = result[5:25]
+    result = QueryResult(partial(dummy_obj, 200), dummy_post_func, {"validate": "Lorem Ipsum"}, page_size=10)
+    result[5:25]
     assert dummy_obj.is_called
-    rtn = result[4:24]
+    result[4:24]
     assert not dummy_obj.is_called
     result.flush_cache()
-    rtn = result[4:24]
+    result[4:24]
     assert dummy_obj.is_called
