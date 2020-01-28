@@ -158,8 +158,9 @@ class GPAQueryParams:
 
     def __init__(self, **kwargs):
         for member in self._members:
-            setattr(self, member, None)
-        self.__dict__.update(kwargs)
+            setattr(self, member, kwargs.pop(member, None))
+        if len(kwargs) != 0:
+            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
 
     def __repr__(self):
         return f"<GPAQueryParams {self.__dict__}>"
@@ -187,8 +188,9 @@ class GPA:
 
     def __init__(self, **kwargs):
         for member in self._members:
-            setattr(self, member, None)
-        self.__dict__.update(kwargs)
+            setattr(self, member, kwargs.pop(member, None))
+        if len(kwargs) != 0:
+            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
 
     def __repr__(self):
         return f"<GPA gp={self.gp} {self.gp_ranking}/{self.total_students} " \
@@ -207,8 +209,7 @@ class LibCourse:
     :param locations: the places where classes are given.
     :param faculty: the faculty which offers this course.
     :param credit: credits that the course provides.
-    :param teacher_name: the teacher who offers this course.
-    :param teacher_title: title of the course's teacher.
+    :param teacher: the teacher who offers this course.
     :param course_id: course id.
     :param class_name: class name (constant between years).
     :param class_id: class id (variable between years).
@@ -219,14 +220,15 @@ class LibCourse:
     :param students_elected: number of students elected this course.
     :param students_planned: number of students planned when setting this course.
     """
-    _members = ["name", "day", "week", "time", "location", "locations", "faculty", "credit", "teacher_name",
-                "teacher_title", "course_id", "class_name", "class_id", "class_composition", "hour_total",
+    _members = ["name", "day", "week", "time", "location", "locations", "faculty", "credit", "teacher",
+                "course_id", "class_name", "class_id", "class_composition", "hour_total",
                 "hour_remark", "seats", "students_elected", "students_planned"]
 
     def __init__(self, **kwargs):
         for member in self._members:
-            setattr(self, member, None)
-        self.__dict__.update(kwargs)
+            setattr(self, member, kwargs.pop(member, None))
+        if len(kwargs) != 0:
+            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
 
     def __repr__(self):
         return f"<LibCourse {self.name} class_name={self.class_name}>"
@@ -252,12 +254,14 @@ class Exam:
 
     def __init__(self, **kwargs):
         for member in self._members:
-            setattr(self, member, None)
-        self.__dict__.update(kwargs)
+            setattr(self, member, kwargs.pop(member, None))
+        if len(kwargs) != 0:
+            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
 
     def __repr__(self):
+        date_out = self.date.strftime("%Y-%m-%d")
         time_out = [time.strftime("%H:%M") for time in self.time]
-        return f"<Exam \"{self.name}\" location={self.location} datetime={self.date}({time_out[0]}-{time_out[1]})>"
+        return f"<Exam \"{self.name}\" location={self.location} datetime={date_out}({time_out[0]}-{time_out[1]})>"
 
 
 class Exams:
@@ -319,12 +323,13 @@ class ScoreFactor:
     :param percentage: item factor
     :param score: item score
     """
+    _members = ["name", "percentage", "score"]
 
     def __init__(self, **kwargs):
-        self.name = ""
-        self.percentage = 0.0
-        self.score = 0.0
-        self.__dict__.update(kwargs)
+        for member in self._members:
+            setattr(self, member, kwargs.pop(member, None))
+        if len(kwargs) != 0:
+            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
 
     def __repr__(self):
         return f"<ScoreFactor {self.name}({self.percentage * 100}%)={self.score}>"
@@ -354,8 +359,9 @@ class Score:
 
     def __init__(self, **kwargs):
         for member in self._members:
-            setattr(self, member, None)
-        self.__dict__.update(kwargs)
+            setattr(self, member, kwargs.pop(member, None))
+        if len(kwargs) != 0:
+            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
         self._detail = None
         self.year = 0
         self.term = 0
@@ -455,8 +461,9 @@ class ScheduleCourse:
 
     def __init__(self, **kwargs):
         for member in self._members:
-            setattr(self, member, None)
-        self.__dict__.update(kwargs)
+            setattr(self, member, kwargs.pop(member, None))
+        if len(kwargs) != 0:
+            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
 
     def __repr__(self):
         return f"<ScheduleCourse {self.name} week={self.week} day={self.day} time={self.time}>"
