@@ -112,8 +112,8 @@ class Session:
             if not auto_renew:
                 raise SessionException("Session expired.")
             else:
-                self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh JSESSION token
-                # Sometimes the old session will be retrieved, so we won't need to login again
+                self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh token
+                # Sometimes JAccount OAuth token isn't expired
                 if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":
                     if self._username and self._password:
                         self.login(self._username, self._password)
