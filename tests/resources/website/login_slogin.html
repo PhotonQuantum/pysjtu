@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<title>上海交通大学教学信息服务网</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" >	
+	<meta name="Copyright" content="zfsoft" />
+	<link rel="icon" href="/css/assets/images/favicon.ico" type="image/x-icon">	
+	<link rel="shortcut icon" href="/css/assets/images/favicon.ico" type="image/x-icon">
+	
+	<script type="text/javascript">
+	var _path 				= "";
+	var _systemPath 		= "";
+	var _stylePath 			= "/zftal-ui-v5-1.0.2";
+	</script>
+	<!--jQuery核心框架库 -->
+	<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/other_jquery/jquery.min.js?ver=20200102"></script>
+	<!--jQuery常用工具扩展库：基础工具,资源加载工具,元素尺寸相关工具 -->
+	<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/jquery.utils.contact-min.js?ver=20200102" charset="utf-8"></script>
+	<!--jQuery浏览器检测 -->
+	<script type="text/javascript" src="/js/browse/browse-judge.js?ver=20200102"></script>
+
+	<!--Bootstrap布局框架-->
+	<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/css/zftal-ui.css">  	
+	<link rel="stylesheet" type="text/css" href="/css/assets/plugins/bootstrap/css/bootstrap.min.css">
+	<script type="text/javascript" src="/css/assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+	
+	<!--jQuery.chosen美化插件-->
+	<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/chosen/css/chosen-min.css?ver=20200102" />
+	<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/chosen/jquery.choosen.concat-min.js?ver=20200102" charset="utf-8"></script>
+	<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/chosen/lang/zh_CN-min.js?ver=20200102" charset="utf-8"></script>
+	<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/utils/jquery.utils.pinyin.min.js?ver=20200102" charset="utf-8"></script>
+	<!--业务框架jQuery全局设置和通用函数库-->
+	<script type="text/javascript" src="/js/jquery.zftal.contact-min.js?ver=20200102"></script>
+	<!--业务框架前端脚本国际化库-->
+	<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/lang/jquery.zftal_zh_CN-min.js?ver=20200102"></script>	
+
+	<link rel="stylesheet" href="/css/assets/css/shjd-style.css">
+	<style type="text/css">
+	.active{
+			color:#c9151e; 
+	        font-weight: bold;
+	}
+	</style>
+</head>
+<body class="shjd-bg">
+	<input type = "hidden" name = "yzcskz" id = "yzcskz" value = 3>
+	<input type = "hidden" name = "mmsfjm" id = "mmsfjm" value = 1>
+	<input type = "hidden" name = "mmsrddcshkzfs" id = "mmsrddcshkzfs" value = 0>
+	<input type = "hidden" name = "dlsbsdsj" id = "dlsbsdsj" value = 3>
+
+	<div class="shjd-header">		
+		<div class="navbar navbar-default navbar-static-top">
+			<div class="container container_1170">
+				<div class="navbar-header">  
+					<a class="navbar-brand" href="#"><div class="logo clearfix"><img src="/css/assets/images/logo.png" alt=""><span id="xtmc">教学信息服务网</span></div></a>
+				</div>
+				<!-- 中英文切换 是否显示-->
+					<div class="btn-group" style="margin-top: 48px;">
+						<button type="button" id="btn_zh_CN" value="zh_CN"  class="btn btn-sm btn-lang btn-lang-disabled" href="javascript:void(0);" >中  文</button>
+						<button type="button" id="btn_en_US" value="en_US"  class="btn btn-sm btn-lang btn-lang-disabled" href="javascript:void(0);" >English</button>
+					</div>
+					<script type="text/javascript">
+						var _localeKey 	= "zh_CN";
+						jQuery("#btn_" + _localeKey).removeClass("btn-lang-disabled").addClass("active");
+					</script> 
+				
+			</div>
+		</div>
+	</div>
+	<!-- 主区域 -->
+	<div class="shjd-main-sec">
+		<div class="container container_1170">
+			<div class="row" id="mainBody">
+				
+				<!-- 
+				 -->
+
+				<div class="col-sm-8 hidden-xs sl_log_lf">
+					<div class="log-con log-bxsd" style="height: 525px" ><!--  style="height: 300px" -->
+						<div class="log-not clearfix" style="height: 300px" id="newsnotice">
+							
+						</div>				  
+			
+						<div class="log-fst" style="height: 192px" id="links">
+							
+						</div> 
+					</div>
+				</div>		
+				
+				<div id="log_rt" >
+					<div class="col-sm-4 sl_log_rt">
+						<div class="log-log log-bxsd" style="height: 525px">
+						
+						
+						
+						
+							<form class="form-horizontal" role="form" action="/xtgl/login_slogin.html" method="post">
+						
+							<input type="hidden" id="csrftoken" name="csrftoken" value="fcea50d6-952d-4a4b-9a63-7817ab05d83b,fcea50d6952d4a4b9a637817ab05d83b">
+								<div class="log-tit"><h3 id="yhlogin">登录</h3><span>Login</span></div>
+								<!-- 防止浏览器自动填充密码 -->
+								<input type="text" style="display: none;" autocomplete="off">
+								<input type="password" style="display: none;" autocomplete="off">
+								<!-- 防止浏览器自动填充密码 end -->
+								
+								
+								
+									<p style="display: none;" id="tips" class="bg_danger sl_danger"></p>
+								
+								<div class="form-group">
+									<div class="input-group">
+										<div class="input-group-addon"><img src="/zftal-ui-v5-1.0.2/assets/images/log_ic01.png" width="16" height="16"></div>
+										<input type="text" class="form-control" name="yhm" id="yhm" value="" placeholder="用户名" onblur="" autocomplete="off">
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="input-group">
+										<div class="input-group-addon"><img src="/zftal-ui-v5-1.0.2/assets/images/log_ic02.png" width="16" height="16"></div>
+										<input type="password" name="mm" id="hidMm" style="display:none">
+										<input type="text" class="form-control" name="mm" id="mm" value="" placeholder="密码" autocomplete="new-password" onfocus="this.type='password'">
+										<input type="password" style="display:none;">
+									</div>
+								</div>
+								<!-- 0-弹出验证码-->
+								
+								
+								<!-- 0-弹出验证码-->
+								
+								<div class="form-group" id = "myDiv">
+									<!--<a href="/xtgl/init_fkIndex.html" class="checkbox pull-left" target="_blank">访客登录</a> -->
+									
+								</div>
+								
+								<div class="form-group">
+									<button type="button" class="btn btn-primary btn-block shjd-redbtn" id="dl">登 录</button>
+								</div>		
+								
+								<!--统一身份认证登录 -->
+								<div class="form-group">
+									<div class="jaccount">
+										<a href="/jaccountlogin" id="authJwglxtLoginURL" class="checkbox">
+											<p id="jAccount">通过jAccount登录</p>
+											<img src="/css/assets/images/jaccount.png" alt="">
+										</a>
+									</div>
+								</div>			   
+								 
+								
+								
+								
+														
+								
+								<!-- 登录口提示信息 -->
+								
+								 	<div class="form-group">
+										<div class="alert alert-danger" role="alert" id="dlktsxx" style="text-overflow: ellipsis;overflow: hidden;white-space: nowrap;>
+										</div>
+								    </div>
+								 
+							
+							</form>
+						</div>
+					</div>
+				</div>
+				
+				
+			</div>
+			
+		</div>
+	</div>
+	
+	<!-- 底部 -->    
+	<div class="log-footer">
+		<div class="container container_1170">
+			<div class="logft-info">沪ICP备05052060&nbsp;&nbsp;沪公安网备31009102000045&nbsp;&nbsp;版权所有©上海交通大学</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">     
+	jQuery(document).ready(function() {
+		//$('#localChange').trigger("chosen");
+		/// detectOS();
+		//用户名密码 输错n次 需输入验证码            
+		  
+	});
+	
+		var dlktsxx="请学生和正式教职员工采用Jaccount登录方式！";
+		var arr=[];
+		var html="";
+		if(dlktsxx.indexOf("。")>-1){
+			arr=dlktsxx.split("。");
+			for(var s=0;s<arr.length;s++){
+				if(arr[s]!=''){
+					html+=arr[s]+" ";
+				}
+			}
+		}else{
+			html=dlktsxx;
+		}
+		$("#dlktsxx").html(html);
+		$("#dlktsxx").attr("title",html);
+	
+	
+	//ip
+	
+	
+	jQuery(function($){
+		
+		function changeLanguage(lang) {
+			$.ajaxSetup({async : false});
+			jQuery.post(_path + "/xtgl/init_changeLocal.html", {//config-shiro.xml里要加这个
+				language : lang != "en_US" ? "zh_CN" : "en_US"
+			}, function(b) {
+				if (1 == parseInt(b)) {
+					if ($("#topButton").size() > 0) {
+						$("#topButton").click();
+					} else {
+						window.location.reload();
+					}
+				}
+			}, "json");
+			$.ajaxSetup({async : true});
+		}
+		$("button.btn-lang").click(function() {
+			if (!$(this).hasClass("btn-lang-enabled")) {
+				changeLanguage($(this).attr("value"));
+			}
+		})
+		
+		//切换英文
+		if($(".active").val()=="en_US"){
+			$("#xtmc").text("Academic Information Service");
+			$("title").text("Academic Information Service")
+			$("#wpjssq").text("New Teacher Account Application");
+			$("#wjmm").text("Forgot your password?");
+			$("#jzfw").text("Parents visit");
+			$("#yhlogin").text("Login");
+			$("#dl").text("Login");
+			$("#jAccount").text("Log in through jAccount");
+			$("#dlktsxx").hide();
+		}
+		
+	
+	});
+</script>
+<script type='text/javascript' src="/zftal-ui-v5-1.0.2/assets/plugins/crypto/rsa/jsbn.js?ver=20200102"></script>
+<script type='text/javascript' src="/zftal-ui-v5-1.0.2/assets/plugins/crypto/rsa/prng4.js?ver=20200102"></script>
+<script type='text/javascript' src="/zftal-ui-v5-1.0.2/assets/plugins/crypto/rsa/rng.js?ver=20200102"></script>
+<script type='text/javascript' src="/zftal-ui-v5-1.0.2/assets/plugins/crypto/rsa/rsa.js?ver=20200102"></script>
+<script type='text/javascript' src="/zftal-ui-v5-1.0.2/assets/plugins/crypto/rsa/base64.js?ver=20200102"></script>
+<script type="text/javascript" src="/js/globalweb/login/loginModel.js?ver=20200102"></script>
+
+</html>

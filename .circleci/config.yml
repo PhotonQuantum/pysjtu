@@ -33,7 +33,7 @@ jobs:
             python3 -m venv venv
             . venv/bin/activate
             pip install -e .
-            pip install pytest pytest-cov pytest-mock
+            pip install pytest pytest-cov pytest-mock respx flask
             pip install coveralls
 
       - save_cache:
