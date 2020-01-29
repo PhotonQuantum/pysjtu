@@ -484,7 +484,7 @@ class Client:
                                                         "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                                         "queryModel.currentPage": 1, "queryModel.sortName": "",
                                                         "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
-        scores = model.Scores(year, term, self._get_score_detail)
+        scores = model.Scores(year, term, partial(self._get_score_detail, timeout=timeout))
         scores.load(raw.json()["items"])
         return scores
 
