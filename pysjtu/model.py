@@ -131,7 +131,65 @@ class QueryResult:
             yield self[i]
 
 
-class GPAQueryParams:
+class Result:
+    """ Base class for Result """
+    _members = []
+
+    def __init__(self, **kwargs):
+        for member in self._members:
+            setattr(self, member, kwargs.pop(member, None))
+        if len(kwargs) != 0:
+            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
+
+    def __repr__(self):
+        raise NotImplementedError  # pragma: no cover
+
+
+class Results:
+    """ Base class for Results """
+    _schema = None
+    _result_model = None
+
+    def __init__(self, year=0, term=0):
+        self._results = []
+        self.year = year
+        self.term = term
+
+    def load(self, data):
+        """
+        Load a list of dicts into Results, and deserialize dicts to Result objects.
+        :param data: a list of dicts.
+        """
+        schema = self._schema(many=True)
+        self._results = schema.load(data)
+
+    def all(self):
+        """
+        Get all the Result objects.
+
+        :return: all Result objects.
+        """
+        return self._results
+
+    def filter(self, **param):
+        """
+        Get Result objects matching specific criteria.
+
+        :param param: query criteria
+        :return: Result objects matching given criteria
+        """
+        rtn = self._results
+        for (k, v) in param.items():
+            if not hasattr(self._result_model(), k):
+                raise KeyError("Invalid criteria!")
+            if k in ("week", "time", "day"):
+                rtn = list(filter(lambda x: overlap(getattr(x, k), v), rtn))
+            else:
+                rtn = list(filter(lambda x: getattr(x, k) == v, rtn))
+        return rtn
+
+
+class GPAQueryParams(Result):
     """
     A model which describes GPA query parameters. Used when performing gpa queries (pysjtu.Client().query_gpa(...)).
     You may leave fields empty if you don't want to filter by them.
@@ -157,16 +215,13 @@ class GPAQueryParams:
                 "registered", "attending"]
 
     def __init__(self, **kwargs):
-        for member in self._members:
-            setattr(self, member, kwargs.pop(member, None))
-        if len(kwargs) != 0:
-            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"<GPAQueryParams {self.__dict__}>"
 
 
-class GPA:
+class GPA(Result):
     """
     A model which describes GP & GPA and rankings.
 
@@ -187,17 +242,14 @@ class GPA:
                 "pass_rate", "gp", "gp_ranking", "gpa", "gpa_ranking", "total_students"]
 
     def __init__(self, **kwargs):
-        for member in self._members:
-            setattr(self, member, kwargs.pop(member, None))
-        if len(kwargs) != 0:
-            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"<GPA gp={self.gp} {self.gp_ranking}/{self.total_students} " \
                f"gpa={self.gpa} {self.gpa_ranking}/{self.total_students}>"
 
 
-class LibCourse:
+class LibCourse(Result):
     """
     A model which describes a course in CourseLib. Some fields may be empty.
 
@@ -225,16 +277,13 @@ class LibCourse:
                 "hour_remark", "seats", "students_elected", "students_planned"]
 
     def __init__(self, **kwargs):
-        for member in self._members:
-            setattr(self, member, kwargs.pop(member, None))
-        if len(kwargs) != 0:
-            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"<LibCourse {self.name} class_name={self.class_name}>"
 
 
-class Exam:
+class Exam(Result):
     """
     A model which describes an exam. Some fields may be empty.
 
@@ -253,10 +302,7 @@ class Exam:
                 "date", "time"]
 
     def __init__(self, **kwargs):
-        for member in self._members:
-            setattr(self, member, kwargs.pop(member, None))
-        if len(kwargs) != 0:
-            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
+        super().__init__(**kwargs)
 
     def __repr__(self):
         date_out = self.date.strftime("%Y-%m-%d")
@@ -264,58 +310,7 @@ class Exam:
         return f"<Exam \"{self.name}\" location={self.location} datetime={date_out}({time_out[0]}-{time_out[1]})>"
 
 
-class Exams:
-    """
-    Encapsulates a list of dicts. An Exams object is constructed by loading a list of dicts into it, and used to get
-    either all Exam objects constructed by dicts, or filtered ones according to specified criteria.
-
-    Usage::
-
-        >>> exams = ... # something that returns a Exams, for example pysjtu.Client().exam(...)
-        >>> exams.all()
-        [<Exam "2019-2020-1数学期中考" location=东上院509 datetime=2019-11-06(13:10-15:10)>, ...]
-        >>> from datetime import date
-        >>> exams.filter(date=date(2019, 12, 31))
-        [<Exam "2019-2020-1一专期末考（2019级）" location=东上院509 datetime=2019-12-31(08:00-10:00)>]
-    """
-
-    def __init__(self, year=0, term=0):
-        self._exams = []
-        self.year = year
-        self.term = term
-
-    def load(self, data):
-        """
-        Load a list of dicts into Exams, and deserialize dicts to Exam objects.
-        :param data: a list of dicts contains exam schedule.
-        """
-        schema = ExamSchema(many=True)
-        self._exams = schema.load(data)
-
-    def all(self):
-        """
-        Get all the Exam objects.
-
-        :return: all Exam objects.
-        """
-        return self._exams
-
-    def filter(self, **param):
-        """
-        Get Exam objects matching specific criteria.
-
-        :param param: query criteria
-        :return: Exam objects matching given criteria
-        """
-        rtn = self._exams
-        for (k, v) in param.items():
-            if not hasattr(Exam(), k):
-                raise KeyError("Invalid criteria!")
-            rtn = list(filter(lambda x: getattr(x, k) == v, rtn))
-        return rtn
-
-
-class ScoreFactor:
+class ScoreFactor(Result):
     """
     A model which describes detailed composition of a course's score.
 
@@ -326,16 +321,13 @@ class ScoreFactor:
     _members = ["name", "percentage", "score"]
 
     def __init__(self, **kwargs):
-        for member in self._members:
-            setattr(self, member, kwargs.pop(member, None))
-        if len(kwargs) != 0:
-            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"<ScoreFactor {self.name}({self.percentage * 100}%)={self.score}>"
 
 
-class Score:
+class Score(Result):
     """
     A model which describes the score of a specific course. Some fields may be empty.
 
@@ -358,10 +350,7 @@ class Score:
                 "method", "course_id", "class_name", "class_id"]
 
     def __init__(self, **kwargs):
-        for member in self._members:
-            setattr(self, member, kwargs.pop(member, None))
-        if len(kwargs) != 0:
-            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
+        super().__init__(**kwargs)
         self._detail = None
         self.year = 0
         self.term = 0
@@ -377,62 +366,7 @@ class Score:
         return self._detail
 
 
-class Scores:
-    """
-    Encapsulates a list of dicts. An Scores object is constructed by loading a list of dicts into it, and used to get
-    either all Score objects constructed by dicts, or filtered ones according to specified criteria.
-
-    Usage::
-
-        >>> scores = ... # something that returns a Exams, for example pysjtu.Client().score(...)
-        >>> scores.all()
-        [<Score 大学化学 score=xx credit=x.x gp=x.x>, ...>
-        >>> scores.filter(gp=4)
-        [<Score xxxxx score=91 credit=2.0 gp=4.0>, ...]
-    """
-
-    def __init__(self, year=0, term=0, func_detail=None):
-        self._scores = []
-        self.year = year
-        self.term = term
-        self._func_detail = func_detail
-
-    def load(self, data):
-        """
-        Load a list of dicts into Scores, and deserialize dicts to Score objects.
-        :param data: a list of dicts contains scores.
-        """
-        schema = ScoreSchema(many=True)
-        self._scores = schema.load(data)
-        for item in self._scores:
-            item.year = self.year
-            item.term = self.term
-            item._func_detail = self._func_detail
-
-    def all(self):
-        """
-        Get all the Score objects.
-
-        :return: all Score objects.
-        """
-        return self._scores
-
-    def filter(self, **param):
-        """
-        Get Score objects matching specific criteria.
-
-        :param param: query criteria
-        :return: Score objects matching given criteria
-        """
-        rtn = self._scores
-        for (k, v) in param.items():
-            if not hasattr(Score(), k):
-                raise KeyError("Invalid criteria!")
-            rtn = list(filter(lambda x: getattr(x, k) == v, rtn))
-        return rtn
-
-
-class ScheduleCourse:
+class ScheduleCourse(Result):
     """
     A model which describes a course in CourseLib. Some fields may be empty.
 
@@ -460,16 +394,66 @@ class ScheduleCourse:
                 "field"]
 
     def __init__(self, **kwargs):
-        for member in self._members:
-            setattr(self, member, kwargs.pop(member, None))
-        if len(kwargs) != 0:
-            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"<ScheduleCourse {self.name} week={self.week} day={self.day} time={self.time}>"
 
 
-class Schedule:
+from .schema import *
+
+
+class Exams(Results):
+    """
+    Encapsulates a list of dicts. An Exams object is constructed by loading a list of dicts into it, and used to get
+    either all Exam objects constructed by dicts, or filtered ones according to specified criteria.
+
+    Usage::
+
+        >>> exams = ... # something that returns a Exams, for example pysjtu.Client().exam(...)
+        >>> exams.all()
+        [<Exam "2019-2020-1数学期中考" location=东上院509 datetime=2019-11-06(13:10-15:10)>, ...]
+        >>> from datetime import date
+        >>> exams.filter(date=date(2019, 12, 31))
+        [<Exam "2019-2020-1一专期末考（2019级）" location=东上院509 datetime=2019-12-31(08:00-10:00)>]
+    """
+    _schema = ExamSchema
+    _result_model = Exam
+
+
+class Scores(Results):
+    """
+    Encapsulates a list of dicts. An Scores object is constructed by loading a list of dicts into it, and used to get
+    either all Score objects constructed by dicts, or filtered ones according to specified criteria.
+
+    Usage::
+
+        >>> scores = ... # something that returns a Exams, for example pysjtu.Client().score(...)
+        >>> scores.all()
+        [<Score 大学化学 score=xx credit=x.x gp=x.x>, ...>
+        >>> scores.filter(gp=4)
+        [<Score xxxxx score=91 credit=2.0 gp=4.0>, ...]
+    """
+    _schema = ScoreSchema
+    _result_model = Score
+
+    def __init__(self, year=0, term=0, func_detail=None):
+        super().__init__(year, term)
+        self._func_detail = func_detail
+
+    def load(self, data):
+        """
+        Load a list of dicts into Scores, and deserialize dicts to Score objects.
+        :param data: a list of dicts contains scores.
+        """
+        super().load(data)
+        for item in self._results:
+            item.year = self.year
+            item.term = self.term
+            item._func_detail = self._func_detail
+
+
+class Schedule(Results):
     """
     Encapsulates a list of dicts. An Schedule object is constructed by loading a list of dicts into it, and used to get
     either all ScheduleCourse objects constructed by dicts, or filtered ones according to specified criteria.
@@ -485,44 +469,5 @@ class Schedule:
         <ScheduleCourse 思想道德修养与法律基础 week=[range(1, 17)] day=2 time=range(6, 9)>,
         <ScheduleCourse 程序设计思想与方法（C++） week=[range(1, 16, 2)] day=4 time=range(1, 3)>]
     """
-
-    def __init__(self, year=0, term=0):
-        self._courses = []
-        self.year = year
-        self.term = term
-
-    def load(self, data):
-        """
-        Load a list of dicts into Schedule, and deserialize dicts to ScheduleCourse objects.
-        :param data: a list of dicts contains a schedule.
-        """
-        schema = ScheduleCourseSchema(many=True)
-        self._courses = schema.load(data)
-
-    def all(self):
-        """
-        Get all the ScheduleCourse objects.
-
-        :return: all ScheduleCourse objects.
-        """
-        return self._courses
-
-    def filter(self, **param):
-        """
-        Get ScheduleCourse objects matching specific criteria.
-
-        :param param: query criteria
-        :return: ScheduleCourse objects matching given criteria
-        """
-        rtn = self._courses
-        for (k, v) in param.items():
-            if not hasattr(ScheduleCourse(), k):
-                raise KeyError("Invalid criteria!")
-            if k in ("week", "time", "day"):
-                rtn = list(filter(lambda x: overlap(getattr(x, k), v), rtn))
-            else:
-                rtn = list(filter(lambda x: getattr(x, k) == v, rtn))
-        return rtn
-
-
-from .schema import *
+    _schema = ScheduleCourseSchema
+    _result_model = ScheduleCourse
