@@ -68,6 +68,8 @@ class Session:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._client.close()
         if self._session_file:
+            if isinstance(self._session_file, (io.RawIOBase, io.BufferedIOBase)):
+                self._session_file.seek(0)
             self.dump(self._session_file)
 
     def __init__(self, username="", password="", cookies=None, ocr=None, session_file=None, retry=None):
