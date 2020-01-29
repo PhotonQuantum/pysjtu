@@ -14,5 +14,5 @@ NN_MODEL_FILE = path.join(path.abspath("."), 'nn_model.onnx')
 @pytest.mark.parametrize("captcha", [
     "mwgi", "qkxvx", "qrdxb", "rysv", "zwtco"
 ])
-def test_svm_recognizer(predictor, captcha):
+def test_recognizer(predictor, captcha):
     assert predictor.recognize(open(path.join(CAPTCHA_DIR, captcha + ".jpg"), mode="rb").read()) == captcha

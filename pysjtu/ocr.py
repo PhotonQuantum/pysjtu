@@ -12,7 +12,8 @@ DATA_DIR = path.join(path.dirname(path.abspath(__file__)), "ocr_models")
 
 class Recognizer:
     """ Base class for Recognizers """
-    pass
+    def recognize(self, img: bytes):
+        raise NotImplementedError  # pragma: no cover
 
 
 class LegacyRecognizer(Recognizer):

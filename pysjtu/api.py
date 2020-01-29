@@ -72,8 +72,11 @@ class Session:
                 self._session_file.seek(0)
             self.dump(self._session_file)
 
-    def __init__(self, username="", password="", cookies=None, ocr=None, session_file=None, retry=None):
-        self._client = httpx.Client()
+    def __init__(self, username="", password="", cookies=None, ocr=None, session_file=None, retry=None, _mocker_app=None):
+        if _mocker_app:
+            self._client = httpx.Client(app=_mocker_app)
+        else:
+            self._client = httpx.Client()
         if not ocr:
             self._ocr = NNRecognizer()
         self._username = ""
