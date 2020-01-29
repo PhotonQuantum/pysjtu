@@ -1,7 +1,6 @@
 from datetime import date, time
 from functools import partial
 from math import ceil
-from unittest.mock import patch
 
 import pytest
 
@@ -144,6 +143,21 @@ def test_dict_model(model, members, repr_pair):
     assert repr(model(**repr_pair[0])) == repr_pair[1]
 
 
+def test_score_detail(mocker):
+    members = ["name", "teacher", "score", "credit", "gp", "invalid", "course_type", "category", "score_type", "method",
+               "course_id", "class_name", "class_id"]
+    kwargs = {member: idx for idx, member in zip(range(len(members)), members) if member != "class_id"}
+    model_1 = Score(**kwargs)
+    model_1.year = 2012
+    model_1.term = 1
+    model_1.class_id = "dummy"
+    fake_detail_func = mocker.Mock(return_value="fake detail")
+    model_1._func_detail = fake_detail_func
+    for i in range(2):
+        assert model_1.detail == "fake detail"
+        fake_detail_func.assert_called_once_with(2012, 1, "dummy")
+
+
 @pytest.fixture
 def fake_model():
     class FakeModel:
@@ -153,41 +167,65 @@ def fake_model():
         def __eq__(self, other):
             return self.__dict__ == other.__dict__
 
+        def __repr__(self):
+            return f"<FakeModel {self.__dict__}>"
+
     return FakeModel
 
 
-@pytest.mark.parametrize("model, mock_schema", [(Exams, ExamSchema), (Schedule, ScheduleCourseSchema)])
-def test_loader_model(mocker, fake_model, model, mock_schema):
+@pytest.mark.parametrize("model, mock_schema, test_score",
+                         [(Exams, ExamSchema, False), (Schedule, ScheduleCourseSchema, False),
+                          (Scores, ScoreSchema, True)])
+def test_loader_model(mocker, fake_model, model, mock_schema, test_score):
     rtn_var = [
         fake_model(name="Calculus", credit=6.0),
-        fake_model(name="Chemistry", credit=3.0)
+        fake_model(name="Calculus", credit=4.0),
+        fake_model(name="Chemistry", credit=4.0)
     ]
+    if test_score:
+        loaded_var = rtn_var.copy()
+        for item in loaded_var:
+            item.__dict__.update({"year": 2012, "term": 1, "_func_detail": None})
+    else:
+        loaded_var = rtn_var
+    print(loaded_var)
     mocker.patch.object(mock_schema, "load", return_value=rtn_var)
-    model_1 = model(year=2012, term=1)
+    if test_score:
+        model_1 = model(year=2012, term=1, func_detail=None)
+    else:
+        model_1 = model(year=2012, term=1)
     assert model_1.year == 2012
     assert model_1.term == 1
     model_1.load(None)
     assert model_1.all() == rtn_var
-    assert model_1.filter(name="Calculus") == [rtn_var[0]]
+    assert model_1.filter(name="Calculus") == loaded_var[:2]
+    assert model_1.filter(name="Calculus", credit=4.0) == [loaded_var[1]]
     with pytest.raises(KeyError):
         model_1.filter(dummy="Lorem")
 
 
-def test_score_loader_model(mocker, fake_model):
+def test_schedule_filter(mocker, fake_model):
     rtn_var = [
-        fake_model(name="Calculus", credit=6.0),
-        fake_model(name="Chemistry", credit=3.0)
+        fake_model(name="Calculus", day=1, week=[range(1, 17)], time=range(1, 3)),
+        fake_model(name="Chemistry", day=3, week=[range(1, 14, 2)], time=range(1, 3)),
+        fake_model(name="Millitary", day=2, week=[5, 10, range(14, 16)], time=range(5, 7))
     ]
-    loaded_var = [
-        fake_model(name="Calculus", credit=6.0, year=2012, term=1, _func_detail=None),
-        fake_model(name="Chemistry", credit=3.0, year=2012, term=1, _func_detail=None)
-    ]
-    mocker.patch.object(ScoreSchema, "load", return_value=rtn_var)
-    model_1 = Scores(year=2012, term=1, func_detail=None)
-    assert model_1.year == 2012
-    assert model_1.term == 1
+    mocker.patch.object(ScheduleCourseSchema, "load", return_value=rtn_var)
+    model_1 = Schedule()
     model_1.load(None)
-    assert model_1.all() == loaded_var
-    assert model_1.filter(name="Calculus") == [loaded_var[0]]
-    with pytest.raises(KeyError):
-        model_1.filter(dummy="Lorem")
+    assert model_1.filter(week=3) == rtn_var[:2]
+    assert model_1.filter(week=17) == []
+    assert model_1.filter(week=[5]) == rtn_var
+    assert model_1.filter(week=range(15, 17)) == [rtn_var[0], rtn_var[2]]
+    assert model_1.filter(week=[3, range(16, 17)]) == rtn_var[:2]
+    assert model_1.filter(week=[5, range(16, 17)]) == rtn_var
+
+    assert model_1.filter(day=2) == [rtn_var[-1]]
+    assert model_1.filter(day=range(1, 5, 2)) == rtn_var[:2]
+    assert model_1.filter(day=[2, range(1, 5, 2)]) == rtn_var
+
+    assert model_1.filter(time=2) == rtn_var[:2]
+    assert model_1.filter(time=3) == []
+    assert model_1.filter(time=[6]) == [rtn_var[-1]]
+    assert model_1.filter(time=range(4, 7)) == [rtn_var[-1]]
+    assert model_1.filter(time=[1, range(4, 7)]) == rtn_var
