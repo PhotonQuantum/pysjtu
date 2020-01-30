@@ -77,8 +77,7 @@ class Session:
             self._client = httpx.Client(app=_mocker_app)
         else:
             self._client = httpx.Client()
-        if not ocr:
-            self._ocr = NNRecognizer()
+        self._ocr = ocr if ocr else NNRecognizer()
         self._username = ""
         self._password = ""
         self._cache_store = {}
