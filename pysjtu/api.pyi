@@ -1,8 +1,8 @@
 import typing
-
-import httpx
 from datetime import date
 from pathlib import Path
+
+import httpx
 from httpx.auth import AuthTypes
 from httpx.config import (
     UNSET,
@@ -44,7 +44,8 @@ class Session:
         pass
 
     def __init__(self, username: str = "", password: str = "", cookies: CookieTypes = None,
-                 ocr: Recognizer = None, session_file: typing.Union[typing.BinaryIO, str, Path] = None, retry: list = None):
+                 ocr: Recognizer = None, session_file: typing.Union[typing.BinaryIO, str, Path] = None,
+                 retry: list = None, _mocker_app=None):
         pass
 
     def request(
@@ -270,5 +271,5 @@ class Client:
     def query_gpa(self, query_params: model.GPAQueryParams, timeout: TimeoutTypes = UNSET) -> model.Exams:
         pass
 
-    def _elect(self, params):
-        pass
+    # def _elect(self, params):
+    #     pass

@@ -1,4 +1,5 @@
 import pickle
+from datetime import date
 from functools import partial
 from tempfile import NamedTemporaryFile
 
@@ -6,9 +7,10 @@ import httpx
 import pytest
 import respx
 
-from pysjtu.api import Session
+from pysjtu.api import Session, Client
 from pysjtu.const import *
 from pysjtu.exceptions import *
+from pysjtu.model import GPAQueryParams, Schedule, Scores, Exams, QueryResult
 from pysjtu.ocr import NNRecognizer
 from .mock_server import app
 
@@ -39,6 +41,7 @@ def buggy_request():
 def check_login():
     def _check_login(session):
         return "519027910001" in session.get("https://i.sjtu.edu.cn/xtgl/index_initMenu.html").text
+
     return _check_login
 
 
@@ -66,7 +69,7 @@ class TestSession:
         tmpfile.seek(0)
 
         mocker.patch.object(NNRecognizer, "recognize", return_value="ipsum")
-        with Session(_mocker_app=app, session_file=tmpfile.file) as sess:
+        with Session(_mocker_app=app, session_file=tmpfile.file):
             pass
         tmpfile.seek(0)
 
@@ -169,6 +172,7 @@ class TestSession:
         assert check_login(sess)
 
         tmp_file = tmp_path / "tmpfile_1"
+        # noinspection PyTypeChecker
         open(tmp_file, mode="a").close()
         logged_session.dump(tmp_file)
         sess = Session(_mocker_app=app)
@@ -183,8 +187,10 @@ class TestSession:
         assert check_login(sess)
 
         with pytest.raises(TypeError):
+            # noinspection PyTypeChecker
             sess.load(0)
         with pytest.raises(TypeError):
+            # noinspection PyTypeChecker
             sess.dump(0)
 
     def test_properties(self, logged_session):
@@ -209,3 +215,66 @@ class TestSession:
         sess.cookies = cookie
         assert sess._cache_store == {}
         assert sess._cookies == sess.cookies
+
+
+@pytest.fixture
+def logged_client(logged_session):
+    return Client(logged_session)
+
+
+class TestClient:
+    class DummySession:
+        _cache_store = {}
+
+        def get(self): ...
+
+        def post(self): ...
+
+    class DummySession2:
+        def get(self): ...
+
+        def post(self): ...
+
+    # noinspection PyTypeChecker
+    def test_init(self, logged_session):
+        Client(logged_session)
+        Client(self.DummySession)
+        with pytest.raises(TypeError):
+            Client(0)
+        with pytest.raises(TypeError):
+            Client(self.DummySession2)
+
+    def test_student_id(self, logged_client):
+        assert logged_client.student_id == "519027910001"
+
+    def test_term_start_date(self, logged_client):
+        assert logged_client.term_start_date == date(2019, 9, 9)
+
+    def test_gpa_query_params(self, logged_client):
+        assert isinstance(logged_client.default_gpa_query_params, GPAQueryParams)
+
+    def test_schedule(self, logged_client):
+        schedule = logged_client.schedule(2019, 0)
+        assert isinstance(schedule, Schedule)
+        assert len(schedule.all()) == 3
+
+    def test_get_score(self, logged_client):
+        score = logged_client.score(2019, 0)
+        assert isinstance(score, Scores)
+        assert len(score.all()) == 3
+        assert len(score.all()[0].detail) == 2
+
+    def test_exam(self, logged_client):
+        exam = logged_client.exam(2019, 0)
+        assert isinstance(exam, Exams)
+        assert len(exam.all()) == 3
+
+    def test_course(self, logged_client):
+        courses = logged_client.query_courses(2019, 0, name="高等数学", page_size=40)
+        assert isinstance(courses, QueryResult)
+        assert len(courses) == 90
+        assert len(list(courses)) == 90
+
+    def test_gpa_fail(self, logged_client):
+        with pytest.raises(GPACalculationException):
+            logged_client.query_gpa(logged_client.default_gpa_query_params)
