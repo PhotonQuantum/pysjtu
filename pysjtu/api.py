@@ -3,6 +3,7 @@ import pickle
 import re
 import time
 import warnings
+from datetime import datetime
 from functools import partial
 from http.cookiejar import CookieJar
 from pathlib import Path
@@ -430,7 +431,7 @@ class Client:
         """
         if not self._term_start:
             raw = self._session.get(const.CALENDAR_URL + self.student_id)
-            self._term_start = min(re.findall(r"\d{4}-\d{2}-\d{2}", raw.text))
+            self._term_start = datetime.strptime(min(re.findall(r"\d{4}-\d{2}-\d{2}", raw.text)), "%Y-%m-%d").date()
         return self._term_start
 
     # noinspection PyProtectedMember
