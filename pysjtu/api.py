@@ -16,8 +16,8 @@ from . import const
 from . import model
 from . import schema
 from .exceptions import *
-from .utils import has_callable, range_list_to_str, schema_post_loader
 from .ocr import NNRecognizer
+from .utils import has_callable, range_list_to_str, schema_post_loader
 
 
 class Session:
@@ -74,7 +74,8 @@ class Session:
                 self._session_file.seek(0)
             self.dump(self._session_file)
 
-    def __init__(self, username="", password="", cookies=None, ocr=None, session_file=None, retry=None, _mocker_app=None):
+    def __init__(self, username="", password="", cookies=None, ocr=None, session_file=None, retry=None,
+                 _mocker_app=None):
         if _mocker_app:
             self._client = httpx.Client(app=_mocker_app)
         else:
@@ -575,6 +576,6 @@ class Client:
         raw = self._session.post(const.GPA_QUERY_URL + self.student_id, data=compiled_params, timeout=timeout)
         return schema.GPASchema().load(raw.json()["items"][0])
 
-    def _elect(self, params):
-        r = self._session.post(const.ELECT_URL + self.student_id, data=params)
-        return r.json()
+    # def _elect(self, params):
+    #    r = self._session.post(const.ELECT_URL + self.student_id, data=params)
+    #    return r.json()

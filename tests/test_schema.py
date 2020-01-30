@@ -82,6 +82,7 @@ def test_exam_schema(resp_loader):
 
     assert exam.name == "2019-2020-1数学期中考"
     assert exam.location == "东上院509"
+    assert exam.seat == 1
     assert exam.course_id == "MA248"
     assert exam.course_name == "高等数学I"
     assert exam.class_name == "(2019-2020-1)-MA248-7"

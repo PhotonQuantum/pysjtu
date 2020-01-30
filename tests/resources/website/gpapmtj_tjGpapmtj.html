@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+	<title>错误提示</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/css/zftal-ui.css?ver=20200102" />
+	<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/css/error.css?ver=20200102" />
+	<script type="text/javascript">
+	//表示是独立错误页面
+	if(!document.getElementById("yhgnPage")){
+			//加载jquery
+		var script = document.createElement( "script" );
+			//设置属性
+			script.setAttribute('type', 'text/javascript');
+			script.setAttribute('media', "all");
+			script.setAttribute('charset', "utf-8");
+	        script.setAttribute('src', "/zftal-ui-v5-1.0.2/assets/js/other_jquery/jquery.min.js?ver=20200102");
+	     	// 先把js/css加到页面；如果script节点没有添加到DOM树中，在chrome和firefox中不会响应script的load事件
+            document.getElementsByTagName("head")[0].appendChild(script);  
+	}
+	</script>
+	<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/jquery-migrate.min.js?ver=20200102"></script>
+</head>
+<body>
+<div class="error_v5">
+	<div class="error_ico"><i class="error3"></i></div>
+	<div class="error_con">
+		<p class="error_title">无功能权限，</p>
+		<p class="error_text2"><span class="time">5</span>秒后将自动关闭页面<a href="#" class="go_back0" onclick="closeWin();">立即关闭</a></p>
+	</div>
+</div>
+<script type="text/javascript">
+	
+function lazyGo() {
+	var sec = $(".error_text2 .time").text();
+	$(".error_text2 .time").text(--sec);
+	if (sec > 0){
+		setTimeout("lazyGo();", 1000);
+	}else{
+		window.close();
+	}
+}
+
+function closeWin(){
+	window.close();
+}
+
+var times_1 = 0;
+var intervalFunc = function(){
+	if(jQuery){
+		jQuery(function($) {
+			//计算高度
+			window.onresize = function(){  
+				var body_height	=	$(window).height();
+				var error_height=	$(".error_v5").height() + 50;
+				var margin_top	=	(body_height - error_height)/2;
+				var margin_top	= 	(margin_top>0) ? margin_top : 0;
+				$(".error_v5").css("margin-top",margin_top);
+			} 
+			$(window).resize();
+			setTimeout("lazyGo();", 1000);
+		});
+	}else{
+		if(times_1 <= 10){
+			window.setTimeout(intervalFunc, 300);
+		}
+	}
+	times_1 += 1;
+};
+window.setTimeout(intervalFunc,100);
+</script>
+</body>
+</html>
