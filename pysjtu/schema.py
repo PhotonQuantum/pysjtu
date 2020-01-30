@@ -214,6 +214,7 @@ class ExamSchema(Schema):
 
     name = fields.Str(required=True, data_key="ksmc")
     location = fields.Str(data_key="cdmc")
+    seat = fields.Int(data_key="zwh")
     course_id = fields.Str(data_key="kch")
     course_name = fields.Str(data_key="kcmc")
     class_name = fields.Str(data_key="jxbmc")

@@ -144,6 +144,7 @@ class LibCourse(Result):
 class Exam(Result):
     name: str
     location: str
+    seat: int
     course_id: str
     course_name: str
     class_name: str
