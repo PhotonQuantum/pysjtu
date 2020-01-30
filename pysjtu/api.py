@@ -516,13 +516,15 @@ class Client:
         scores.load(raw.json()["items"])
         return scores
 
-    def query_courses(self, year, term, name=None, teacher=None, day_of_week=None, week=None, time_of_day=None,
+    def query_courses(self, year, term, page_size=15, name=None, teacher=None, day_of_week=None, week=None,
+                      time_of_day=None,
                       timeout=UNSET):
         """
         Query courses matching given criteria from the whole course lib of SJTU.
 
         :param year: year in which target courses are given.
         :param term: term in which target courses are given.
+        :param page_size: page size for result iteration.
         :param name: (optional) Name (can be fuzzy) of target courses.
         :param teacher: (optional) Teacher name of target courses.
         :param day_of_week: (optional) Day of week of target courses.
@@ -547,7 +549,8 @@ class Client:
 
         req = partial(self._session.post, const.COURSELIB_URL + self.student_id, timeout=timeout)
 
-        return model.QueryResult(req, partial(schema_post_loader, schema.LibCourseSchema), req_params)
+        return model.QueryResult(req, partial(schema_post_loader, schema.LibCourseSchema), req_params,
+                                 page_size=page_size)
 
     def query_gpa(self, query_params, timeout=UNSET):
         """
