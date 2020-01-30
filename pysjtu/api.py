@@ -353,7 +353,7 @@ class Session:
 
     @_cookies.setter
     def _cookies(self, new_cookie):
-        self._student_id = None
+        self._cache_store = {}
         self._client.cookies = new_cookie
 
     @property
