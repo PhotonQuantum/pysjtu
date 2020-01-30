@@ -5,6 +5,7 @@ import time
 import warnings
 from functools import partial
 from http.cookiejar import CookieJar
+from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 
 import httpx
@@ -263,6 +264,22 @@ class Session:
         """
         renew_required = True
 
+        if "cookies" in d.keys() and d["cookies"]:
+            if isinstance(d["cookies"], httpx.models.Cookies):
+                cj = d["cookies"]
+            elif isinstance(d["cookies"], dict):
+                cj = CookieJar()
+                cj._cookies = d["cookies"]
+            else:
+                raise TypeError
+            try:
+                self.cookies = cj
+                renew_required = False
+            except SessionException:
+                pass
+        else:
+            self._cookies = {}
+
         if "username" not in d.keys() or "password" not in d.keys() or not d["username"] or not d["password"]:
             warnings.warn("Missing username or password field", LoadWarning)
             self._username = ""
@@ -271,17 +288,6 @@ class Session:
         else:
             self._username = d["username"]
             self._password = d["password"]
-
-        if "cookies" in d.keys() and d["cookies"]:
-            cj = CookieJar()
-            cj._cookies = d["cookies"]
-            try:
-                self.cookies = cj
-                renew_required = False
-            except SessionException:
-                pass
-        else:
-            self._cookies = {}
 
         if renew_required:
             self.login(self._username, self._password)
@@ -294,7 +300,7 @@ class Session:
         """
         if isinstance(fp, (io.RawIOBase, io.BufferedIOBase)):
             conf = pickle.load(fp)
-        elif isinstance(fp, str):
+        elif isinstance(fp, (str, Path)):
             with open(fp, mode="rb") as f:
                 conf = pickle.load(f)
         else:
@@ -321,7 +327,7 @@ class Session:
         """
         if isinstance(fp, (io.RawIOBase, io.BufferedIOBase)):
             pickle.dump(self.dumps(), fp)
-        elif isinstance(fp, str):
+        elif isinstance(fp, (str, Path)):
             with open(fp, mode="wb") as f:
                 pickle.dump(self.dumps(), f)
         else:
@@ -378,10 +384,8 @@ class Session:
 
     @timeout.setter
     def timeout(self, new_timeout):
-        if isinstance(new_timeout, int):
+        if isinstance(new_timeout, (tuple, float, int, httpx.Timeout)) or new_timeout is None:
             self._client.timeout = httpx.Timeout(new_timeout)
-        elif isinstance(new_timeout, httpx.Timeout):
-            self._client.timeout = new_timeout
         else:
             raise TypeError
 
