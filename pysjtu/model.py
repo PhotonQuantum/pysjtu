@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 
 from .utils import overlap, range_in_set, parse_slice
@@ -124,6 +125,10 @@ class QueryResult:
         new_params = self._query_params
         new_params["queryModel.showCount"] = count
         new_params["queryModel.currentPage"] = page
+        new_params["queryModel.sortName"] = ""
+        new_params["queryModel.sortOrder"] = "asc"
+        new_params["nd"] = int(time.time() * 1000)
+        new_params["_search"] = False
         return self._ref(data=new_params).json()
 
     def __iter__(self):
