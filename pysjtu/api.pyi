@@ -1,6 +1,7 @@
 import typing
 
 import httpx
+from datetime import date
 from pathlib import Path
 from httpx.auth import AuthTypes
 from httpx.config import (
@@ -237,7 +238,7 @@ class Client:
         pass
 
     @property
-    def term_start_date(self) -> str:
+    def term_start_date(self) -> date:
         pass
 
     @property
