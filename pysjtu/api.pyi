@@ -1,6 +1,7 @@
 import typing
 
 import httpx
+from pathlib import Path
 from httpx.auth import AuthTypes
 from httpx.config import (
     UNSET,
@@ -30,7 +31,7 @@ class Session:
     _password: str
     _cache_store: dict
     _release_when_exit: bool
-    _session_file: typing.BinaryIO
+    _session_file: typing.Union[typing.BinaryIO, str, Path]
 
     def _secure_req(self, ref: typing.Callable) -> Response:
         pass
@@ -42,7 +43,7 @@ class Session:
         pass
 
     def __init__(self, username: str = "", password: str = "", cookies: CookieTypes = None,
-                 ocr: Recognizer = None, session_file: typing.BinaryIO = None, retry: list = None):
+                 ocr: Recognizer = None, session_file: typing.Union[typing.BinaryIO, str, Path] = None, retry: list = None):
         pass
 
     def request(
@@ -187,13 +188,13 @@ class Session:
     def loads(self, d: dict):
         pass
 
-    def load(self, fp: typing.Union[typing.BinaryIO, str]):
+    def load(self, fp: typing.Union[typing.BinaryIO, str, Path]):
         pass
 
     def dumps(self) -> dict:
         pass
 
-    def dump(self, fp: typing.Union[typing.BinaryIO, str]):
+    def dump(self, fp: typing.Union[typing.BinaryIO, str, Path]):
         pass
 
     @property
