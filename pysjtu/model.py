@@ -289,6 +289,7 @@ class Exam(Result):
 
     :param name: name of the course on which you are being examined.
     :param location: the place where this exam is held.
+    :param seat: seat number
     :param course_id: course id of the course on which you are being examined.
     :param course_name: course name of the course on which you are being examined.
     :param class_name: class name of the class you are attending on the course which are being examined.
@@ -298,7 +299,7 @@ class Exam(Result):
     :param date: date of the exam
     :param time: time range of the exam
     """
-    _members = ["name", "location", "course_id", "course_name", "class_name", "rebuild", "credit", "self_study",
+    _members = ["name", "location", "seat", "course_id", "course_name", "class_name", "rebuild", "credit", "self_study",
                 "date", "time"]
 
     def __init__(self, **kwargs):
