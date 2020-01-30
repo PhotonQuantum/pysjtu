@@ -49,6 +49,23 @@ def login_post():
         return redirect("/jaccount/jalogin?err=1")
 
 
+@app.route("/expire_me")
+def session_expire():
+    session["is_login"] = False
+    return "OK"
+
+
+@app.route("/is_login")
+def is_login():
+    return "True" if session.get("is_login", None) else "False"
+
+
+@app.route("/logout")
+def logout():
+    session["is_login"] = False
+    return redirect("/xtgl/login_slogin.html")
+
+
 @app.route("/503")
 def service_unavailable():
     return "ServiceUnavailable", 503
@@ -59,15 +76,13 @@ def not_found():
     return "NotFound", 404
 
 
-@app.route("/expire_me")
-def session_expire():
-    session["is_login"] = False
-    return "OK"
+@app.route("/ping", methods=["GET", "HEAD", "PUT", "PATCH", "DELETE"])
+def get_and_head():
+    return "pong"
 
-
-@app.route("/is_login")
-def is_login():
-    return "True" if session.get("is_login", None) else "False"
+@app.route("/ping", methods=["POST"])
+def post():
+    return request.data
 
 
 # --------------------------------------
