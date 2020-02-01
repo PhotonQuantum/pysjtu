@@ -243,7 +243,7 @@ class Client:
         pass
 
     @property
-    def student_id(self) -> str:
+    def student_id(self) -> int:
         pass
 
     @property

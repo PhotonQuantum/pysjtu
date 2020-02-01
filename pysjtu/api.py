@@ -431,7 +431,7 @@ class Client:
         Get the term start date for the current term.
         """
         if not self._term_start:
-            raw = self._session.get(const.CALENDAR_URL + self.student_id)
+            raw = self._session.get(const.CALENDAR_URL + str(self.student_id))
             self._term_start = datetime.strptime(min(re.findall(r"\d{4}-\d{2}-\d{2}", raw.text)), "%Y-%m-%d").date()
         return self._term_start
 
@@ -443,8 +443,8 @@ class Client:
         """
         if "student_id" not in self._session._cache_store:
             rtn = self._session.get(const.HOME_URL)
-            self._session._cache_store["student_id"] = re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[
-                0]
+            self._session._cache_store["student_id"] = int(
+                re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[0])
         return self._session._cache_store["student_id"]
 
     @property
@@ -473,7 +473,7 @@ class Client:
         return schedule
 
     def _get_score_detail(self, year, term, class_id, timeout=UNSET):
-        raw = self._session.post(const.SCORE_DETAIL_URL + self.student_id,
+        raw = self._session.post(const.SCORE_DETAIL_URL + str(self.student_id),
                                  data={"xnm": year, "xqm": const.TERMS[term], "jxb_id": class_id, "_search": False,
                                        "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                        "queryModel.currentPage": 1, "queryModel.sortName": "",
@@ -507,7 +507,7 @@ class Client:
         :param timeout: (optional) How long to wait for the server to send data before giving up.
         :return: A new :class:`Exams` object.
         """
-        raw = self._session.post(const.EXAM_URL + self.student_id,
+        raw = self._session.post(const.EXAM_URL + str(self.student_id),
                                  data={"xnm": year, "xqm": const.TERMS[term], "_search": False, "ksmcdmb_id": '',
                                        "kch": '', "kc": '', "ksrq": '', "kkbm_id": '',
                                        "nd": int(time.time() * 1000), "queryModel.showCount": 15,
@@ -548,7 +548,7 @@ class Client:
             if k in dir():
                 req_params[v] = locals()[k]
 
-        req = partial(self._session.post, const.COURSELIB_URL + self.student_id, timeout=timeout)
+        req = partial(self._session.post, const.COURSELIB_URL + str(self.student_id), timeout=timeout)
 
         return model.QueryResult(req, partial(schema_post_loader, schema.LibCourseSchema), req_params,
                                  page_size=page_size)
@@ -563,7 +563,7 @@ class Client:
         :return: A new :class:`GPA` object.
         """
         compiled_params = schema.GPAQueryParamsSchema().dump(query_params)
-        calc_rtn = self._session.post(const.GPA_CALC_URL + self.student_id, data=compiled_params, timeout=timeout)
+        calc_rtn = self._session.post(const.GPA_CALC_URL + str(self.student_id), data=compiled_params, timeout=timeout)
         if calc_rtn.text != "\"统计成功！\"":
             if calc_rtn.text == "\"统计失败！\"":
                 raise GPACalculationException("Calculation failure.")
@@ -573,9 +573,9 @@ class Client:
                                 "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                 "queryModel.currentPage": 1, "queryModel.sortName": "",
                                 "queryModel.sortOrder": "asc", "time": 0})
-        raw = self._session.post(const.GPA_QUERY_URL + self.student_id, data=compiled_params, timeout=timeout)
+        raw = self._session.post(const.GPA_QUERY_URL + str(self.student_id), data=compiled_params, timeout=timeout)
         return schema.GPASchema().load(raw.json()["items"][0])
 
     # def _elect(self, params):
-    #    r = self._session.post(const.ELECT_URL + self.student_id, data=params)
+    #    r = self._session.post(const.ELECT_URL + str(self.student_id), data=params)
     #    return r.json()
