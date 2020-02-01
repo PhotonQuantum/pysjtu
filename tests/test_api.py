@@ -245,7 +245,7 @@ class TestClient:
             Client(self.DummySession2)
 
     def test_student_id(self, logged_client):
-        assert logged_client.student_id == "519027910001"
+        assert logged_client.student_id == 519027910001
 
     def test_term_start_date(self, logged_client):
         assert logged_client.term_start_date == date(2019, 9, 9)

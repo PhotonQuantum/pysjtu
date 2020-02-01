@@ -36,7 +36,7 @@ And, to persist your session...
 >>> session = pysjtu.Session()
 >>> session.load("lin_fei.session")
 >>> pysjtu.Client(session).student_id
-'519027910001'
+519027910001
 ```
 
 ## Features
