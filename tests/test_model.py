@@ -97,7 +97,7 @@ def test_query_result(dummy_req):
       "'attending': None}>")),
 
     (GPA,
-     ["total_score", "course_count", "fail_count", "total_gp", "acquired_gp", "failed_gp", "pass_rate", "gp",
+     ["total_score", "course_count", "fail_count", "total_credit", "acquired_credit", "failed_credit", "pass_rate", "gp",
       "gp_ranking", "gpa", "gpa_ranking", "total_students"],
      ({"gp": 80, "gp_ranking": 50, "gpa": 3.8, "gpa_ranking": 40, "total_students": 200},
       "<GPA gp=80 50/200 gpa=3.8 40/200>")),

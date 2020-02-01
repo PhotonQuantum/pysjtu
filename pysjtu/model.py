@@ -243,7 +243,7 @@ class GPA(Result):
     :param gpa_ranking: ranking of the gpa.
     :param total_students: number of students participates in the ranking.
     """
-    _members = ["total_score", "course_count", "fail_count", "total_gp", "acquired_gp", "failed_gp",
+    _members = ["total_score", "course_count", "fail_count", "total_credit", "acquired_credit", "failed_credit",
                 "pass_rate", "gp", "gp_ranking", "gpa", "gpa_ranking", "total_students"]
 
     def __init__(self, **kwargs):
