@@ -10,7 +10,7 @@ import respx
 from pysjtu.api import Session, Client
 from pysjtu.const import *
 from pysjtu.exceptions import *
-from pysjtu.model import GPAQueryParams, Schedule, Scores, Exams, QueryResult
+from pysjtu.model import GPAQueryParams, Schedule, Scores, Exams, QueryResult, LogicEnum, CourseRange, GPA
 from pysjtu.ocr import NNRecognizer
 from .mock_server import app
 
@@ -276,5 +276,16 @@ class TestClient:
         assert len(list(courses)) == 90
 
     def test_gpa_fail(self, logged_client):
-        with pytest.raises(GPACalculationException):
-            logged_client.query_gpa(logged_client.default_gpa_query_params)
+        params = logged_client.default_gpa_query_params
+        params.condition_logic = LogicEnum.AND
+        with pytest.raises(GPACalculationException) as e:
+            logged_client.query_gpa(params)
+        assert str(e.value) == "Unauthorized."
+        params.condition_logic = LogicEnum.OR
+        params.course_range = CourseRange.ALL
+        with pytest.raises(GPACalculationException) as e:
+            logged_client.query_gpa(params)
+        assert str(e.value) == "Calculation failure."
+        params.course_range = CourseRange.CORE
+        gpa = logged_client.query_gpa(params)
+        assert isinstance(gpa, GPA)
