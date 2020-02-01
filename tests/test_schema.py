@@ -142,6 +142,25 @@ def test_gpa_query_params_schema_dump(resp_loader):
     assert dump_dict == {'zczt': 1, 'bjjd': '缓考', 'xjzt': 0, 'bjpjf': '缓考', 'qsXnxq': '', 'tjfw': 'njzy', 'kch_ids': 'TH020,TH009', 'sspjfblws': 9, 'tjgx': 0, 'pjjdblws': 9, 'zzXnxq': 2019, 'kcfw': 'qbkc', 'alsfj': 'bkcx'}
 
 
+def test_exam_schema(resp_loader):
+    raw_resp = resp_loader("gpa")
+    schema = GPASchema()
+    gpa = schema.load(raw_resp)
+
+    assert gpa.total_score == 999
+    assert gpa.course_count == 14
+    assert gpa.fail_count == 0
+    assert gpa.total_credit == 32.5
+    assert gpa.acquired_credit == 32.5
+    assert gpa.failed_credit == 0
+    assert gpa.pass_rate == 1
+    assert gpa.gp == 98.987654321
+    assert gpa.gp_ranking == 21
+    assert gpa.gpa == 4.123456789
+    assert gpa.gpa_ranking == 20
+    assert gpa.total_students == 99
+
+
 def test_lib_course_schema_1(resp_loader):
     schema = LibCourseSchema()
     raw_resp = resp_loader("lib_course_1")

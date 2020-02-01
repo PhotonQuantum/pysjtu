@@ -183,4 +183,18 @@ def course_lib():
 def gpa_query():
     if not session.get("is_login", None):
         return redirect("/xtgl/login_slogin.html")
+    if request.form.get("tjgx", None) != "1":
+        return app.send_static_file("gpapmtj_tjGpapmtj_unauthorized.html")
+    if request.form.get("kcfw", None) != "hxkc":
+        return app.send_static_file("gpapmtj_tjGpapmtj_failure.html")
+    session["is_gpa_calculated"] = True
     return app.send_static_file("gpapmtj_tjGpapmtj.html")
+
+
+@app.route("/cjpmtj/gpapmtj_cxGpaxjfcxIndex.html", methods=["post"])
+def gpa():
+    if not session.get("is_login", None):
+        return redirect("/xtgl/login_slogin.html")
+    if not session.get("is_gpa_calculated", None):
+        return ""
+    return app.send_static_file("gpapmtj_cxGpaxjfcxIndex.html")
