@@ -511,7 +511,7 @@ class RankingResultField(fields.Field):
     ):
         if not value:
             return  # pragma: no cover
-        return value.split("/")[0]
+        return int(value.split("/")[0])
 
 
 class StudentCountFromRanking(fields.Field):
@@ -524,7 +524,7 @@ class StudentCountFromRanking(fields.Field):
     ):
         if not value:
             return  # pragma: no cover
-        return value.split("/")[1]
+        return int(value.split("/")[1])
 
 
 class GPASchema(Schema):
@@ -532,7 +532,7 @@ class GPASchema(Schema):
         unknown = EXCLUDE
 
     total_score = fields.Int(data_key="zf")
-    course_count = fields.Int(data_key="mc")
+    course_count = fields.Int(data_key="ms")
     fail_count = fields.Int(data_key="bjgms")
     total_credit = fields.Float(data_key="zxf")
     acquired_credit = fields.Float(data_key="hdxf")
