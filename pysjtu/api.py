@@ -96,8 +96,11 @@ class Session:
         if session_file:
             self.load(session_file)
             self._session_file = session_file
-        elif cookies or (username and password):
-            self.loads({"username": username, "password": password, "cookies": cookies})
+
+        if username and password:
+            self.loads({"username": username, "password": password})
+        elif cookies:
+            self.loads({"cookies": cookies})
 
     def request(self, *args, validate_session=True, auto_renew=True, **kwargs):
         """
@@ -307,8 +310,11 @@ class Session:
         if isinstance(fp, (io.RawIOBase, io.BufferedIOBase)):
             conf = pickle.load(fp)
         elif isinstance(fp, (str, Path)):
-            with open(fp, mode="rb") as f:
-                conf = pickle.load(f)
+            try:
+                with open(fp, mode="rb") as f:
+                    conf = pickle.load(f)
+            except EOFError:
+                conf = {}
         else:
             raise TypeError
         self.loads(conf)
