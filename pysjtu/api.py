@@ -308,7 +308,10 @@ class Session:
         :param fp: a binary file object / filepath contains a session.
         """
         if isinstance(fp, (io.RawIOBase, io.BufferedIOBase)):
-            conf = pickle.load(fp)
+            try:
+                conf = pickle.load(fp)
+            except EOFError:
+                conf = {}
         elif isinstance(fp, (str, Path)):
             try:
                 with open(fp, mode="rb") as f:
