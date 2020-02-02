@@ -188,7 +188,6 @@ def test_loader_model(mocker, fake_model, model, mock_schema, test_score):
             item.__dict__.update({"year": 2012, "term": 1, "_func_detail": None})
     else:
         loaded_var = rtn_var
-    print(loaded_var)
     mocker.patch.object(mock_schema, "load", return_value=rtn_var)
     if test_score:
         model_1 = model(year=2012, term=1, func_detail=None)
@@ -197,7 +196,8 @@ def test_loader_model(mocker, fake_model, model, mock_schema, test_score):
     assert model_1.year == 2012
     assert model_1.term == 1
     model_1.load(None)
-    assert model_1.all() == rtn_var
+    assert len(model_1) == 3
+    assert model_1 == rtn_var
     assert model_1.filter(name="Calculus") == loaded_var[:2]
     assert model_1.filter(name="Calculus", credit=4.0) == [loaded_var[1]]
     with pytest.raises(KeyError):

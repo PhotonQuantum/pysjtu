@@ -412,7 +412,7 @@ class Client:
         >>> s = pysjtu.Session(username="user@sjtu.edu.cn", password="something_secret")
         >>> client = pysjtu.Client(session=s)
         >>> sched = client.schedule(2019, 0)
-        >>> sched.all()
+        >>> sched
         [<ScheduleCourse 军事理论 week=[range(9, 17)] day=1 time=range(1, 3)>, ...]
         >>> sched.filter(time=range(3,5), day=range(2, 4))
         [<ScheduleCourse 程序设计思想与方法（C++） week=[range(1, 10), range(11, 17)] day=2 time=range(3, 5)>,

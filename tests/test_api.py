@@ -256,18 +256,18 @@ class TestClient:
     def test_schedule(self, logged_client):
         schedule = logged_client.schedule(2019, 0)
         assert isinstance(schedule, Schedule)
-        assert len(schedule.all()) == 3
+        assert len(schedule) == 3
 
     def test_get_score(self, logged_client):
         score = logged_client.score(2019, 0)
         assert isinstance(score, Scores)
-        assert len(score.all()) == 3
-        assert len(score.all()[0].detail) == 2
+        assert len(score) == 3
+        assert len(score[0].detail) == 2
 
     def test_exam(self, logged_client):
         exam = logged_client.exam(2019, 0)
         assert isinstance(exam, Exams)
-        assert len(exam.all()) == 3
+        assert len(exam) == 3
 
     def test_course(self, logged_client):
         courses = logged_client.query_courses(2019, 0, name="高等数学", page_size=40)
