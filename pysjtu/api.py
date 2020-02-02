@@ -74,8 +74,8 @@ class Session:
                 self._session_file.seek(0)
             self.dump(self._session_file)
 
-    def __init__(self, username="", password="", cookies=None, ocr=None, session_file=None, retry=None,
-                 _mocker_app=None):
+    def __init__(self, username="", password="", cookies=None, ocr=None, session_file=None, retry=None, proxies=None,
+                 timeout=None, _mocker_app=None):
         if _mocker_app:
             self._client = httpx.Client(app=_mocker_app)
         else:
@@ -88,6 +88,10 @@ class Session:
         self._session_file = None
         if retry:
             self._retry = retry
+        if proxies:
+            self.proxies = proxies
+        if timeout:
+            self.timeout = timeout
 
         if session_file:
             self.load(session_file)

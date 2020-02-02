@@ -45,7 +45,7 @@ class Session:
 
     def __init__(self, username: str = "", password: str = "", cookies: CookieTypes = None,
                  ocr: Recognizer = None, session_file: typing.Union[typing.BinaryIO, str, Path] = None,
-                 retry: list = None, _mocker_app=None):
+                 retry: list = None, proxies: ProxiesTypes = None, timeout: TimeoutTypes = None, _mocker_app=None):
         pass
 
     def request(
