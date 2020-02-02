@@ -66,10 +66,10 @@ with Session(session_file=sess_file) if sess_file else Session(username=os.envir
     print(client.term_start_date)
     query_params = client.default_gpa_query_params
 
-    print(client.query_gpa(query_params, 10))
+    print(client.gpa(query_params, 10))
 
     query_params.course_range = CourseRange.ALL
-    print(client.query_gpa(query_params, 10))
+    print(client.gpa(query_params, 10))
 
     if not sess_file:
         sess.dump(open("session", mode="wb"))

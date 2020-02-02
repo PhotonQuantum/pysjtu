@@ -553,12 +553,12 @@ class Client:
         return model.QueryResult(req, partial(schema_post_loader, schema.LibCourseSchema), req_params,
                                  page_size=page_size)
 
-    def query_gpa(self, query_params, timeout=UNSET):
+    def gpa(self, query_params, timeout=UNSET):
         """
         Query your GP & GPA and their rankings of specific year & term.
 
         :param query_params: parameters for this query.
-            A default one can be fetched by property `default_gpa_query_params`.
+            A default one can be fetched by reading property `default_gpa_query_params`.
         :param timeout: (optional) How long to wait for the server to send data before giving up.
         :return: A new :class:`GPA` object.
         """
