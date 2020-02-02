@@ -268,7 +268,7 @@ class Client:
                       timeout: TimeoutTypes = UNSET) -> model.QueryResult:
         pass
 
-    def query_gpa(self, query_params: model.GPAQueryParams, timeout: TimeoutTypes = UNSET) -> model.Exams:
+    def gpa(self, query_params: model.GPAQueryParams, timeout: TimeoutTypes = UNSET) -> model.GPA:
         pass
 
     # def _elect(self, params):

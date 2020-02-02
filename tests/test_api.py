@@ -279,13 +279,13 @@ class TestClient:
         params = logged_client.default_gpa_query_params
         params.condition_logic = LogicEnum.AND
         with pytest.raises(GPACalculationException) as e:
-            logged_client.query_gpa(params)
+            logged_client.gpa(params)
         assert str(e.value) == "Unauthorized."
         params.condition_logic = LogicEnum.OR
         params.course_range = CourseRange.ALL
         with pytest.raises(GPACalculationException) as e:
-            logged_client.query_gpa(params)
+            logged_client.gpa(params)
         assert str(e.value) == "Calculation failure."
         params.course_range = CourseRange.CORE
-        gpa = logged_client.query_gpa(params)
+        gpa = logged_client.gpa(params)
         assert isinstance(gpa, GPA)
