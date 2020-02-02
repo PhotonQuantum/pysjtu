@@ -18,7 +18,7 @@ from .mock_server import app
 @pytest.fixture
 def logged_session(mocker):
     mocker.patch.object(NNRecognizer, "recognize", return_value="ipsum")
-    sess = Session(_mocker_app=app, retry=[0])
+    sess = Session(_mocker_app=app, retry=[0], timeout=1, proxies="http://127.0.0.1:8888")
     sess.login("FeiLin", "WHISPERS")
     return sess
 
@@ -143,6 +143,12 @@ class TestSession:
         sess.loads({"username": "FeiLin", "password": "WHISPERS"})
         assert check_login(sess)
 
+        with pytest.warns(LoadWarning):
+            sess.loads({})
+        assert sess.cookies == httpx.Cookies({})
+        assert not sess._username
+        assert not sess._password
+
         sess = Session(_mocker_app=app)
         with pytest.raises(TypeError):
             sess.loads({"cookies": "Cookie☆"})
@@ -192,6 +198,18 @@ class TestSession:
         with pytest.raises(TypeError):
             # noinspection PyTypeChecker
             sess.dump(0)
+
+        empty_file = NamedTemporaryFile()
+        sess = Session(_mocker_app=app)
+        with pytest.warns(LoadWarning):
+            sess.load(empty_file.file)
+
+        empty_file = tmp_path / "empty_file"
+        # noinspection PyTypeChecker
+        open(empty_file, mode="a").close()
+        sess = Session(_mocker_app=app)
+        with pytest.warns(LoadWarning):
+            sess.load(empty_file)
 
     def test_properties(self, logged_session):
         cookie = logged_session.cookies
