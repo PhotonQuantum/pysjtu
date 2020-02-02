@@ -67,10 +67,10 @@ class Result:
         pass
 
 
-class Results:
+# noinspection PyMissingConstructor
+class Results(List[Result]):
     _schema: Type[Schema]
     _result_model: Type[Result]
-    _results: list
     year: int
     term: int
 
@@ -78,9 +78,6 @@ class Results:
         pass
 
     def load(self, data: dict):
-        pass
-
-    def all(self):
         pass
 
     def filter(self, **param):
@@ -200,8 +197,17 @@ class ScheduleCourse(Result):
     field: str
 
 
-class Exams(Results):
-    def all(self) -> List[Exam]:
+# noinspection PyMissingConstructor
+class Exams(List[Exam]):
+    _schema: Type[Schema]
+    _result_model: Type[Exam]
+    year: int
+    term: int
+
+    def __init__(self, year: int = 0, term: int = 0):
+        pass
+
+    def load(self, data: dict):
         pass
 
     def filter(self, **param) -> List[Exam]:
@@ -209,21 +215,34 @@ class Exams(Results):
 
 
 # noinspection PyMissingConstructor
-class Scores(Results):
+class Scores(List[Score]):
+    _schema: Type[Schema]
+    _result_model: Type[Scores]
     _func_detail: Callable
+    year: int
+    term: int
 
     def __init__(self, year: int = 0, term: int = 0, func_detail: Callable = None):
         pass
 
-    def all(self) -> List[Score]:
+    def load(self, data: dict):
         pass
 
     def filter(self, **param) -> List[Score]:
         pass
 
 
-class Schedule(Results):
-    def all(self) -> List[ScheduleCourse]:
+# noinspection PyMissingConstructor
+class Schedule(List[ScheduleCourse]):
+    _schema: Type[Schema]
+    _result_model: Type[ScheduleCourse]
+    year: int
+    term: int
+
+    def __init__(self, year: int = 0, term: int = 0):
+        pass
+
+    def load(self, data: dict):
         pass
 
     def filter(self, **param) -> List[ScheduleCourse]:

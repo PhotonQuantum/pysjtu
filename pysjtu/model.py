@@ -150,40 +150,35 @@ class Result:
         raise NotImplementedError  # pragma: no cover
 
 
-class Results:
+class Results(list):
     """ Base class for Results """
     _schema = None
     _result_model = None
 
     def __init__(self, year=0, term=0):
-        self._results = []
+        super().__init__()
         self.year = year
         self.term = term
 
     def load(self, data):
         """
         Load a list of dicts into Results, and deserialize dicts to Result objects.
+
         :param data: a list of dicts.
         """
         schema = self._schema(many=True)
-        self._results = schema.load(data)
-
-    def all(self):
-        """
-        Get all the Result objects.
-
-        :return: all Result objects.
-        """
-        return self._results
+        results = schema.load(data)
+        for result in results:
+            super().append(result)
 
     def filter(self, **param):
         """
         Get Result objects matching specific criteria.
 
         :param param: query criteria
-        :return: Result objects matching given criteria
+        :return: Result objects matching given criteria.
         """
-        rtn = self._results
+        rtn = self
         for (k, v) in param.items():
             if not hasattr(self._result_model(), k):
                 raise KeyError("Invalid criteria!")
@@ -411,13 +406,13 @@ from .schema import *
 
 class Exams(Results):
     """
-    Encapsulates a list of dicts. An Exams object is constructed by loading a list of dicts into it, and used to get
-    either all Exam objects constructed by dicts, or filtered ones according to specified criteria.
+    A list-like interface to Exam collections.
+    An additional filter method has been added to make filter operations easier.
 
     Usage::
 
         >>> exams = ... # something that returns a Exams, for example pysjtu.Client().exam(...)
-        >>> exams.all()
+        >>> exams
         [<Exam "2019-2020-1数学期中考" location=东上院509 datetime=2019-11-06(13:10-15:10)>, ...]
         >>> from datetime import date
         >>> exams.filter(date=date(2019, 12, 31))
@@ -429,13 +424,13 @@ class Exams(Results):
 
 class Scores(Results):
     """
-    Encapsulates a list of dicts. An Scores object is constructed by loading a list of dicts into it, and used to get
-    either all Score objects constructed by dicts, or filtered ones according to specified criteria.
+    A list-like interface to Score collections.
+    An additional filter method has been added to make filter operations easier.
 
     Usage::
 
         >>> scores = ... # something that returns a Exams, for example pysjtu.Client().score(...)
-        >>> scores.all()
+        >>> scores
         [<Score 大学化学 score=xx credit=x.x gp=x.x>, ...>
         >>> scores.filter(gp=4)
         [<Score xxxxx score=91 credit=2.0 gp=4.0>, ...]
@@ -450,10 +445,11 @@ class Scores(Results):
     def load(self, data):
         """
         Load a list of dicts into Scores, and deserialize dicts to Score objects.
+
         :param data: a list of dicts contains scores.
         """
         super().load(data)
-        for item in self._results:
+        for item in self:
             item.year = self.year
             item.term = self.term
             item._func_detail = self._func_detail
@@ -461,13 +457,13 @@ class Scores(Results):
 
 class Schedule(Results):
     """
-    Encapsulates a list of dicts. An Schedule object is constructed by loading a list of dicts into it, and used to get
-    either all ScheduleCourse objects constructed by dicts, or filtered ones according to specified criteria.
+    A list-like interface to Schedule collections.
+    An additional filter method has been added to make filter operations easier.
 
     Usage::
 
         >>> sched = ... # something that returns a Exams, for example pysjtu.Client().schedule(...)
-        >>> sched.all()
+        >>> sched
         [<ScheduleCourse 军事理论 week=[range(9, 17)] day=1 time=range(1, 3)>, ...]
         >>> sched.filter(time=[1, range(5, 7)], day=[2, range(4, 5)]))
         [<ScheduleCourse 线性代数 week=[range(1, 7), range(8, 17)] day=2 time=range(1, 3)>,
