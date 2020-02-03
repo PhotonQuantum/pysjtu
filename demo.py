@@ -1,10 +1,10 @@
 import os
-from datetime import datetime, timezone
-
-import arrow
-from ics import Calendar, Event
 
 from pysjtu import Session, Client, CourseRange, NNRecognizer
+
+# from datetime import datetime, timezone
+# import arrow
+# from ics import Calendar, Event
 
 lesson_time = (((8, 0), (8, 45)),
                ((8, 55), (9, 40)),
@@ -33,13 +33,14 @@ with Session(session_file=sess_file) if sess_file else Session(username=os.envir
 
     print(client.student_id)
     schedule = client.schedule(2019, 1)
-    print(schedule.all())
+    print(schedule)
     print(schedule.filter(name="高等数学II"))
     print(list(map(lambda x: x.name, schedule.filter(week=2, day=range(1, 3), time=[range(10, 12), 1]))))
 
+    '''
     c = Calendar()
     local_tz = datetime.now(timezone.utc).astimezone().tzinfo
-    for lesson in schedule.all():
+    for lesson in schedule:
         e = Event()
         e.name = lesson.name
         e.begin = arrow.get(datetime(2020, 1, 5 + lesson.day, *lesson_time[lesson.time[0] - 1][0], tzinfo=local_tz))
@@ -49,13 +50,14 @@ with Session(session_file=sess_file) if sess_file else Session(username=os.envir
 
     with open("test.ics", mode="w") as f:
         f.write(str(c))
+    '''
 
     score = client.score(2019, 0)
-    print(score.all())
-    print(score.all()[0].detail)
+    print(score)
+    print(score[0].detail)
 
     exam = client.exam(2019, 0)
-    print(exam.all())
+    print(exam)
 
     query = client.query_courses(2019, 0, name="高等数学")
     print(query[3:18])
