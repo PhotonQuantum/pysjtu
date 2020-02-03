@@ -16,7 +16,6 @@ class CourseLibMixin(BaseClient):
     def query_courses(self, year: int, term: int, page_size: int = 15, name: str = None, teacher: str = None,
                       day_of_week: list = None, week: list = None, time_of_day: list = None,
                       timeout: TimeoutTypes = UNSET) -> model.QueryResult[model.LibCourse]:
-        pass
         """
         Query courses matching given criteria from the whole course lib of SJTU.
 
