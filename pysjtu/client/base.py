@@ -3,4 +3,6 @@ from pysjtu.session import Session
 
 class BaseClient:
     _session: Session
-    student_id: int
+
+    @property
+    def student_id(self) -> int: ...

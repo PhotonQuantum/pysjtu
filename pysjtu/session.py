@@ -692,9 +692,7 @@ class Session:
 
     @property
     def proxies(self) -> Dict[str, SyncDispatcher]:
-        """
-        Get or set the proxy to be used on each request.
-        """
+        """ Get or set the proxy to be used on each request. """
         return self._client.proxies
 
     @proxies.setter
@@ -703,9 +701,7 @@ class Session:
 
     @property
     def _cookies(self) -> CookieTypes:
-        """
-        Get or set the cookie to be used on each request. This protected property skips session validation.
-        """
+        """ Get or set the cookie to be used on each request. This protected property skips session validation. """
         return self._client.cookies
 
     @_cookies.setter
@@ -734,9 +730,7 @@ class Session:
 
     @property
     def timeout(self) -> TimeoutTypes:
-        """
-        Get or set the timeout to be used on each request.
-        """
+        """ Get or set the timeout to be used on each request. """
         return self._client.timeout
 
     @timeout.setter

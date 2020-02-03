@@ -12,7 +12,7 @@ class ChineseBool(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         return value == "是"
 
 
@@ -25,11 +25,11 @@ class CommaSplitted(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         return value.split(",")
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
-        return ",".join([str(item) for item in value])
+        return ",".join(str(item) for item in value)
 
 
 class CourseTime(fields.Field):
@@ -41,7 +41,7 @@ class CourseTime(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         value = value.replace("节", "")
         cs = list(map(int, value.split("-")))
         return list(cs) if len(cs) == 1 else range(cs[0], cs[1] + 1)
@@ -56,7 +56,7 @@ class CreditHourDetail(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         class_hour_details = value.split(",")
         rtn = dict()
         for item in class_hour_details:
@@ -94,8 +94,8 @@ class ColonSplitted(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         return value.split(";")
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
-        return ";".join([str(item) for item in value])  # pragma: no cover
+        return ";".join(str(item) for item in value)  # pragma: no cover

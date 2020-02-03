@@ -14,7 +14,7 @@ class ScoreFactorName(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         return value[:value.find("(")]
 
 
@@ -27,7 +27,7 @@ class ScoreFactorPercentage(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         return float(value[value.find("(") + 1:value.find("%")]) / 100
 
 

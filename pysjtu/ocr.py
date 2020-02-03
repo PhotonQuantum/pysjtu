@@ -99,8 +99,8 @@ class LegacyRecognizer(Recognizer):
         row_filled = {row if LegacyRecognizer.row_not_empty(img, row) else None for row in range(img.height)}
         row_filled.remove(None)
         segments = list(range_in_set(row_filled))
-        top = min([segment.start for segment in segments])
-        bottom = max([segment.stop for segment in segments])
+        top = min(segment.start for segment in segments)
+        bottom = max(segment.stop for segment in segments)
         return img.crop((0, top, img.width, bottom))
 
     @staticmethod
@@ -133,7 +133,7 @@ class LegacyRecognizer(Recognizer):
 
         np_segments = [np.array(segment, dtype=np.float32) for segment in segments]
         predicts = [self._clr.run(None, {self._clr.get_inputs()[0].name: np_segment}) for np_segment in np_segments]
-        return "".join([str(predict[0][0]) for predict in predicts])
+        return "".join(str(predict[0][0]) for predict in predicts)
 
 
 class NNRecognizer(Recognizer):

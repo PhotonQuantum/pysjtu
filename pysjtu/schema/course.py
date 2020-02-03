@@ -14,7 +14,7 @@ class LibCreditHourDetail(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         class_hour_details = value.split("-")
         rtn = dict()
         for item in class_hour_details:
