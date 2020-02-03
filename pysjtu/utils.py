@@ -1,5 +1,9 @@
 import collections
 from math import inf
+from pathlib import Path
+from typing import Union, BinaryIO
+
+FileTypes = Union[BinaryIO, str, Path]
 
 
 def parse_slice(val):

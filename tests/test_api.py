@@ -7,9 +7,11 @@ import httpx
 import pytest
 import respx
 
-from pysjtu.api import Session, Client
+from pysjtu.session import Session
+from pysjtu.client import Client
 from pysjtu.const import *
 from pysjtu.exceptions import *
+
 from pysjtu.model import GPAQueryParams, Schedule, Scores, Exams, QueryResult, LogicEnum, CourseRange, GPA
 from pysjtu.ocr import NNRecognizer
 from .mock_server import app

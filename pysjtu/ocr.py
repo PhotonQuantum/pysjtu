@@ -1,5 +1,5 @@
-from os import path
 from io import BytesIO
+from os import path
 
 import numpy as np
 import onnxruntime as rt
@@ -12,6 +12,7 @@ DATA_DIR = path.join(path.dirname(path.abspath(__file__)), "ocr_models")
 
 class Recognizer:
     """ Base class for Recognizers """
+
     def recognize(self, img: bytes):
         raise NotImplementedError  # pragma: no cover
 
