@@ -44,9 +44,7 @@ class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin):
 
     @property
     def term_start_date(self) -> date:
-        """
-        Get the term start date for the current term.
-        """
+        """ Get the term start date for the current term. """
         if not self._term_start:
             raw = self._session.get(const.CALENDAR_URL + str(self.student_id))
             self._term_start = datetime.strptime(min(re.findall(r"\d{4}-\d{2}-\d{2}", raw.text)), "%Y-%m-%d").date()
@@ -55,9 +53,7 @@ class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin):
     # noinspection PyProtectedMember
     @property
     def student_id(self) -> int:
-        """
-        Get the student id of the current session.
-        """
+        """ Get the student id of the current session. """
         if "student_id" not in self._session._cache_store:
             rtn = self._session.get(const.HOME_URL)
             self._session._cache_store["student_id"] = int(

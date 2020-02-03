@@ -16,13 +16,13 @@ class HasRoll(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         if "1" in value.split(","):
             return True
         elif "2" in value.split(","):  # pragma: no cover
             return False  # pragma: no cover
         else:
-            return  # pragma: no cover
+            return None  # pragma: no cover
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if value is True:
@@ -48,7 +48,7 @@ class Registered(fields.Field):
         elif "4" in value.split(","):
             return False  # pragma: no cover
         else:
-            return
+            return None
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if value is True:
@@ -140,7 +140,7 @@ class Percentage(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         return float(value.replace("%", "")) / 100
 
 
@@ -153,7 +153,7 @@ class RankingResultField(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         return int(value.split("/")[0])
 
 
@@ -166,7 +166,7 @@ class StudentCountFromRanking(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         return int(value.split("/")[1])
 
 

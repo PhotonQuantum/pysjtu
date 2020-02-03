@@ -36,9 +36,9 @@ class CourseLibMixin(BaseClient):
         term = const.TERMS[term]
         name = name if name else ''
         teacher = teacher if teacher else ''
-        day_of_week = range_list_to_str(day_of_week) if day_of_week else ''
-        week = range_list_to_str(week) if week else ''
-        time_of_day = range_list_to_str(time_of_day) if time_of_day else ''
+        day_of_week = range_list_to_str(day_of_week) if day_of_week else []
+        week = range_list_to_str(week) if week else []
+        time_of_day = range_list_to_str(time_of_day) if time_of_day else []
         req_params = {}
         for (k, v) in _args.items():
             if k in dir():

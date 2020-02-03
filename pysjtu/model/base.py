@@ -110,9 +110,7 @@ class QueryResult(Generic[T_Result]):
         return self._length
 
     def flush_cache(self):
-        """
-        Flush caches. Local caches are dropped and data will be fetched from remote.
-        """
+        """ Flush caches. Local caches are dropped and data will be fetched from remote. """
         self._length = 0
         # noinspection PyTypeChecker
         self._cache = [None] * len(self)
@@ -151,8 +149,6 @@ class Results(List[T_Result]):
     """ Base class for Results """
     _schema: Type[Schema] = None
     _result_model: Type[T_Result] = None
-    year: int
-    term: int
 
     def __init__(self, year: int = 0, term: int = 0):
         super().__init__()
@@ -160,11 +156,11 @@ class Results(List[T_Result]):
         self._term = term
 
     @property
-    def year(self):
+    def year(self) -> int:
         return self._year
 
     @property
-    def term(self):
+    def term(self) -> int:
         return self._term
 
     def load(self, data: dict):

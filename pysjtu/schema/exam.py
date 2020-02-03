@@ -15,7 +15,7 @@ class ExamDate(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         return datetime.strptime(value[:value.index("(")], "%Y-%m-%d").date()
 
 
@@ -28,7 +28,7 @@ class ExamTime(fields.Field):
             **kwargs
     ):
         if not value:
-            return  # pragma: no cover
+            return None  # pragma: no cover
         raw_time = value[value.find("(") + 1:-1].split("-")
         return [datetime.strptime(time, "%H:%M").time() for time in raw_time]
 

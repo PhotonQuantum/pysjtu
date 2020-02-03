@@ -142,7 +142,7 @@ def test_gpa_query_params_schema_dump(resp_loader):
     assert dump_dict == {'zczt': 1, 'bjjd': '缓考', 'xjzt': 0, 'bjpjf': '缓考', 'qsXnxq': '', 'tjfw': 'njzy', 'kch_ids': 'TH020,TH009', 'sspjfblws': 9, 'tjgx': 0, 'pjjdblws': 9, 'zzXnxq': 2019, 'kcfw': 'qbkc', 'alsfj': 'bkcx'}
 
 
-def test_exam_schema(resp_loader):
+def test_gpa_schema(resp_loader):
     raw_resp = resp_loader("gpa")
     schema = GPASchema()
     gpa = schema.load(raw_resp)

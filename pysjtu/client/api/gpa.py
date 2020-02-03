@@ -19,9 +19,7 @@ class GPAMixin(BaseClient):
 
     @property
     def default_gpa_query_params(self) -> model.GPAQueryParams:
-        """
-        Get default gpa query params defined by the website.
-        """
+        """ Get default gpa query params defined by the website. """
         if not self._default_gpa_query_params:
             rtn = self._session.get(const.GPA_PARAMS_URL, params={"_": int(time.time() * 1000), "su": self.student_id})
             self._default_gpa_query_params = schema.GPAQueryParamsSchema().load(rtn.json())

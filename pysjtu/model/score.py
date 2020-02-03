@@ -56,7 +56,6 @@ class Score(Result):
     course_id: str
     class_name: str
     class_id: str
-    detail: List[ScoreFactor]
     year: int
     term: int
 
@@ -74,7 +73,7 @@ class Score(Result):
         return f"<Score {self.name} score={self.score} credit={self.credit} gp={self.gp}>"
 
     @property
-    def detail(self):
+    def detail(self) -> List[ScoreFactor]:
         if not self._detail:
             self._detail = self._func_detail(self.year, self.term, self.class_id)
         return self._detail
