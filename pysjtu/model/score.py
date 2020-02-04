@@ -78,7 +78,7 @@ class Score(Result):
     @property
     def detail(self) -> List[ScoreFactor]:
         if not self._detail:
-            self._detail = self._func_detail(self.year, self.term, self.class_id)   # skipcq: PYL-E1102
+            self._detail = self._func_detail(self.year, self.term, self.class_id)
         return self._detail
 
 
@@ -112,7 +112,7 @@ class Scores(Results[Score]):
         :param data: a list of dicts contains scores.
         """
         super().load(data)
-        for item in self:  # skipcq: PYL-E1133
+        for item in self:
             item.year = self.year
             item.term = self.term
             # noinspection PyTypeHints
