@@ -7,6 +7,10 @@ Session Object
 The :class:`Session` object contains iSJTU session state, handles login operation, and persists certain parameters and
 some inner states across requests. And it has several HTTP request interfaces to help you send requests as a logged user.
 
+In the :ref:`QuickStart`, we use `create_client` function to acquire a :class:`Client`. Under the hood, `create_client`
+creates a :class:`Session` for you. But if you need features like session persistence, proxies and tuned timeout, you
+need to create the session manually.
+
 Login
 +++++
 

@@ -8,7 +8,7 @@ import pytest
 import respx
 
 from pysjtu.session import Session
-from pysjtu.client import Client
+from pysjtu.client import Client, create_client
 from pysjtu.const import *
 from pysjtu.exceptions import *
 
@@ -256,13 +256,15 @@ class TestClient:
         def post(self): ...
 
     # noinspection PyTypeChecker
-    def test_init(self, logged_session):
+    def test_init(self, mocker, logged_session):
         Client(logged_session)
         Client(self.DummySession)
         with pytest.raises(TypeError):
             Client(0)
         with pytest.raises(TypeError):
             Client(self.DummySession2)
+        client = create_client("FeiLin", "WHISPERS", _mocker_app=app)
+        assert client.student_id == 519027910001
 
     def test_student_id(self, logged_client):
         assert logged_client.student_id == 519027910001
