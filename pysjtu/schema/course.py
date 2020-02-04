@@ -16,7 +16,7 @@ class LibCreditHourDetail(fields.Field):
         if not value:
             return None  # pragma: no cover
         class_hour_details = value.split("-")
-        rtn = dict()
+        rtn = {}
         for item in class_hour_details:
             name, hour = item.split("(")
             rtn[name] = float(hour[:-1])

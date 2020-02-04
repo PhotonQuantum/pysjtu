@@ -58,7 +58,7 @@ class CreditHourDetail(fields.Field):
         if not value:
             return None  # pragma: no cover
         class_hour_details = value.split(",")
-        rtn = dict()
+        rtn = {}
         for item in class_hour_details:
             name, hour = item.split(":")
             rtn[name] = float(hour)
@@ -73,7 +73,7 @@ class CourseWeek(fields.Field):
             data: typing.Optional[typing.Mapping[str, typing.Any]],
             **kwargs
     ):
-        rtn = list()
+        rtn = []
         for item in value.split(','):
             if item[-2] in ["单", "双"]:
                 start, end = map(int, item[:-4].split('-'))

@@ -153,7 +153,7 @@ def test_score_detail(mocker):
     model_1.class_id = "dummy"
     fake_detail_func = mocker.Mock(return_value="fake detail")
     model_1._func_detail = fake_detail_func
-    for i in range(2):
+    for _ in range(2):
         assert model_1.detail == "fake detail"
         fake_detail_func.assert_called_once_with(2012, 1, "dummy")
 

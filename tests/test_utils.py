@@ -21,9 +21,9 @@ def test_parse_slice():
     assert parse_slice(DummyObj2()) == 0
     assert parse_slice(None) is None
     with pytest.raises(AttributeError):
-        fail = parse_slice(1.5)
+        parse_slice(1.5)
     with pytest.raises(AttributeError):
-        fail = parse_slice(DummyObj1())
+        parse_slice(DummyObj1())
 
 
 def test_has_callable():

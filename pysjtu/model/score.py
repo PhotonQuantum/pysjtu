@@ -58,10 +58,13 @@ class Score(Result):
     class_id: str
     year: int
     term: int
+    _detail: List[ScoreFactor]
+    _func_detail: Callable
 
     _members = ["name", "teacher", "score", "credit", "gp", "invalid", "course_type", "category", "score_type",
                 "method", "course_id", "class_name", "class_id"]
 
+    # noinspection PyTypeChecker
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._detail = None
@@ -75,7 +78,7 @@ class Score(Result):
     @property
     def detail(self) -> List[ScoreFactor]:
         if not self._detail:
-            self._detail = self._func_detail(self.year, self.term, self.class_id)
+            self._detail = self._func_detail(self.year, self.term, self.class_id)   # skipcq: PYL-E1102
         return self._detail
 
 
@@ -109,7 +112,8 @@ class Scores(Results[Score]):
         :param data: a list of dicts contains scores.
         """
         super().load(data)
-        for item in self:
+        for item in self:  # skipcq: PYL-E1133
             item.year = self.year
             item.term = self.term
-            item._func_detail = self._func_detail
+            # noinspection PyTypeHints
+            item._func_detail = self._func_detail  # type: ignore

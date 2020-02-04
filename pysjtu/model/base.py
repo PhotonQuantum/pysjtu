@@ -13,7 +13,7 @@ class Result:
     def __init__(self, **kwargs):
         for member in self._members:
             setattr(self, member, kwargs.pop(member, None))
-        if len(kwargs) != 0:
+        if kwargs:
             raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
 
     def __repr__(self):

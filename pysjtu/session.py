@@ -24,7 +24,7 @@ from httpx.models import (
 )
 
 from . import const
-from .exceptions import *
+from .exceptions import DumpWarning, LoadWarning, LoginException, ServiceUnavailable, SessionException
 from .ocr import NNRecognizer, Recognizer
 from .utils import FileTypes
 
@@ -186,31 +186,29 @@ class Session:
         except httpx.exceptions.HTTPError as e:
             if rtn.status_code == httpx.codes.SERVICE_UNAVAILABLE:
                 raise ServiceUnavailable
-            else:
-                raise e
+            raise e
         if validate_session and rtn.url.full_path == "/xtgl/login_slogin.html":  # type: ignore
             if not auto_renew:
                 raise SessionException("Session expired.")
-            else:
-                self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh token
-                # Sometimes JAccount OAuth token isn't expired
-                if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
-                    if self._username and self._password:
-                        self.login(self._username, self._password)
-                    else:
-                        raise SessionException("Session expired. Unable to renew session due to missing username or "
-                                               "password")
-                rtn = self._client.request(method=method,
-                                           url=url,
-                                           data=data,
-                                           files=files,
-                                           json=json,
-                                           params=params,
-                                           headers=headers,
-                                           cookies=cookies,
-                                           auth=auth,
-                                           allow_redirects=allow_redirects,
-                                           timeout=timeout)
+            self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh token
+            # Sometimes JAccount OAuth token isn't expired
+            if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
+                if self._username and self._password:
+                    self.login(self._username, self._password)
+                else:
+                    raise SessionException("Session expired. Unable to renew session due to missing username or "
+                                           "password")
+            rtn = self._client.request(method=method,
+                                       url=url,
+                                       data=data,
+                                       files=files,
+                                       json=json,
+                                       params=params,
+                                       headers=headers,
+                                       cookies=cookies,
+                                       auth=auth,
+                                       allow_redirects=allow_redirects,
+                                       timeout=timeout)
         return rtn
 
     def get(
