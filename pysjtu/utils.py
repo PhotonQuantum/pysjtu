@@ -30,29 +30,28 @@ def replace_keys(data, pairs):
 def schema_post_loader(schema_ref, data):
     if isinstance(data, list):
         return schema_ref(many=True).load(data)
-    elif isinstance(data, dict):
+    if isinstance(data, dict):
         return schema_ref().load(data)
-    else:
-        raise TypeError
+    raise TypeError
 
 
 def range_list_to_str(range_list):
     return "或".join((str(x) for x in flatten(range_list)))
 
 
+# skipcq: PYL-R1710
 def range_in_set(set_in):
     if len(set_in) == 0:
         return set()
-    else:
-        last_elem = -inf
-        start = None
-        for elem in set_in:
-            if elem != last_elem + 1:
-                if start:
-                    yield range(start, last_elem + 1)
-                start = elem
-            last_elem = elem
-        yield range(start, last_elem + 1)
+    last_elem = -inf
+    start = None
+    for elem in set_in:
+        if elem != last_elem + 1:
+            if start:
+                yield range(start, last_elem + 1)
+            start = elem
+        last_elem = elem
+    yield range(start, last_elem + 1)
 
 
 def overlap(list1, list2):

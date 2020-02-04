@@ -9,8 +9,8 @@ import respx
 
 from pysjtu.session import Session
 from pysjtu.client import Client, create_client
-from pysjtu.const import *
-from pysjtu.exceptions import *
+from pysjtu.const import HOME_URL
+from pysjtu.exceptions import LoadWarning, DumpWarning, ServiceUnavailable, SessionException, LoginException, GPACalculationException
 
 from pysjtu.model import GPAQueryParams, Schedule, Scores, Exams, QueryResult, LogicEnum, CourseRange, GPA
 from pysjtu.ocr import NNRecognizer
@@ -255,7 +255,7 @@ class TestClient:
         def post(self): ...
 
     # noinspection PyTypeChecker
-    def test_init(self, mocker, logged_session):
+    def test_init(self, logged_session):
         Client(logged_session)
         Client(self.DummySession)
         with pytest.raises(TypeError):

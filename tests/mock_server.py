@@ -46,8 +46,7 @@ def login_post():
     captcha = request.args.get("captcha")
     if uuid == UUID and v == "" and username == "FeiLin" and password == "WHISPERS" and captcha == "ipsum":
         return redirect("https://i.sjtu.edu.cn/login_patch")
-    else:
-        return redirect("/jaccount/jalogin?err=1")
+    return redirect("/jaccount/jalogin?err=1")
 
 
 @app.route("/expire_me")

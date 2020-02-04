@@ -19,18 +19,16 @@ class HasRoll(fields.Field):
             return None  # pragma: no cover
         if "1" in value.split(","):
             return True
-        elif "2" in value.split(","):  # pragma: no cover
+        if "2" in value.split(","):  # pragma: no cover
             return False  # pragma: no cover
-        else:
-            return None  # pragma: no cover
+        return None  # pragma: no cover
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if value is True:
             return 1
-        elif value is False:
+        if value is False:
             return 0
-        else:
-            return -1  # pragma: no cover
+        return -1  # pragma: no cover
 
 
 class Registered(fields.Field):
@@ -45,18 +43,16 @@ class Registered(fields.Field):
             return None  # pragma: no cover
         if "3" in value.split(","):
             return True  # pragma: no cover
-        elif "4" in value.split(","):
+        if "4" in value.split(","):
             return False  # pragma: no cover
-        else:
-            return None
+        return None
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if value is True:
             return 1
-        elif value is False:  # pragma: no cover
+        if value is False:  # pragma: no cover
             return 0  # pragma: no cover
-        else:
-            return -1  # pragma: no cover
+        return -1  # pragma: no cover
 
 
 class Attending(fields.Field):
@@ -71,18 +67,16 @@ class Attending(fields.Field):
             return None  # pragma: no cover
         if "5" in value.split(","):
             return True
-        elif "6" in value.split(","):  # pragma: no cover
+        if "6" in value.split(","):  # pragma: no cover
             return False  # pragma: no cover
-        else:
-            return  # pragma: no cover
+        return None  # pragma: no cover
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if value is True:
             return 1
-        elif value is False:
+        if value is False:
             return 0  # pragma: no cover
-        else:
-            return -1
+        return -1
 
 
 class ConditionLogic(fields.Field):
@@ -95,15 +89,16 @@ class ConditionLogic(fields.Field):
     ):
         if value == 0:  # pragma: no cover
             return LogicEnum.AND  # pragma: no cover
-        elif value == 1:  # pragma: no cover
+        if value == 1:  # pragma: no cover
             return LogicEnum.OR  # pragma: no cover
+        return None  # pragma: no cover
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if not isinstance(value, LogicEnum):
             raise TypeError
         if value == LogicEnum.AND:
             return 0
-        elif value == LogicEnum.OR:  # pragma: no cover
+        if value == LogicEnum.OR:  # pragma: no cover
             return 1  # pragma: no cover
 
 
