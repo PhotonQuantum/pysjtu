@@ -20,7 +20,7 @@ from .mock_server import app
 @pytest.fixture
 def logged_session(mocker):
     mocker.patch.object(NNRecognizer, "recognize", return_value="ipsum")
-    sess = Session(_mocker_app=app, retry=[0], timeout=1, proxies="http://127.0.0.1:8888")
+    sess = Session(_mocker_app=app, retry=[0], timeout=1)
     sess.login("FeiLin", "WHISPERS")
     return sess
 
@@ -218,7 +218,6 @@ class TestSession:
 
         sess = Session(_mocker_app=app)
         assert sess.proxies == {}
-        sess.proxies = {"http": "http://127.0.0.1:8080"}
 
         assert isinstance(sess.timeout, httpx.Timeout)
         sess.timeout = httpx.Timeout(1.0)

@@ -1,7 +1,9 @@
 from functools import partial
+from typing import Union
 
 from httpx.config import (
     UNSET,
+    UnsetType,
     TimeoutTypes
 )
 
@@ -15,7 +17,7 @@ from pysjtu.utils import range_list_to_str, schema_post_loader
 class CourseLibMixin(BaseClient):
     def query_courses(self, year: int, term: int, page_size: int = 15, name: str = None, teacher: str = None,
                       day_of_week: list = None, week: list = None, time_of_day: list = None,
-                      timeout: TimeoutTypes = UNSET) -> model.QueryResult[model.LibCourse]:
+                      timeout: Union[TimeoutTypes, UnsetType] = UNSET) -> model.QueryResult[model.LibCourse]:
         """
         Query courses matching given criteria from the whole course lib of SJTU.
 

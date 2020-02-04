@@ -1,9 +1,9 @@
 from io import BytesIO
 from os import path
 
-import numpy as np
-import onnxruntime as rt
-from PIL import Image
+import numpy as np  # type: ignore
+import onnxruntime as rt  # type: ignore
+from PIL import Image  # type: ignore
 
 from .utils import range_in_set
 

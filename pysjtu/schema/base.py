@@ -1,6 +1,6 @@
 import typing
 
-from marshmallow import fields
+from marshmallow import fields  # type: ignore
 
 
 class ChineseBool(fields.Field):
@@ -81,7 +81,7 @@ class CourseWeek(fields.Field):
                 rtn.append(range(start, end + 1, 2))
             else:
                 x = list(map(int, item[:-1].split('-')))
-                rtn.append(x[0] if len(x) == 1 else range(x[0], x[1] + 1))
+                rtn.append(x[0] if len(x) == 1 else range(x[0], x[1] + 1))  # type: ignore
         return rtn
 
 

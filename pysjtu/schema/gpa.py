@@ -1,8 +1,7 @@
 import typing
 from copy import deepcopy
 
-from marshmallow import Schema, fields, EXCLUDE, pre_load, post_load, pre_dump, post_dump
-
+from marshmallow import Schema, fields, EXCLUDE, pre_load, post_load, pre_dump, post_dump  # type: ignore
 from pysjtu.schema.base import CommaSplitted
 from pysjtu.utils import replace_keys
 
