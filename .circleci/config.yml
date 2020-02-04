@@ -34,7 +34,7 @@ jobs:
             . venv/bin/activate
             pip install -e .
             pip install pytest pytest-cov pytest-mock respx flask
-            pip install coveralls
+            pip install codacy-coverage
 
       - save_cache:
           paths:
@@ -46,10 +46,10 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            pytest --cov=pysjtu
+            pytest --cov-report xml --cov=pysjtu
 
       - run:
-          name: upload coveralls
+          name: upload codacy coverage
           command: |
             . venv/bin/activate
-            coveralls
+            python-codacy-coverage -r coverage.xml
