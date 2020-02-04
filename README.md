@@ -7,8 +7,11 @@
 <a href='https://pysjtu.readthedocs.io/en/latest/?badge=latest'>
     <img src='https://readthedocs.org/projects/pysjtu/badge/?version=latest' alt='Documentation Status' />
 </a>
-<a href="https://coveralls.io/github/PhotonQuantum/pysjtu?branch=master">
-    <img src="https://coveralls.io/repos/github/PhotonQuantum/pysjtu/badge.svg?branch=master" alt="Coverage Status">
+<a href="https://www.codacy.com/manual/PhotonQuantum/pysjtu?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PhotonQuantum/pysjtu&amp;utm_campaign=Badge_Coverage">
+    <img src="https://api.codacy.com/project/badge/Coverage/4961a9a6c817419fae7b7b567b8e1367"/>
+</a>
+<a href="https://www.codacy.com/manual/PhotonQuantum/pysjtu?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PhotonQuantum/pysjtu&amp;utm_campaign=Badge_Grade">
+    <img src="https://api.codacy.com/project/badge/Grade/4961a9a6c817419fae7b7b567b8e1367"/>
 </a>
 </p>
 
