@@ -6,17 +6,12 @@ import warnings
 from functools import partial
 from http.cookiejar import CookieJar
 from pathlib import Path
-from typing import Any, Union, Callable, Dict, Optional
-from urllib.parse import urlparse, parse_qs
+from typing import Any, Callable, Dict, Optional, Union
+from urllib.parse import parse_qs, urlparse
 
 import httpx
 from httpx.auth import AuthTypes
-from httpx.config import (
-    UNSET,
-    TimeoutTypes,
-    UnsetType,
-    ProxiesTypes
-)
+from httpx.config import (ProxiesTypes, TimeoutTypes, UNSET, UnsetType)
 from httpx.dispatch.base import SyncDispatcher
 from httpx.models import (
     CookieTypes,
@@ -30,7 +25,7 @@ from httpx.models import (
 
 from . import const
 from .exceptions import *
-from .ocr import Recognizer, NNRecognizer
+from .ocr import NNRecognizer, Recognizer
 from .utils import FileTypes
 
 
@@ -624,9 +619,10 @@ class Session:
 
         if "cookies" in d.keys() and d["cookies"]:
             if isinstance(d["cookies"], httpx.models.Cookies):
-                cj = d["cookies"]   # type: ignore
+                cj = d["cookies"]  # type: ignore
             elif isinstance(d["cookies"], dict):
-                cj = CookieJar()    # type: ignore
+                cj = CookieJar()  # type: ignore
+                # noinspection PyTypeHints
                 cj._cookies = d["cookies"]  # type: ignore
             else:
                 raise TypeError
@@ -681,7 +677,7 @@ class Session:
         if not self._username or not self._password:
             warnings.warn("Missing username or password field", DumpWarning)
         return {"username": self._username, "password": self._password,
-                "cookies": self._client.cookies.jar._cookies}   # type: ignore
+                "cookies": self._client.cookies.jar._cookies}  # type: ignore
 
     def dump(self, fp: FileTypes):
         """
@@ -710,7 +706,8 @@ class Session:
     @_cookies.setter
     def _cookies(self, new_cookie: CookieTypes):
         self._cache_store = {}
-        self._client.cookies = new_cookie   # type: ignore
+        # noinspection PyTypeHints
+        self._client.cookies = new_cookie  # type: ignore
 
     @property
     def cookies(self) -> CookieTypes:
@@ -724,9 +721,10 @@ class Session:
     @cookies.setter
     def cookies(self, new_cookie: CookieTypes):
         bak_cookie = self._client.cookies
-        self._client.cookies = new_cookie   # type: ignore
+        # noinspection PyTypeHints
+        self._client.cookies = new_cookie  # type: ignore
         self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh JSESSION token
-        if self.get(const.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html": # type: ignore
+        if self.get(const.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
             self._client.cookies = bak_cookie
             raise SessionException("Invalid cookies. You may skip this validation by setting _cookies")
         self._cache_store = {}

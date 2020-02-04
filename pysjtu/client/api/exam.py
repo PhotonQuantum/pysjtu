@@ -1,11 +1,7 @@
 import time
 from typing import Union
 
-from httpx.config import (
-    UNSET,
-    UnsetType,
-    TimeoutTypes
-)
+from httpx.config import (TimeoutTypes, UNSET, UnsetType)
 
 from pysjtu import const
 from pysjtu import model
@@ -29,5 +25,5 @@ class ExamMixin(BaseClient):
                                        "queryModel.currentPage": 1, "queryModel.sortName": "",
                                        "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Exams(year, term)
-        scores.load(raw.json()["items"])    # type: ignore
+        scores.load(raw.json()["items"])  # type: ignore
         return scores

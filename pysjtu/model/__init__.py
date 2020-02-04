@@ -1,6 +1,6 @@
-from .base import Result, Results, QueryResult
+from .base import QueryResult, Result, Results
 from .course import LibCourse
 from .exam import Exam, Exams
-from .gpa import GPA, GPAQueryParams, LogicEnum, CourseRange, Ranking
-from .schedule import ScheduleCourse, Schedule
-from .score import Score, Scores, ScoreFactor
+from .gpa import CourseRange, GPA, GPAQueryParams, LogicEnum, Ranking
+from .schedule import Schedule, ScheduleCourse
+from .score import Score, ScoreFactor, Scores

@@ -1,9 +1,9 @@
 import time
-from typing import List, Callable, Union, Tuple, Type, Generic, TypeVar
+from typing import Callable, Generic, List, Tuple, Type, TypeVar, Union
 
 from marshmallow import Schema  # type: ignore
 
-from pysjtu.utils import overlap, range_in_set, parse_slice
+from pysjtu.utils import overlap, parse_slice, range_in_set
 
 
 class Result:
@@ -52,7 +52,7 @@ class QueryResult(Generic[T_Result]):
 
     def __init__(self, method_ref: Callable, post_ref: Callable, query_params: dict, page_size: int = 15):
         self._ref = method_ref  # type: ignore
-        self._post_ref = post_ref   # type: ignore
+        self._post_ref = post_ref  # type: ignore
         self._query_params = query_params
         self._length = 0
         # noinspection PyTypeChecker
@@ -62,12 +62,12 @@ class QueryResult(Generic[T_Result]):
 
     def __getitem__(self, arg: Union[int, slice]) -> T_Result:
         if isinstance(arg, int):
-            data = self._handle_result_by_index(arg)    # type: ignore
+            data = self._handle_result_by_index(arg)  # type: ignore
         elif isinstance(arg, slice):
-            data = self._handle_result_by_idx_slice(arg)    # type: ignore
+            data = self._handle_result_by_idx_slice(arg)  # type: ignore
         else:
             raise TypeError("QueryResult indices must be integers or slices, not " + type(arg).__name__)
-        data = self._post_ref(data) # type: ignore
+        data = self._post_ref(data)  # type: ignore
         return data  # type: ignore
 
     def _handle_result_by_index(self, idx: int) -> dict:

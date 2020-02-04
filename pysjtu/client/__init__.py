@@ -1,8 +1,8 @@
 import re
-from datetime import datetime, date
+from datetime import date, datetime
 
 from pysjtu import const
-from pysjtu.client.api import ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin
+from pysjtu.client.api import CourseLibMixin, ExamMixin, GPAMixin, ScheduleMixin, ScoreMixin
 from pysjtu.session import Session
 from pysjtu.utils import has_callable
 

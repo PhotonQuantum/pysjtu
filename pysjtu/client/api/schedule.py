@@ -1,10 +1,6 @@
 from typing import Union
 
-from httpx.config import (
-    TimeoutTypes,
-    UnsetType,
-    UNSET
-)
+from httpx.config import (TimeoutTypes, UNSET, UnsetType)
 
 from pysjtu import const
 from pysjtu import model
@@ -12,7 +8,8 @@ from pysjtu.client.base import BaseClient
 
 
 class ScheduleMixin(BaseClient):
-    def schedule(self, year: int, term: int, timeout: Union[TimeoutTypes, UnsetType] = UNSET) -> model.Results[model.ScheduleCourse]:
+    def schedule(self, year: int, term: int, timeout: Union[TimeoutTypes, UnsetType] = UNSET) \
+            -> model.Results[model.ScheduleCourse]:
         """
         Fetch your course schedule of specific year & term.
 
