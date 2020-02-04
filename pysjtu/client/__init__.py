@@ -24,8 +24,14 @@ class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin):
         <ScheduleCourse 大学英语（4） week=[range(1, 17)] day=3 time=range(3, 5)>]
     """
     _session: Session
+    _term_start: date
 
     def __init__(self, session: Session):
+        """
+        A pysjtu client with schedule query, score query, exam query, etc.
+
+        :param session: The :class:`Session` to be built upon.
+        """
         super().__init__()
         _session_callable = ["get", "post"]
 
@@ -39,8 +45,8 @@ class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin):
 
         self._session = session
 
-        self._term_start = None
-        self._default_gpa_query_params = None
+        # noinspection PyTypeChecker
+        self._term_start = None  # type: ignore
 
     @property
     def term_start_date(self) -> date:
@@ -62,5 +68,14 @@ class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin):
 
 
 def create_client(username: str, password: str, _mocker_app=None) -> Client:
+    """
+    Create a new :class:`Client` with default options.
+    To change :class:`Session` settings or preserve your session, use :class:`Session` and :class:`Client` instead.
+
+    :param username: JAccount username.
+    :param password: JAccount password.
+    :param _mocker_app: An WSGI application to send requests to (for debug or test purposes).
+    :return: an authenticated :class:`Client`.
+    """
     sess = Session(username=username, password=password, _mocker_app=_mocker_app)
     return Client(session=sess)

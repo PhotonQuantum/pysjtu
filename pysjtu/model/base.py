@@ -1,7 +1,7 @@
 import time
 from typing import List, Callable, Union, Tuple, Type, Generic, TypeVar
 
-from marshmallow import Schema
+from marshmallow import Schema  # type: ignore
 
 from pysjtu.utils import overlap, range_in_set, parse_slice
 
@@ -51,25 +51,24 @@ class QueryResult(Generic[T_Result]):
     _page_size: int
 
     def __init__(self, method_ref: Callable, post_ref: Callable, query_params: dict, page_size: int = 15):
-        self._ref = method_ref
-        self._post_ref = post_ref
+        self._ref = method_ref  # type: ignore
+        self._post_ref = post_ref   # type: ignore
         self._query_params = query_params
         self._length = 0
         # noinspection PyTypeChecker
-        self._cache = [None] * len(self)
+        self._cache = [{}] * len(self)
         self._cached_items = set()
         self._page_size = page_size
 
     def __getitem__(self, arg: Union[int, slice]) -> T_Result:
-        data = None
         if isinstance(arg, int):
-            data = self._handle_result_by_index(arg)
+            data = self._handle_result_by_index(arg)    # type: ignore
         elif isinstance(arg, slice):
-            data = self._handle_result_by_idx_slice(arg)
-        if data is None:
+            data = self._handle_result_by_idx_slice(arg)    # type: ignore
+        else:
             raise TypeError("QueryResult indices must be integers or slices, not " + type(arg).__name__)
-        data = self._post_ref(data)
-        return data
+        data = self._post_ref(data) # type: ignore
+        return data  # type: ignore
 
     def _handle_result_by_index(self, idx: int) -> dict:
         idx = len(self) + idx if idx < 0 else idx
@@ -147,8 +146,8 @@ class QueryResult(Generic[T_Result]):
 
 class Results(List[T_Result]):
     """ Base class for Results """
-    _schema: Type[Schema] = None
-    _result_model: Type[T_Result] = None
+    _schema: Type[Schema]
+    _result_model: Type[T_Result]
 
     def __init__(self, year: int = 0, term: int = 0):
         super().__init__()
@@ -181,7 +180,7 @@ class Results(List[T_Result]):
         :param param: query criteria
         :return: Result objects matching given criteria.
         """
-        rtn = self
+        rtn = list(self)
         for (k, v) in param.items():
             if not hasattr(self._result_model(), k):
                 raise KeyError("Invalid criteria!")

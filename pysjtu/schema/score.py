@@ -1,6 +1,6 @@
 import typing
 
-from marshmallow import Schema, fields, EXCLUDE, post_load
+from marshmallow import Schema, fields, EXCLUDE, post_load  # type: ignore
 
 from pysjtu.schema.base import ChineseBool
 

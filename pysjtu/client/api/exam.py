@@ -1,7 +1,9 @@
 import time
+from typing import Union
 
 from httpx.config import (
     UNSET,
+    UnsetType,
     TimeoutTypes
 )
 
@@ -11,7 +13,7 @@ from pysjtu.client.base import BaseClient
 
 
 class ExamMixin(BaseClient):
-    def exam(self, year: int, term: int, timeout: TimeoutTypes = UNSET) -> model.Results[model.Exam]:
+    def exam(self, year: int, term: int, timeout: Union[TimeoutTypes, UnsetType] = UNSET) -> model.Results[model.Exam]:
         """
         Fetch your exams schedule of specific year & term.
 
@@ -27,5 +29,5 @@ class ExamMixin(BaseClient):
                                        "queryModel.currentPage": 1, "queryModel.sortName": "",
                                        "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Exams(year, term)
-        scores.load(raw.json()["items"])
+        scores.load(raw.json()["items"])    # type: ignore
         return scores

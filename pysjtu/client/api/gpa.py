@@ -1,7 +1,9 @@
 import time
+from typing import Union
 
 from httpx.config import (
     UNSET,
+    UnsetType,
     TimeoutTypes
 )
 
@@ -13,8 +15,11 @@ from pysjtu.exceptions import GPACalculationException
 
 
 class GPAMixin(BaseClient):
+    _default_gpa_query_params: model.GPAQueryParams
+
     def __init__(self):
         super().__init__()
+        # noinspection PyTypeChecker
         self._default_gpa_query_params = None
 
     @property
@@ -22,11 +27,11 @@ class GPAMixin(BaseClient):
         """ Get default gpa query params defined by the website. """
         if not self._default_gpa_query_params:
             rtn = self._session.get(const.GPA_PARAMS_URL, params={"_": int(time.time() * 1000), "su": self.student_id})
-            self._default_gpa_query_params = schema.GPAQueryParamsSchema().load(rtn.json())
+            self._default_gpa_query_params = schema.GPAQueryParamsSchema().load(rtn.json())  # type: ignore
 
         return self._default_gpa_query_params
 
-    def gpa(self, query_params: model.GPAQueryParams, timeout: TimeoutTypes = UNSET) -> model.GPA:
+    def gpa(self, query_params: model.GPAQueryParams, timeout: Union[TimeoutTypes, UnsetType] = UNSET) -> model.GPA:
         """
         Query your GP & GPA and their rankings of specific year & term.
 
@@ -47,4 +52,4 @@ class GPAMixin(BaseClient):
                                 "queryModel.currentPage": 1, "queryModel.sortName": "",
                                 "queryModel.sortOrder": "asc", "time": 0})
         raw = self._session.post(const.GPA_QUERY_URL + str(self.student_id), data=compiled_params, timeout=timeout)
-        return schema.GPASchema().load(raw.json()["items"][0])
+        return schema.GPASchema().load(raw.json()["items"][0])  # type: ignore

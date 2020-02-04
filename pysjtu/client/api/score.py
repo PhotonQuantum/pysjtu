@@ -1,10 +1,11 @@
 import time
 from functools import partial
-from typing import List
+from typing import List, Union
 
 from httpx.config import (
     UNSET,
-    TimeoutTypes
+    TimeoutTypes,
+    UnsetType
 )
 
 from pysjtu import const
@@ -14,17 +15,17 @@ from pysjtu.client.base import BaseClient
 
 
 class ScoreMixin(BaseClient):
-    def _get_score_detail(self, year: int, term: int, class_id: str, timeout: TimeoutTypes = UNSET) -> List[
-        model.ScoreFactor]:
+    def _get_score_detail(self, year: int, term: int, class_id: str, timeout: Union[TimeoutTypes, UnsetType] = UNSET)\
+            -> List[model.ScoreFactor]:
         raw = self._session.post(const.SCORE_DETAIL_URL + str(self.student_id),
                                  data={"xnm": year, "xqm": const.TERMS[term], "jxb_id": class_id, "_search": False,
                                        "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                        "queryModel.currentPage": 1, "queryModel.sortName": "",
                                        "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
-        factors = schema.ScoreFactorSchema(many=True).load(raw.json()["items"][:-1])
+        factors = schema.ScoreFactorSchema(many=True).load(raw.json()["items"][:-1])    # type: ignore
         return factors
 
-    def score(self, year: int, term: int, timeout: TimeoutTypes = UNSET) -> model.Results[model.Score]:
+    def score(self, year: int, term: int, timeout: Union[TimeoutTypes, UnsetType] = UNSET) -> model.Results[model.Score]:
         """
         Fetch your scores of specific year & term.
 
@@ -38,5 +39,5 @@ class ScoreMixin(BaseClient):
                                                         "queryModel.currentPage": 1, "queryModel.sortName": "",
                                                         "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
         scores = model.Scores(year, term, partial(self._get_score_detail, timeout=timeout))
-        scores.load(raw.json()["items"])
+        scores.load(raw.json()["items"])    # type: ignore
         return scores

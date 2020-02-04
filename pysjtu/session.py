@@ -6,7 +6,7 @@ import warnings
 from functools import partial
 from http.cookiejar import CookieJar
 from pathlib import Path
-from typing import Any, Union, Callable, Dict
+from typing import Any, Union, Callable, Dict, Optional
 from urllib.parse import urlparse, parse_qs
 
 import httpx
@@ -58,14 +58,14 @@ class Session:
         ...     s.get('https://i.sjtu.edu.cn')
         <Response [200 OK]>
     """
-    _client: httpx.Client = None  # httpx session
+    _client: httpx.Client  # httpx session
     _retry: list = [.5] * 5 + list(range(1, 5))  # retry list
     _ocr: Recognizer
     _username: str
     _password: str
     _cache_store: dict
     _release_when_exit: bool
-    _session_file: FileTypes
+    _session_file: Optional[FileTypes]
 
     def _secure_req(self, ref: Callable) -> Response:
         """
@@ -97,10 +97,20 @@ class Session:
     def __init__(self, username: str = "", password: str = "", cookies: CookieTypes = None, ocr: Recognizer = None,
                  session_file: FileTypes = None, retry: list = None, proxies: ProxiesTypes = None,
                  timeout: TimeoutTypes = None, _mocker_app=None):
-        if _mocker_app:
-            self._client = httpx.Client(app=_mocker_app)
-        else:
-            self._client = httpx.Client()
+        """
+        A pysjtu session with login management, cookie persistence, etc.
+
+        :param username: JAccount username.
+        :param password: JAccount password.
+        :param cookies: The cookie to be used on each request.
+        :param ocr: The captcha :class:`Recognizer`.
+        :param session_file: The file which a session is loaded from & saved to.
+        :param retry: A list contains retry delays. If it's exhausted, an exception will be raised.
+        :param proxies: The proxy to be used on each request.
+        :param timeout: The timeout to be used on each request.
+        :param _mocker_app: An WSGI application to send requests to (for debug or test purposes).
+        """
+        self._client = httpx.Client(app=_mocker_app, proxies=proxies)
         self._ocr = ocr if ocr else NNRecognizer()
         self._username = ""
         self._password = ""
@@ -109,8 +119,6 @@ class Session:
         self._session_file = None
         if retry:
             self._retry = retry
-        if proxies:
-            self.proxies = proxies
         if timeout:
             self.timeout = timeout
 
@@ -185,13 +193,13 @@ class Session:
                 raise ServiceUnavailable
             else:
                 raise e
-        if validate_session and rtn.url.full_path == "/xtgl/login_slogin.html":
+        if validate_session and rtn.url.full_path == "/xtgl/login_slogin.html":  # type: ignore
             if not auto_renew:
                 raise SessionException("Session expired.")
             else:
                 self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh token
                 # Sometimes JAccount OAuth token isn't expired
-                if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":
+                if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
                     if self._username and self._password:
                         self.login(self._username, self._password)
                     else:
@@ -573,8 +581,7 @@ class Session:
         for i in self._retry:
             login_page_req = self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))
             uuid = re.findall(r"(?<=uuid\": ').*(?=')", login_page_req.text)[0]
-            login_params = parse_qs(urlparse(str(login_page_req.url)).query)
-            login_params = {k: v[0] for k, v in login_params.items()}
+            login_params = {k: v[0] for k, v in parse_qs(urlparse(str(login_page_req.url)).query)}
 
             captcha_img = self.get(const.CAPTCHA_URL,
                                    params={"uuid": uuid, "t": int(time.time() * 1000)}).content
@@ -583,7 +590,7 @@ class Session:
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
             result = self._secure_req(
                 partial(self.post, const.LOGIN_POST_URL, params=login_params, headers=const.HEADERS))
-            if "err=1" not in result.url.query:
+            if "err=1" not in result.url.query:  # type: ignore
                 self._username = username
                 self._password = password
                 return
@@ -617,10 +624,10 @@ class Session:
 
         if "cookies" in d.keys() and d["cookies"]:
             if isinstance(d["cookies"], httpx.models.Cookies):
-                cj = d["cookies"]
+                cj = d["cookies"]   # type: ignore
             elif isinstance(d["cookies"], dict):
-                cj = CookieJar()
-                cj._cookies = d["cookies"]
+                cj = CookieJar()    # type: ignore
+                cj._cookies = d["cookies"]  # type: ignore
             else:
                 raise TypeError
             try:
@@ -674,7 +681,7 @@ class Session:
         if not self._username or not self._password:
             warnings.warn("Missing username or password field", DumpWarning)
         return {"username": self._username, "password": self._password,
-                "cookies": self._client.cookies.jar._cookies}
+                "cookies": self._client.cookies.jar._cookies}   # type: ignore
 
     def dump(self, fp: FileTypes):
         """
@@ -695,10 +702,6 @@ class Session:
         """ Get or set the proxy to be used on each request. """
         return self._client.proxies
 
-    @proxies.setter
-    def proxies(self, new_proxy: ProxiesTypes):
-        self._client.proxies = new_proxy
-
     @property
     def _cookies(self) -> CookieTypes:
         """ Get or set the cookie to be used on each request. This protected property skips session validation. """
@@ -707,7 +710,7 @@ class Session:
     @_cookies.setter
     def _cookies(self, new_cookie: CookieTypes):
         self._cache_store = {}
-        self._client.cookies = new_cookie
+        self._client.cookies = new_cookie   # type: ignore
 
     @property
     def cookies(self) -> CookieTypes:
@@ -721,9 +724,9 @@ class Session:
     @cookies.setter
     def cookies(self, new_cookie: CookieTypes):
         bak_cookie = self._client.cookies
-        self._client.cookies = new_cookie
+        self._client.cookies = new_cookie   # type: ignore
         self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh JSESSION token
-        if self.get(const.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html":
+        if self.get(const.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html": # type: ignore
             self._client.cookies = bak_cookie
             raise SessionException("Invalid cookies. You may skip this validation by setting _cookies")
         self._cache_store = {}
