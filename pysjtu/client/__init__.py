@@ -59,3 +59,8 @@ class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin):
             self._session._cache_store["student_id"] = int(
                 re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[0])
         return self._session._cache_store["student_id"]
+
+
+def create_client(username: str, password: str, _mocker_app=None) -> Client:
+    sess = Session(username=username, password=password, _mocker_app=_mocker_app)
+    return Client(session=sess)

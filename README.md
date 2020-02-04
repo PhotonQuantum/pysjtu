@@ -18,12 +18,11 @@
 
 ```python
 >>> import pysjtu
->>> session = pysjtu.Session(username="FeiLin", password="WHISPERS")
->>> client = pysjtu.Client(session)
->>> chemistry = client.schedule(year=2019, term=0).filter("大学化学")
+>>> c = pysjtu.create_client(username="FeiLin", password="WHISPERS")
+>>> chemistry = c.schedule(year=2019, term=0).filter("大学化学")
 >>> chemistry[0].teacher_name
 ['麦亦勇']
->>> calculus_exam = client.exam(year=2019, term=0).filter(course_id="MA248")
+>>> calculus_exam = c.exam(year=2019, term=0).filter(course_id="MA248")
 >>> calculus_exam[0].date
 datetime.date(2019, 11, 6)
 ```

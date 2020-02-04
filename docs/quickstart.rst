@@ -31,8 +31,7 @@ Then, login JAccount and create a client:
 
 .. sourcecode:: python
 
-    >>> s = pysjtu.Session(username="<username>", password="<password>")
-    >>> c = pysjtu.Client(session=s)
+    >>> c = pysjtu.create_client(username="<username>", password="<password>")
     >>> c.student_id
     519027910001
 
