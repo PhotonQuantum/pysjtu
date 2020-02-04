@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import Callable, List
 
 from pysjtu.model.base import Result, Results
 

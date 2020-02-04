@@ -1,8 +1,8 @@
 import typing
 
-from marshmallow import Schema, fields, EXCLUDE, post_load  # type: ignore
+from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
-from pysjtu.schema.base import CourseWeek, CourseTime, ColonSplitted, CommaSplitted
+from pysjtu.schema.base import ColonSplitted, CommaSplitted, CourseTime, CourseWeek
 
 
 class LibCreditHourDetail(fields.Field):

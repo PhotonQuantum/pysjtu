@@ -142,7 +142,8 @@ class NNRecognizer(Recognizer):
 
     It feeds the image directly into a pre-trained deep model to predict the answer.
 
-    It consumes more memory and computing power than :class:`LegacyRecognizer`. By using the provided model, the accuracy is around 99%.
+    It consumes more memory and computing power than :class:`LegacyRecognizer`. By using the provided model,
+    the accuracy is around 99%.
 
     It's currently the default recognizer.
 

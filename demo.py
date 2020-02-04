@@ -24,7 +24,7 @@ lesson_time = (((8, 0), (8, 45)),
 try:
     sess_file = open("session", mode="r+b")
 except FileNotFoundError:
-    sess_file = None
+    sess_file = None    # type: ignore
 sess = Session(ocr=NNRecognizer())
 
 with Session(session_file=sess_file) if sess_file else Session(username=os.environ["SJTU_USER"],

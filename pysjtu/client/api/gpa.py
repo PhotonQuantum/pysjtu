@@ -1,11 +1,7 @@
 import time
 from typing import Union
 
-from httpx.config import (
-    UNSET,
-    UnsetType,
-    TimeoutTypes
-)
+from httpx.config import (TimeoutTypes, UNSET, UnsetType)
 
 from pysjtu import const
 from pysjtu import model
