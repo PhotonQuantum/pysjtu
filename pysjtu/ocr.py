@@ -31,6 +31,8 @@ class LegacyRecognizer(Recognizer):
         >>> import pysjtu
         >>> s = pysjtu.Session(ocr=LegacyRecognizer("svm_model.onnx"))
         >>> s.login('user@sjtu.edu.cn', 'something_secret')
+
+    :param model_file: Pretrained ONNX model file.
     """
 
     def __init__(self, model_file: str = None):
@@ -153,6 +155,7 @@ class NNRecognizer(Recognizer):
         >>> s = pysjtu.Session(ocr=NNRecognizer("nn_model.onnx"))
         >>> s.login('user@sjtu.edu.cn', 'something_secret')
 
+    :param model_file: Pretrained ONNX model file.
     """
 
     def __init__(self, model_file: str = None):

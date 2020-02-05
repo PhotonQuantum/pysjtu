@@ -17,6 +17,7 @@ class ExamMixin(BaseClient):
         :param term: term for the new :class:`Exams` object.
         :param timeout: (optional) How long to wait for the server to send data before giving up.
         :return: A new :class:`Exams` object.
+        :rtype: :class:`Exams`
         """
         raw = self._session.post(const.EXAM_URL + str(self.student_id),
                                  data={"xnm": year, "xqm": const.TERMS[term], "_search": False, "ksmcdmb_id": '',

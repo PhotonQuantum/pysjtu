@@ -36,6 +36,7 @@ Then, login JAccount and create a client:
     519027910001
 
 There's no need to input captcha manually. A built-in captcha recognizer will handle this for you.
+To customize captcha recognizer, see :ref:`OCR`.
 
 Next, try to get your schedule of the first term in 2019, and print all of your courses:
 
@@ -67,6 +68,8 @@ While college-wide course searches accepts a bunch of criteria, for example:
 
     >>> courses = c.query_courses(2019, 0, name="高等数学", day_of_week=1, ...)
 
+For detailed usages, see :ref:`iSJTU Interface`.
+
 Result Content
 --------------
 
@@ -87,7 +90,7 @@ And for most queries (except college-wide course searches), there's an additiona
     [<ScheduleCourse 程序设计思想与方法（C++） week=[range(1, 10), range(11, 17)] day=2 time=range(3, 5)>,
     <ScheduleCourse 大学英语（4） week=[range(1, 17)] day=3 time=range(3, 5)>]
 
-These :class:`Result` objects offer developer-friendly interfaces to query results:
+These :class:`Result` objects offer a developer-friendly interface to query results:
 
 .. sourcecode:: python
 
@@ -96,7 +99,7 @@ These :class:`Result` objects offer developer-friendly interfaces to query resul
     >>> sched[0].credit
     0.5
 
-For specific usages, see Developer Interface.
+For detailed usages, see :ref:`iSJTU Interface` and :ref:`Developer Interface`.
 
 Timeout
 -------
@@ -121,11 +124,10 @@ For advanced timeout management, see :ref:`Timeout Configuration`.
 Exceptions
 ----------
 
-If the user is not properly logged in, or the current session is expired and PySJTU can't renew it automatically,
-a :class:`SessionException` will be raised.
+.. autoexception:: pysjtu.exceptions.SessionException
 
-If the given username & password is incorrect, a :class:`LoginException` will be raised.
+.. autoexception:: pysjtu.exceptions.LoginException
 
-If an remote error occurred when calculating GPA, a :class:`GPACalculationException` will be raised.
+.. autoexception:: pysjtu.exceptions.GPACalculationException
 
-If the iSJTU website is under maintenance, a :class:`ServiceUnavailable` exception will be raised.
+.. autoexception:: pysjtu.exceptions.ServiceUnavailable

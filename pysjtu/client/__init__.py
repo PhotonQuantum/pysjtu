@@ -22,16 +22,13 @@ class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin):
         >>> sched.filter(time=range(3,5), day=range(2, 4))
         [<ScheduleCourse 程序设计思想与方法（C++） week=[range(1, 10), range(11, 17)] day=2 time=range(3, 5)>,
         <ScheduleCourse 大学英语（4） week=[range(1, 17)] day=3 time=range(3, 5)>]
+
+    :param session: The :class:`Session` to be built upon.
     """
     _session: Session
     _term_start: date
 
     def __init__(self, session: Session):
-        """
-        A pysjtu client with schedule query, score query, exam query, etc.
-
-        :param session: The :class:`Session` to be built upon.
-        """
         super().__init__()
         _session_callable = ["get", "post"]
 

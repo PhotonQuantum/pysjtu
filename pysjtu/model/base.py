@@ -26,21 +26,17 @@ T_Result = TypeVar("T_Result", bound=Result)
 class QueryResult(Generic[T_Result]):
     """
     A key accessible, sliceable, and iterable interface to query result collections.
+
     A QueryResult object is constructed with a raw data callable reference.
+
     A QueryResult object is returned by a query operation, and isn't meant to be constructed by a user.
+
     A QueryResult object is lazy, which means network I/Os won't be performed until items are actually accessed.
 
-    Usage::
-
-        >>> query = ... # something that returns a QueryResult, for example pysjtu.Client().query_courses(...)
-        >>> len(query)
-        90
-        >>> query[-1]
-        <LibCourse 高等数学I class_name=(2019-2020-1)-MA248-20>
-        >>> query[14:16]
-        [<LibCourse 高等数学III class_name=(2019-2020-1)-MA172-1>, <LibCourse 高等数学IV class_name=(2019-2020-1)-MA173-1>]
-        >>> list(query)
-        [<LibCourse 高等数学A1 class_name=(2019-2020-1)-VV156-1>, <LibCourse 高等数学B1 class_name=(2019-2020-1)-VV186-1>, ...]
+    :param method_ref: The request method to be called when fetching data.
+    :param post_ref: The schema load method to be called on fetched data.
+    :param query_params: Parameters for this query.
+    :param page_size: The page size for result iteration.
     """
     _ref: Callable
     _post_ref: Callable
@@ -145,7 +141,12 @@ class QueryResult(Generic[T_Result]):
 
 
 class Results(List[T_Result]):
-    """ Base class for Results """
+    """
+    Base class for Results
+
+    :param year: year of the :class:`Results` object.
+    :param term: term of the :class:`Results` object.
+    """
     _schema: Type[Schema]
     _result_model: Type[T_Result]
 

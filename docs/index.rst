@@ -25,6 +25,8 @@ Main features of PySJTU:
 
    quickstart
    advanced
+   isjtu_api
+   api
 
 
 
