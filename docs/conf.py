@@ -34,6 +34,7 @@ language = 'en'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx_autodoc_typehints',
     'sphinx.ext.coverage',
     'sphinx.ext.autosectionlabel'
 ]
@@ -63,3 +64,6 @@ html_static_path = ['_static']
 
 
 # -- Extension configuration -------------------------------------------------
+# set_type_checking_flag = True
+always_document_param_types = True
+autodoc_member_order = 'bysource'

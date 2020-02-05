@@ -5,7 +5,7 @@ Session Object
 --------------
 
 The :class:`Session` object contains iSJTU session state, handles login operation, and persists certain parameters and
-some inner states across requests. And it has several HTTP request interfaces to help you send requests as a logged user.
+some inner states across requests. And it has an HTTP request interface to help you send requests as a logged user.
 
 In the :ref:`QuickStart`, we use `create_client` function to acquire a :class:`Client`. Under the hood, `create_client`
 creates a :class:`Session` for you. But if you need features like session persistence, proxies and tuned timeout, you
@@ -96,13 +96,11 @@ Configuration
 +++++++++++++
 
 Sessions can be used to provide configs to requests. Just like Sessions in `requests` and Clients in `HTTPX`, this is
-done by setting the properties.
+done by passing parameters to the :class:`Client` constructor.
 
 .. sourcecode:: python
 
-    s = pysjtu.Session()
-    s.proxies = {"http": "http://127.0.0.1:8888", "https": "http://127.0.0.1:8888"}
-    s.timeout = 1.0
+    s = pysjtu.Session(cookies=..., proxies="http://127.0.0.1:8888", timeout=1.0)
 
 HTTP Requests
 +++++++++++++
@@ -136,19 +134,47 @@ will be raised.
     s.get("https://i.sjtu.edu.cn/...", validate_session=False)
     s.get("https://i.sjtu.edu.cn/...", auto_renew=False)
 
+Client Object
+-------------
+
+The :class:`Client` object provides a developer-friendly interface to iSJTU APIs. It depends on an authenticated
+:class:`Session` object to send HTTP requests.
+
+Initialization
+++++++++++++++
+
+To initialize a :class:`Client` object, you pass in a :class:`Session` object described in the previous section.
+
+.. sourcecode:: python
+
+    client = pysjtu.Client(session=sess)
+
+Be aware that the new `client` object is bounded with the `session` passed in, which means API calls may alter the `session`'s
+internal states (cookies, etc). You may change `session`'s settings at any time, and these changes will reflect on `client`
+behaviours immediately.
+
+If you haven't initialized any :class:`Session` yet and you want to login with a pair of username & password, the
+`create_client` function will help you get one and initialize a :class:`Client`.
+
+.. sourcecode:: python
+
+    client = pysjtu.create_client("username", "password")
+
+Usages
+++++++
+
+There are two types of API: properties and methods. For detailed usage, see :ref:`iSJTU Interface`.
+
 HTTP Proxying
 -------------
 
 PySJTU supports HTTP proxies.
 
-To forward all traffic to `http://127.0.0.1:8888`, you may set the proxy information at :class:`Session` initialization,
-or set the `proxies` property.
+To forward all traffic to `http://127.0.0.1:8888`, you may set the proxy information at :class:`Session` initialization.
 
 .. sourcecode:: python
 
     s = pysjtu.Session(proxies="http://127.0.0.1:8888")
-    # or
-    s.proxies = "http://127.0.0.1:8888"
 
 For detailed usage, refer to `HTTPX: HTTP Proxying <https://www.python-httpx.org/advanced/#http-proxying>`_.
 
@@ -165,3 +191,15 @@ Timeouts can be enforced request-wise and session-wise.
     s.get("https://i.sjtu.edu.cn", timeout=10)
 
 For detailed usage, refer to `HTTPX: Fine tunning the configuration <https://www.python-httpx.org/advanced/#fine-tuning-the-configuration>`_.
+
+OCR
+---
+
+During login, captcha is solved automatically using built-in OCR engines. There are two OCR engines you may choose from:
+SVMRecognizer and NNRecognizer. For detailed comparison, see :ref:`Developer Interface`.
+
+You may pick a specific engine by passing it to the :class:`Session` constructor.
+
+.. sourcecode:: python
+
+    s = pysjtu.Session(ocr=pysjtu.LegacyRecognizer())

@@ -52,6 +52,16 @@ class Session:
         >>> with pysjtu.Session(session_file='session_file', mode='r+b')) as s:
         ...     s.get('https://i.sjtu.edu.cn')
         <Response [200 OK]>
+
+    :param username: JAccount username.
+    :param password: JAccount password.
+    :param cookies: The cookie to be used on each request.
+    :param ocr: The captcha :class:`Recognizer`.
+    :param session_file: The file which a session is loaded from & saved to.
+    :param retry: A list contains retry delays. If it's exhausted, an exception will be raised.
+    :param proxies: The proxy to be used on each request.
+    :param timeout: The timeout to be used on each request.
+    :param _mocker_app: An WSGI application to send requests to (for debug or test purposes).
     """
     _client: httpx.Client  # httpx session
     _retry: list = [.5] * 5 + list(range(1, 5))  # retry list
@@ -92,19 +102,6 @@ class Session:
     def __init__(self, username: str = "", password: str = "", cookies: CookieTypes = None, ocr: Recognizer = None,
                  session_file: FileTypes = None, retry: list = None, proxies: ProxiesTypes = None,
                  timeout: TimeoutTypes = None, _mocker_app=None):
-        """
-        A pysjtu session with login management, cookie persistence, etc.
-
-        :param username: JAccount username.
-        :param password: JAccount password.
-        :param cookies: The cookie to be used on each request.
-        :param ocr: The captcha :class:`Recognizer`.
-        :param session_file: The file which a session is loaded from & saved to.
-        :param retry: A list contains retry delays. If it's exhausted, an exception will be raised.
-        :param proxies: The proxy to be used on each request.
-        :param timeout: The timeout to be used on each request.
-        :param _mocker_app: An WSGI application to send requests to (for debug or test purposes).
-        """
         self._client = httpx.Client(app=_mocker_app, proxies=proxies)
         self._ocr = ocr if ocr else NNRecognizer()
         self._username = ""
@@ -147,24 +144,24 @@ class Session:
         Send a request. If asked, validate the current session and renew it when necessary.
 
         :param method: HTTP method for the new `Request` object: `GET`, `OPTIONS`,
-        `HEAD`, `POST`, `PUT`, `PATCH`, or `DELETE`.
+            `HEAD`, `POST`, `PUT`, `PATCH`, or `DELETE`.
         :param url: URL for the new `Request` object.
         :param params: (optional) Query parameters to include in the URL, as a
-        string, dictionary, or list of two-tuples.
+            string, dictionary, or list of two-tuples.
         :param data: (optional) Data to include in the body of the request, as a
-        dictionary
+            dictionary.
         :param files: (optional) A dictionary of upload files to include in the
-        body of the request.
+            body of the request.
         :param json: (optional) A JSON serializable object to include in the body
-        of the request.
+            of the request.
         :param headers: (optional) Dictionary of HTTP headers to include in the
-        request.
+            request.
         :param cookies: (optional) Dictionary of Cookie items to include in the
-        request.
+            request.
         :param auth: (optional) An authentication class to use when sending the
-        request.
+            request.
         :param timeout: (optional) The timeout configuration to use when sending
-        the request.
+            the request.
         :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
@@ -229,15 +226,15 @@ class Session:
 
         :param url: URL for the new `Request` object.
         :param params: (optional) Query parameters to include in the URL, as a
-        string, dictionary, or list of two-tuples.
+            string, dictionary, or list of two-tuples.
         :param headers: (optional) Dictionary of HTTP headers to include in the
-        request.
+            request.
         :param cookies: (optional) Dictionary of Cookie items to include in the
-        request.
+            request.
         :param auth: (optional) An authentication class to use when sending the
-        request.
+            request.
         :param timeout: (optional) The timeout configuration to use when sending
-        the request.
+            the request.
         :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
@@ -274,15 +271,15 @@ class Session:
 
         :param url: URL for the new `Request` object.
         :param params: (optional) Query parameters to include in the URL, as a
-        string, dictionary, or list of two-tuples.
+            string, dictionary, or list of two-tuples.
         :param headers: (optional) Dictionary of HTTP headers to include in the
-        request.
+            request.
         :param cookies: (optional) Dictionary of Cookie items to include in the
-        request.
+            request.
         :param auth: (optional) An authentication class to use when sending the
-        request.
+            request.
         :param timeout: (optional) The timeout configuration to use when sending
-        the request.
+            the request.
         :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
@@ -319,15 +316,15 @@ class Session:
 
         :param url: URL for the new `Request` object.
         :param params: (optional) Query parameters to include in the URL, as a
-        string, dictionary, or list of two-tuples.
+            string, dictionary, or list of two-tuples.
         :param headers: (optional) Dictionary of HTTP headers to include in the
-        request.
+            request.
         :param cookies: (optional) Dictionary of Cookie items to include in the
-        request.
+            request.
         :param auth: (optional) An authentication class to use when sending the
-        request.
+            request.
         :param timeout: (optional) The timeout configuration to use when sending
-        the request.
+            the request.
         :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
@@ -367,21 +364,21 @@ class Session:
 
         :param url: URL for the new `Request` object.
         :param params: (optional) Query parameters to include in the URL, as a
-        string, dictionary, or list of two-tuples.
+            string, dictionary, or list of two-tuples.
         :param data: (optional) Data to include in the body of the request, as a
-        dictionary
+            dictionary.
         :param files: (optional) A dictionary of upload files to include in the
-        body of the request.
+            body of the request.
         :param json: (optional) A JSON serializable object to include in the body
-        of the request.
+            of the request.
         :param headers: (optional) Dictionary of HTTP headers to include in the
-        request.
+            request.
         :param cookies: (optional) Dictionary of Cookie items to include in the
-        request.
+            request.
         :param auth: (optional) An authentication class to use when sending the
-        request.
+            request.
         :param timeout: (optional) The timeout configuration to use when sending
-        the request.
+            the request.
         :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
@@ -424,21 +421,21 @@ class Session:
 
         :param url: URL for the new `Request` object.
         :param params: (optional) Query parameters to include in the URL, as a
-        string, dictionary, or list of two-tuples.
+            string, dictionary, or list of two-tuples.
         :param data: (optional) Data to include in the body of the request, as a
-        dictionary
+            dictionary.
         :param files: (optional) A dictionary of upload files to include in the
-        body of the request.
+            body of the request.
         :param json: (optional) A JSON serializable object to include in the body
-        of the request.
+            of the request.
         :param headers: (optional) Dictionary of HTTP headers to include in the
-        request.
+            request.
         :param cookies: (optional) Dictionary of Cookie items to include in the
-        request.
+            request.
         :param auth: (optional) An authentication class to use when sending the
-        request.
+            request.
         :param timeout: (optional) The timeout configuration to use when sending
-        the request.
+            the request.
         :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
@@ -481,21 +478,21 @@ class Session:
 
         :param url: URL for the new `Request` object.
         :param params: (optional) Query parameters to include in the URL, as a
-        string, dictionary, or list of two-tuples.
+            string, dictionary, or list of two-tuples.
         :param data: (optional) Data to include in the body of the request, as a
-        dictionary
+            dictionary.
         :param files: (optional) A dictionary of upload files to include in the
-        body of the request.
+            body of the request.
         :param json: (optional) A JSON serializable object to include in the body
-        of the request.
+            of the request.
         :param headers: (optional) Dictionary of HTTP headers to include in the
-        request.
+            request.
         :param cookies: (optional) Dictionary of Cookie items to include in the
-        request.
+            request.
         :param auth: (optional) An authentication class to use when sending the
-        request.
+            request.
         :param timeout: (optional) The timeout configuration to use when sending
-        the request.
+            the request.
         :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
@@ -535,15 +532,15 @@ class Session:
 
         :param url: URL for the new `Request` object.
         :param params: (optional) Query parameters to include in the URL, as a
-        string, dictionary, or list of two-tuples.
+            string, dictionary, or list of two-tuples.
         :param headers: (optional) Dictionary of HTTP headers to include in the
-        request.
+            request.
         :param cookies: (optional) Dictionary of Cookie items to include in the
-        request.
+            request.
         :param auth: (optional) An authentication class to use when sending the
-        request.
+            request.
         :param timeout: (optional) The timeout configuration to use when sending
-        the request.
+            the request.
         :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.

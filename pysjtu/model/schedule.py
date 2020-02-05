@@ -8,22 +8,39 @@ class ScheduleCourse(Result):
     A model which describes a course in CourseLib. Some fields may be empty.
 
     :param name: literal name of the course.
+    :type name: str
     :param day: in which day(s) of weeks classes are given.
+    :type day: int
     :param week: in which week(s) classes are given.
+    :type week: list
     :param time: at which time of days classes are given.
+    :type time: range
     :param location: the place where classes are given.
+    :type location: str
     :param credit: credits that the course provides.
+    :type credit: int
     :param assessment: assessment method of this course. (exams, assesses, etc)
+    :type assessment: str
     :param remark: remarks of this course.
+    :type remark: str
     :param teacher_name: the teacher who offers this course.
+    :type teacher_name: List[str]
     :param teacher_title: title of the course's teacher.
+    :type teacher_title: List[str]
     :param course_id: course id.
+    :type course_id: str
     :param class_name: class name (constant between years).
+    :type class_name: str
     :param class_id: class id (variable between years).
+    :type class_id: str
     :param hour_total: credit hours of the course.
+    :type hour_total: int
     :param hour_remark: detailed explanation of the credit hours.
+    :type hour_remark: dict
     :param hour_week: credit hours of the course every week.
+    :type hour_week: int
     :param field: professional field of this course.
+    :type field: str
     """
     name: str
     day: int
@@ -61,17 +78,6 @@ class Schedule(Results[ScheduleCourse]):
     """
     A list-like interface to Schedule collections.
     An additional filter method has been added to make filter operations easier.
-
-    Usage::
-
-        >>> sched = ... # something that returns a Exams, for example pysjtu.Client().schedule(...)
-        >>> sched
-        [<ScheduleCourse 军事理论 week=[range(9, 17)] day=1 time=range(1, 3)>, ...]
-        >>> sched.filter(time=[1, range(5, 7)], day=[2, range(4, 5)]))
-        [<ScheduleCourse 线性代数 week=[range(1, 7), range(8, 17)] day=2 time=range(1, 3)>,
-        <ScheduleCourse 线性代数 week=[7] day=2 time=range(1, 3)>,
-        <ScheduleCourse 思想道德修养与法律基础 week=[range(1, 17)] day=2 time=range(6, 9)>,
-        <ScheduleCourse 程序设计思想与方法（C++） week=[range(1, 16, 2)] day=4 time=range(1, 3)>]
     """
     _schema = ScheduleCourseSchema
     _result_model = ScheduleCourse

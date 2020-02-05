@@ -29,19 +29,33 @@ class Score(Result):
     A model which describes the score of a specific course. Some fields may be empty.
 
     :param name: literal name of the course.
+    :type name: str
     :param teacher: the teacher who offers this course.
+    :type teacher: str
     :param score: score of this course
+    :type score: str
     :param credit: credits that the course provides.
+    :type credit: float
     :param gp: gp earned in this course.
+    :type gp: float
     :param invalid: whether this score is voided.
+    :type invalid: bool
     :param detail: a ScoreFactor object representing detailed composition of the score.
+    :type detail: List[:class:`ScoreFactor`]
     :param course_type: type of this course. (compulsory, elective, etc)
+    :type course_type: str
     :param category: category of this course. (specialized, general, PE, etc)
+    :type category: str
     :param score_type: type of your score. (acquired by normal examination, etc)
+    :type score_type: str
     :param method: assessment method of this course. (exams, assesses, etc)
+    :type method: str
     :param course_id: course id.
+    :type course_id: str
     :param class_name: class name (constant between years).
+    :type class_name: str
     :param class_id: class id (variable between years).
+    :type class_id: str
     """
     name: str
     teacher: str
@@ -89,14 +103,6 @@ class Scores(Results[Score]):
     """
     A list-like interface to Score collections.
     An additional filter method has been added to make filter operations easier.
-
-    Usage::
-
-        >>> scores = ... # something that returns a Exams, for example pysjtu.Client().score(...)
-        >>> scores
-        [<Score 大学化学 score=xx credit=x.x gp=x.x>, ...>
-        >>> scores.filter(gp=4)
-        [<Score xxxxx score=91 credit=2.0 gp=4.0>, ...]
     """
     _schema = ScoreSchema
     _result_model = Score

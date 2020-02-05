@@ -12,3 +12,4 @@ respx
 Sphinx
 sphinx-rtd-theme
 typing
+git+https://github.com/PhotonQuantum/sphinx-autodoc-typehints.git

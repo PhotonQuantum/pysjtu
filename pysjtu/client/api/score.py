@@ -30,6 +30,7 @@ class ScoreMixin(BaseClient):
         :param term: term for the new :class:`Scores` object.
         :param timeout: (optional) How long to wait for the server to send data before giving up.
         :return: A new :class:`Scores` object.
+        :rtype: :class:`Scores`
         """
         raw = self._session.post(const.SCORE_URL, data={"xnm": year, "xqm": const.TERMS[term], "_search": False,
                                                         "nd": int(time.time() * 1000), "queryModel.showCount": 15,

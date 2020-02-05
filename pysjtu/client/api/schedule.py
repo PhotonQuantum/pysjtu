@@ -17,6 +17,7 @@ class ScheduleMixin(BaseClient):
         :param term: term for the new :class:`Schedule` object.
         :param timeout: (optional) How long to wait for the server to send data before giving up.
         :return: A new :class:`Schedule` object.
+        :rtype: :class:`Schedule`
         """
         raw = self._session.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]}, timeout=timeout)
         schedule = model.Schedule(year, term)
