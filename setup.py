@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 import pysjtu
+from os import path
+
+curpath = path.abspath(path.dirname(__file__))
+with open(path.join(curpath, "README.md")) as f:
+    long_description = f.read()
 
 setup(
     name='pysjtu',
@@ -10,11 +15,11 @@ setup(
     description='The Python iSJTU client for Humans.',
     author='LightQuantum',
     author_email='cy.n01@outlook.com',
-    packages=[
-        'pysjtu',
-    ],
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    packages=find_packages(),
     package_data={
-        '': ['*.onnx']
+        'pysjtu': ['ocr/*.onnx']
     },
     url='https://github.com/PhotonQuantum/pysjtu',
     classifiers=(

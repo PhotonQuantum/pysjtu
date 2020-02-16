@@ -9,6 +9,7 @@ pytest
 pytest-cov
 pytest-mock
 respx
+setuptools
 Sphinx
 sphinx-rtd-theme
 typing
