@@ -25,7 +25,7 @@ from httpx.models import (
 
 from . import const
 from .exceptions import DumpWarning, LoadWarning, LoginException, ServiceUnavailable, SessionException
-from .ocr import NNRecognizer, Recognizer
+from pysjtu.ocr import NNRecognizer, Recognizer
 from .utils import FileTypes
 
 
@@ -571,7 +571,7 @@ class Session:
         for i in self._retry:
             login_page_req = self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))
             uuid = re.findall(r"(?<=uuid\": ').*(?=')", login_page_req.text)[0]
-            login_params = {k: v[0] for k, v in parse_qs(urlparse(str(login_page_req.url)).query)}
+            login_params = {k: v[0] for k, v in parse_qs(urlparse(str(login_page_req.url)).query).items()}
 
             captcha_img = self.get(const.CAPTCHA_URL,
                                    params={"uuid": uuid, "t": int(time.time() * 1000)}).content
