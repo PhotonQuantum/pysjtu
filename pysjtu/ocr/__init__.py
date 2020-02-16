@@ -1,13 +1,12 @@
 from io import BytesIO
 from os import path
+from pkg_resources import resource_filename
 
 import numpy as np  # type: ignore
 import onnxruntime as rt  # type: ignore
 from PIL import Image  # type: ignore
 
-from .utils import range_in_set
-
-DATA_DIR = path.join(path.dirname(path.abspath(__file__)), "ocr_models")
+from pysjtu.utils import range_in_set
 
 
 class Recognizer:
@@ -37,7 +36,7 @@ class LegacyRecognizer(Recognizer):
 
     def __init__(self, model_file: str = None):
         if not model_file:
-            model_file = path.join(DATA_DIR, "svm_model.onnx")
+            model_file = resource_filename("pysjtu.ocr", "svm_model.onnx")
         self._clr = rt.InferenceSession(model_file)
         self._table = [0] * 156 + [1] * 100
 
@@ -130,8 +129,8 @@ class LegacyRecognizer(Recognizer):
         img_rec = img_rec.convert("L")
         img_rec = img_rec.point(self._table, "1")
 
-        segments = [LegacyRecognizer.normalize(LegacyRecognizer.v_split(segment)).convert("L").getdata() for segment in
-                    LegacyRecognizer.h_split(img_rec)]
+        segments = [self.normalize(self.v_split(segment)).convert("L").getdata() for segment in
+                    self.h_split(img_rec)]
 
         np_segments = [np.array(segment, dtype=np.float32) for segment in segments]
         predicts = [self._clr.run(None, {self._clr.get_inputs()[0].name: np_segment}) for np_segment in np_segments]
@@ -160,7 +159,7 @@ class NNRecognizer(Recognizer):
 
     def __init__(self, model_file: str = None):
         if not model_file:
-            model_file = path.join(DATA_DIR, "nn_model.onnx")
+            model_file = resource_filename("pysjtu.ocr", "nn_model.onnx")
         self._table = [0] * 156 + [1] * 100
         self._sess = rt.InferenceSession(model_file)
 
