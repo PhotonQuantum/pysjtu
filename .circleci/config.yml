@@ -23,7 +23,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-            - v1-dependencies-{{ checksum "setup.py" }}
+            - v1-dependencies-{{ checksum "requirements.txt" }}
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
@@ -32,14 +32,14 @@ jobs:
           command: |
             python3 -m venv venv
             . venv/bin/activate
-            pip install -e .
+            pip install -r requirements.txt
             pip install pytest pytest-cov pytest-mock respx flask
             pip install codacy-coverage
 
       - save_cache:
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "setup.py" }}
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
 
       # run tests!
       - run:
