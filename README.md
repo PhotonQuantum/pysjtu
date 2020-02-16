@@ -62,13 +62,13 @@ Main features of PySJTU:
 
 ## Installation
 
-Install with pip from git:
+Install with pip:
 
 ```shell script
-$ pip install git+https://github.com/PhotonQuantum/pysjtu.git
+$ pip install pysjtu
 ```
 
-PySJTU requires Python 3.6+. This package will soon be available in PyPI.
+PySJTU requires Python 3.6+.
 
 ## Built With
 
