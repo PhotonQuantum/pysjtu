@@ -10,7 +10,7 @@ To install PySJTU, simply use pip:
 
 .. sourcecode:: sh
 
-    $ pip install git+https://github.com/PhotonQuantum/pysjtu.git
+    $ pip install pysjtu
 
 And you may want to add this package into your requirements.txt:
 
