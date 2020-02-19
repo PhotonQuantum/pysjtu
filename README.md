@@ -13,6 +13,7 @@
 <a href="https://www.codacy.com/manual/PhotonQuantum/pysjtu?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PhotonQuantum/pysjtu&amp;utm_campaign=Badge_Grade">
     <img src="https://api.codacy.com/project/badge/Grade/4961a9a6c817419fae7b7b567b8e1367"/>
 </a>
+<a href="https://app.fossa.io/projects/git%2Bgithub.com%2FPhotonQuantum%2Fpysjtu?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2FPhotonQuantum%2Fpysjtu.svg?type=shield"/></a>
 </p>
 
 ![screenshot](docs/images/pysjtu.png)
@@ -84,3 +85,6 @@ This project is licensed under GNU General Public License v3.0 - see the [LICENS
 
 <p align="center">&mdash;💖&mdash;</p>
 <p align="center"><i>Built with love by LightQuantum</i></p>
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FPhotonQuantum%2Fpysjtu.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FPhotonQuantum%2Fpysjtu?ref=badge_large)
