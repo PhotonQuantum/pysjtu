@@ -11,7 +11,7 @@ def resp_loader():
     RESP_DIR = path.join(path.dirname(path.abspath(__file__)), 'resources/resp')
 
     def _resp_loader(name):
-        with open(path.join(RESP_DIR, name + ".json")) as f:
+        with open(path.join(RESP_DIR, name + ".json"), encoding="utf-8") as f:
             return json.load(f)
 
     return _resp_loader
