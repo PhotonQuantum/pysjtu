@@ -1,7 +1,8 @@
 import collections
-from math import inf
 from pathlib import Path
 from typing import BinaryIO, Union
+
+from math import inf
 
 FileTypes = Union[BinaryIO, str, Path]
 
