@@ -4,9 +4,9 @@ from math import ceil
 
 import pytest
 
-from pysjtu.model import QueryResult, GPAQueryParams, GPA, LibCourse, Exam, ScoreFactor, Score, ScheduleCourse, Exams, \
+from pysjtu.models import QueryResult, GPAQueryParams, GPA, LibCourse, Exam, ScoreFactor, Score, ScheduleCourse, Exams, \
     Scores, Schedule
-from pysjtu.schema import ExamSchema, ScoreSchema, ScheduleCourseSchema
+from pysjtu.schemas import ExamSchema, ScoreSchema, ScheduleCourseSchema
 
 
 @pytest.fixture

@@ -3,7 +3,7 @@ from datetime import datetime
 
 from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
-from pysjtu.schema.base import ChineseBool
+from pysjtu.schemas.base import ChineseBool
 
 
 class ExamDate(fields.Field):
@@ -55,4 +55,4 @@ class ExamSchema(Schema):
         return Exam(**data)
 
 
-from pysjtu.model.exam import Exam
+from pysjtu.models.exam import Exam

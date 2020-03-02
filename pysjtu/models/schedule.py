@@ -1,6 +1,6 @@
 from typing import List
 
-from pysjtu.model.base import Result, Results
+from pysjtu.models.base import Result, Results
 
 
 class ScheduleCourse(Result):
@@ -71,7 +71,7 @@ class ScheduleCourse(Result):
         return f"<ScheduleCourse {self.name} week={self.week} day={self.day} time={self.time}>"
 
 
-from pysjtu.schema.schedule import ScheduleCourseSchema
+from pysjtu.schemas.schedule import ScheduleCourseSchema
 
 
 class Schedule(Results[ScheduleCourse]):

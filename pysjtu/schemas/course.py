@@ -2,7 +2,7 @@ import typing
 
 from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
-from pysjtu.schema.base import ColonSplitted, CommaSplitted, CourseTime, CourseWeek
+from pysjtu.schemas.base import ColonSplitted, CommaSplitted, CourseTime, CourseWeek
 
 
 class LibCreditHourDetail(fields.Field):
@@ -52,4 +52,4 @@ class LibCourseSchema(Schema):
         return LibCourse(**data)
 
 
-from pysjtu.model.course import LibCourse
+from pysjtu.models.course import LibCourse

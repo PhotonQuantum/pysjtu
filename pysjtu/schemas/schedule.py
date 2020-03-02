@@ -1,6 +1,6 @@
 from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
-from pysjtu.schema.base import CommaSplitted, CourseTime, CourseWeek, CreditHourDetail
+from pysjtu.schemas.base import CommaSplitted, CourseTime, CourseWeek, CreditHourDetail
 
 
 class ScheduleCourseSchema(Schema):
@@ -31,4 +31,4 @@ class ScheduleCourseSchema(Schema):
         return ScheduleCourse(**data)
 
 
-from pysjtu.model.schedule import ScheduleCourse
+from pysjtu.models.schedule import ScheduleCourse

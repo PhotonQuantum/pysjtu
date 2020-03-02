@@ -3,13 +3,13 @@ from typing import Union
 
 from httpx.config import (TimeoutTypes, UNSET, UnsetType)
 
-from pysjtu import const
-from pysjtu import model
+from pysjtu import consts
+from pysjtu import models
 from pysjtu.client.base import BaseClient
 
 
 class ExamMixin(BaseClient):
-    def exam(self, year: int, term: int, timeout: Union[TimeoutTypes, UnsetType] = UNSET) -> model.Results[model.Exam]:
+    def exam(self, year: int, term: int, timeout: Union[TimeoutTypes, UnsetType] = UNSET) -> models.Results[models.Exam]:
         """
         Fetch your exams schedule of specific year & term.
 
@@ -19,12 +19,12 @@ class ExamMixin(BaseClient):
         :return: A new :class:`Exams` object.
         :rtype: :class:`Exams`
         """
-        raw = self._session.post(const.EXAM_URL + str(self.student_id),
-                                 data={"xnm": year, "xqm": const.TERMS[term], "_search": False, "ksmcdmb_id": '',
+        raw = self._session.post(consts.EXAM_URL + str(self.student_id),
+                                 data={"xnm": year, "xqm": consts.TERMS[term], "_search": False, "ksmcdmb_id": '',
                                        "kch": '', "kc": '', "ksrq": '', "kkbm_id": '',
                                        "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                        "queryModel.currentPage": 1, "queryModel.sortName": "",
                                        "queryModel.sortOrder": "asc", "time": 1}, timeout=timeout)
-        scores = model.Exams(year, term)
+        scores = models.Exams(year, term)
         scores.load(raw.json()["items"])  # type: ignore
         return scores

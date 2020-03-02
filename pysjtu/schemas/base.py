@@ -60,8 +60,11 @@ class CreditHourDetail(fields.Field):
         class_hour_details = value.split(",")
         rtn = {}
         for item in class_hour_details:
-            name, hour = item.split(":")
-            rtn[name] = float(hour)
+            try:
+                name, hour = item.split(":")
+                rtn[name] = float(hour)
+            except ValueError:
+                rtn["N/A"] = 0
         return rtn
 
 

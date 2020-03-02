@@ -1,13 +1,13 @@
 import re
 from datetime import date, datetime
 
-from pysjtu import const
+from pysjtu import consts
+from pysjtu.client.base import BaseClient
 from pysjtu.client.api import CourseLibMixin, ExamMixin, GPAMixin, ScheduleMixin, ScoreMixin
-from pysjtu.session import Session
-from pysjtu.utils import has_callable
+from pysjtu.session import BaseSession, Session
 
 
-class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin):
+class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin, BaseClient):
     """
     A pysjtu client with schedule query, score query, exam query, etc.
 
@@ -25,21 +25,13 @@ class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin):
 
     :param session: The :class:`Session` to be built upon.
     """
-    _session: Session
+    _session: BaseSession
     _term_start: date
 
-    def __init__(self, session: Session):
+    def __init__(self, session: BaseSession):
         super().__init__()
-        _session_callable = ["get", "post"]
-
-        _available_callable = map(lambda x: has_callable(session, x), ["get", "post"])
-        if False in _available_callable:
-            _missing_callable = [item[0] for item in zip(_session_callable, _available_callable) if not item[1]]
-            raise TypeError(f"Missing callable(s) in given session object: {_missing_callable}")
-
-        if not isinstance(getattr(session, "_cache_store", None), dict):
-            raise TypeError("Missing dict in given session object: _cache_store")
-
+        if not isinstance(session, BaseSession):
+            raise TypeError("'session' isn't an instance of BaseSession.")
         self._session = session
 
         # noinspection PyTypeChecker
@@ -49,7 +41,7 @@ class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin):
     def term_start_date(self) -> date:
         """ Get the term start date for the current term. """
         if not self._term_start:
-            raw = self._session.get(const.CALENDAR_URL + str(self.student_id))
+            raw = self._session.get(consts.CALENDAR_URL + str(self.student_id))
             self._term_start = datetime.strptime(min(re.findall(r"\d{4}-\d{2}-\d{2}", raw.text)), "%Y-%m-%d").date()
         return self._term_start
 
@@ -58,7 +50,7 @@ class Client(ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin):
     def student_id(self) -> int:
         """ Get the student id of the current session. """
         if "student_id" not in self._session._cache_store:
-            rtn = self._session.get(const.HOME_URL)
+            rtn = self._session.get(consts.HOME_URL)
             self._session._cache_store["student_id"] = int(
                 re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[0])
         return self._session._cache_store["student_id"]

@@ -7,12 +7,13 @@ import httpx
 import pytest
 import respx
 
-from pysjtu.session import Session
+from pysjtu.consts import HOME_URL
+from pysjtu.session import Session, BaseSession
 from pysjtu.client import Client, create_client
-from pysjtu.const import HOME_URL
-from pysjtu.exceptions import LoadWarning, DumpWarning, ServiceUnavailable, SessionException, LoginException, GPACalculationException
+from pysjtu.exceptions import LoadWarning, DumpWarning, ServiceUnavailable, SessionException, LoginException, \
+    GPACalculationException
 
-from pysjtu.model import GPAQueryParams, Schedule, Scores, Exams, QueryResult, LogicEnum, CourseRange, GPA
+from pysjtu.models import GPAQueryParams, Schedule, Scores, Exams, QueryResult, LogicEnum, CourseRange, GPA
 from pysjtu.ocr import NNRecognizer
 from .mock_server import app
 
@@ -23,12 +24,6 @@ def logged_session(mocker):
     sess = Session(_mocker_app=app, retry=[0], timeout=1)
     sess.login("FeiLin", "WHISPERS")
     return sess
-
-
-@pytest.fixture(scope="session")
-def mocked_api():
-    with respx.mock() as httpx_mock:
-        httpx_mock.get(HOME_URL, content="asdf")
 
 
 @pytest.fixture
@@ -121,6 +116,11 @@ class TestSession:
         assert logged_session.delete("https://i.sjtu.edu.cn/ping").text == "pong"
         options = logged_session.options("https://i.sjtu.edu.cn/ping").headers["allow"]
         assert sorted(options.split(", ")) == ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+
+    @respx.mock
+    def test_req_partial_url(self):
+        respx.get("http://dummy.url/test_path", content="pass")
+        assert Session(base_url="http://dummy.url").get("/test_path").text == "pass"
 
     def test_login(self, logged_session, check_login):
         assert check_login(logged_session)
@@ -242,7 +242,7 @@ def logged_client(logged_session):
 
 
 class TestClient:
-    class DummySession:
+    class DummySession(BaseSession):
         _cache_store = {}
 
         def get(self): ...
@@ -257,11 +257,11 @@ class TestClient:
     # noinspection PyTypeChecker
     def test_init(self, logged_session):
         Client(logged_session)
-        Client(self.DummySession)
+        Client(self.DummySession())
         with pytest.raises(TypeError):
             Client(0)
         with pytest.raises(TypeError):
-            Client(self.DummySession2)
+            Client(self.DummySession2())
         client = create_client("FeiLin", "WHISPERS", _mocker_app=app)
         assert client.student_id == 519027910001
 

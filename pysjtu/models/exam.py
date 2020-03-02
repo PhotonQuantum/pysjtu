@@ -1,7 +1,7 @@
 import datetime
 from typing import List
 
-from pysjtu.model.base import Result, Results
+from pysjtu.models.base import Result, Results
 
 
 class Exam(Result):
@@ -55,7 +55,7 @@ class Exam(Result):
         return f"<Exam \"{self.name}\" location={self.location} datetime={date_out}({time_out[0]}-{time_out[1]})>"
 
 
-from pysjtu.schema.exam import ExamSchema
+from pysjtu.schemas.exam import ExamSchema
 
 
 class Exams(Results[Exam]):

@@ -7,7 +7,7 @@ from functools import partial
 from http.cookiejar import CookieJar
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Union
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse, urljoin
 
 import httpx
 from httpx.auth import AuthTypes
@@ -23,13 +23,24 @@ from httpx.models import (
     URLTypes,
 )
 
-from . import const
+from . import consts
 from .exceptions import DumpWarning, LoadWarning, LoginException, ServiceUnavailable, SessionException
 from pysjtu.ocr import NNRecognizer, Recognizer
 from .utils import FileTypes
 
 
-class Session:
+class BaseSession:
+    """ Base session """
+    _cache_store: dict
+
+    def get(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def post(self, *args, **kwargs):
+        raise NotImplementedError
+
+
+class Session(BaseSession):
     """
     A pysjtu session with login management, cookie persistence, etc.
 
@@ -61,6 +72,7 @@ class Session:
     :param retry: A list contains retry delays. If it's exhausted, an exception will be raised.
     :param proxies: The proxy to be used on each request.
     :param timeout: The timeout to be used on each request.
+    :param base_url: Base url of backend APIs.
     :param _mocker_app: An WSGI application to send requests to (for debug or test purposes).
     """
     _client: httpx.Client  # httpx session
@@ -68,9 +80,8 @@ class Session:
     _ocr: Recognizer
     _username: str
     _password: str
-    _cache_store: dict
-    _release_when_exit: bool
     _session_file: Optional[FileTypes]
+    _base_url: str
 
     def _secure_req(self, ref: Callable) -> Response:
         """
@@ -101,12 +112,13 @@ class Session:
 
     def __init__(self, username: str = "", password: str = "", cookies: CookieTypes = None, ocr: Recognizer = None,
                  session_file: FileTypes = None, retry: list = None, proxies: ProxiesTypes = None,
-                 timeout: TimeoutTypes = None, _mocker_app=None):
+                 timeout: TimeoutTypes = None, base_url: str = "https://i.sjtu.edu.cn", _mocker_app=None):
         self._client = httpx.Client(app=_mocker_app, proxies=proxies)
         self._ocr = ocr if ocr else NNRecognizer()
         self._username = ""
         self._password = ""
         self._cache_store = {}
+        self._base_url = base_url
         # noinspection PyTypeChecker
         self._session_file = None
         if retry:
@@ -167,6 +179,10 @@ class Session:
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
         :return: an :class:`Response` object.
         """
+        # complete the url in case base_url is omitted
+        url_parsed = urlparse(url)
+        url = url if all([getattr(url_parsed, attr) for attr in ["scheme", "netloc", "path"]])\
+            else urljoin(self._base_url, url)
         rtn = self._client.request(method=method,
                                    url=url,
                                    data=data,
@@ -187,26 +203,29 @@ class Session:
         if validate_session and rtn.url.full_path == "/xtgl/login_slogin.html":  # type: ignore
             if not auto_renew:
                 raise SessionException("Session expired.")
-            self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh token
+            self._secure_req(partial(self.get, consts.LOGIN_URL, validate_session=False))  # refresh token
             # Sometimes JAccount OAuth token isn't expired
-            if self._client.get(const.HOME_URL).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
+            if self.get(consts.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
                 if self._username and self._password:
                     self.login(self._username, self._password)
                 else:
                     raise SessionException("Session expired. Unable to renew session due to missing username or "
                                            "password")
-            rtn = self._client.request(method=method,
-                                       url=url,
-                                       data=data,
-                                       files=files,
-                                       json=json,
-                                       params=params,
-                                       headers=headers,
-                                       cookies=cookies,
-                                       auth=auth,
-                                       allow_redirects=allow_redirects,
-                                       timeout=timeout)
-        return rtn
+            return self.request(method=method,
+                                url=url,
+                                data=data,
+                                files=files,
+                                json=json,
+                                params=params,
+                                headers=headers,
+                                cookies=cookies,
+                                auth=auth,
+                                allow_redirects=allow_redirects,
+                                timeout=timeout,
+                                validate_session=validate_session,
+                                auto_renew=False)    # disable auto_renew to avoid infinite recursion
+        else:
+            return rtn
 
     def get(
             self,
@@ -569,17 +588,17 @@ class Session:
         """
         self._cache_store = {}
         for i in self._retry:
-            login_page_req = self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))
+            login_page_req = self._secure_req(partial(self.get, consts.LOGIN_URL, validate_session=False))
             uuid = re.findall(r"(?<=uuid\": ').*(?=')", login_page_req.text)[0]
             login_params = {k: v[0] for k, v in parse_qs(urlparse(str(login_page_req.url)).query).items()}
 
-            captcha_img = self.get(const.CAPTCHA_URL,
+            captcha_img = self.get(consts.CAPTCHA_URL,
                                    params={"uuid": uuid, "t": int(time.time() * 1000)}).content
             captcha = self._ocr.recognize(captcha_img)
 
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
             result = self._secure_req(
-                partial(self.post, const.LOGIN_POST_URL, params=login_params, headers=const.HEADERS))
+                partial(self.post, consts.LOGIN_POST_URL, params=login_params, headers=consts.HEADERS))
             if "err=1" not in result.url.query:  # type: ignore
                 self._username = username
                 self._password = password
@@ -597,7 +616,7 @@ class Session:
             caution.
         """
         cookie_bak = self._client.cookies
-        self.get(const.LOGOUT_URL, params={"t": int(time.time() * 1000), "login_type": ""}, validate_session=False)
+        self.get(consts.LOGOUT_URL, params={"t": int(time.time() * 1000), "login_type": ""}, validate_session=False)
         if purge_session:
             self._username = ''
             self._password = ''
@@ -718,8 +737,8 @@ class Session:
         bak_cookie = self._client.cookies
         # noinspection PyTypeHints
         self._client.cookies = new_cookie  # type: ignore
-        self._secure_req(partial(self.get, const.LOGIN_URL, validate_session=False))  # refresh JSESSION token
-        if self.get(const.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
+        self._secure_req(partial(self.get, consts.LOGIN_URL, validate_session=False))  # refresh JSESSION token
+        if self.get(consts.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
             self._client.cookies = bak_cookie
             raise SessionException("Invalid cookies. You may skip this validation by setting _cookies")
         self._cache_store = {}
@@ -735,3 +754,8 @@ class Session:
             self._client.timeout = httpx.Timeout(new_timeout)
         else:
             raise TypeError
+
+    @property
+    def base_url(self) -> str:
+        """ Base url of backend APIs. """
+        return self._base_url

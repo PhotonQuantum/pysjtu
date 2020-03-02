@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from marshmallow import EXCLUDE, Schema, fields, post_dump, post_load, pre_dump, pre_load  # type: ignore
 
-from pysjtu.schema.base import CommaSplitted
+from pysjtu.schemas.base import CommaSplitted
 from pysjtu.utils import replace_keys
 
 
@@ -259,4 +259,4 @@ class GPASchema(Schema):
         return GPA(**data)
 
 
-from pysjtu.model.gpa import LogicEnum, Ranking, CourseRange, GPAQueryParams, GPA
+from pysjtu.models.gpa import LogicEnum, Ranking, CourseRange, GPAQueryParams, GPA

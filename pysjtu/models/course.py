@@ -1,6 +1,6 @@
 from typing import List
 
-from pysjtu.model.base import Result
+from pysjtu.models.base import Result
 
 
 class LibCourse(Result):

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List
 
-from pysjtu.model.base import Result
+from pysjtu.models.base import Result
 
 
 class LogicEnum(Enum):

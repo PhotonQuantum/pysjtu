@@ -2,7 +2,7 @@ import typing
 
 from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
-from pysjtu.schema.base import ChineseBool
+from pysjtu.schemas.base import ChineseBool
 
 
 class ScoreFactorName(fields.Field):
@@ -69,4 +69,4 @@ class ScoreSchema(Schema):
         return Score(**data)
 
 
-from pysjtu.model.score import Score, ScoreFactor
+from pysjtu.models.score import Score, ScoreFactor
