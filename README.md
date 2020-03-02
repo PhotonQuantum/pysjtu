@@ -1,8 +1,8 @@
 <p align="center"><strong>PySJTU</strong> <em>- The Python iSJTU client for Humans.</em></p>
 
 <p align="center">
-<a href="https://circleci.com/gh/PhotonQuantum/pysjtu">
-    <img src="https://circleci.com/gh/PhotonQuantum/pysjtu.svg?style=shield" alt="CircleCI">
+<a href="https://github.com/PhotonQuantum/pysjtu">
+    <img src="https://github.com/PhotonQuantum/pysjtu/workflows/PySJTU%20Tests/badge.svg"
 </a>
 <a href='https://pysjtu.readthedocs.io/en/latest/?badge=latest'>
     <img src='https://readthedocs.org/projects/pysjtu/badge/?version=latest' alt='Documentation Status' />
