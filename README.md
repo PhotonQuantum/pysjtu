@@ -4,6 +4,9 @@
 <a href="https://github.com/PhotonQuantum/pysjtu">
     <img src="https://github.com/PhotonQuantum/pysjtu/workflows/PySJTU%20Tests/badge.svg"
 </a>
+<a href="https://badge.fury.io/py/pysjtu">
+    <img src="https://badge.fury.io/py/pysjtu.svg" alt="PyPI version" height="18">
+</a>
 <a href='https://pysjtu.readthedocs.io/en/latest/?badge=latest'>
     <img src='https://readthedocs.org/projects/pysjtu/badge/?version=latest' alt='Documentation Status' />
 </a>
