@@ -2,8 +2,8 @@ import pytest
 import json
 import datetime
 from os import path
-from pysjtu.schema import ScheduleCourseSchema, ScoreSchema, ScoreFactorSchema, ExamSchema, LibCourseSchema, GPAQueryParamsSchema, GPASchema
-from pysjtu.model import LogicEnum, CourseRange, Ranking
+from pysjtu.schemas import ScheduleCourseSchema, ScoreSchema, ScoreFactorSchema, ExamSchema, LibCourseSchema, GPAQueryParamsSchema, GPASchema
+from pysjtu.models import LogicEnum, CourseRange, Ranking
 
 
 @pytest.fixture()

@@ -2,14 +2,14 @@ from typing import Union
 
 from httpx.config import (TimeoutTypes, UNSET, UnsetType)
 
-from pysjtu import const
-from pysjtu import model
+from pysjtu import consts
+from pysjtu import models
 from pysjtu.client.base import BaseClient
 
 
 class ScheduleMixin(BaseClient):
     def schedule(self, year: int, term: int, timeout: Union[TimeoutTypes, UnsetType] = UNSET) \
-            -> model.Results[model.ScheduleCourse]:
+            -> models.Results[models.ScheduleCourse]:
         """
         Fetch your course schedule of specific year & term.
 
@@ -19,7 +19,7 @@ class ScheduleMixin(BaseClient):
         :return: A new :class:`Schedule` object.
         :rtype: :class:`Schedule`
         """
-        raw = self._session.post(const.SCHEDULE_URL, data={"xnm": year, "xqm": const.TERMS[term]}, timeout=timeout)
-        schedule = model.Schedule(year, term)
+        raw = self._session.post(consts.SCHEDULE_URL, data={"xnm": year, "xqm": consts.TERMS[term]}, timeout=timeout)
+        schedule = models.Schedule(year, term)
         schedule.load(raw.json()["kbList"])  # type: ignore
         return schedule

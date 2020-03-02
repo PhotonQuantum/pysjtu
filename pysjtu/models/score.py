@@ -1,6 +1,6 @@
 from typing import Callable, List
 
-from pysjtu.model.base import Result, Results
+from pysjtu.models.base import Result, Results
 
 
 class ScoreFactor(Result):
@@ -96,7 +96,7 @@ class Score(Result):
         return self._detail
 
 
-from pysjtu.schema.score import ScoreSchema
+from pysjtu.schemas.score import ScoreSchema
 
 
 class Scores(Results[Score]):
