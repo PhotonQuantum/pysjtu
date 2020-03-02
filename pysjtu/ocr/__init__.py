@@ -1,10 +1,9 @@
 from io import BytesIO
-from os import path
-from pkg_resources import resource_filename
 
 import numpy as np  # type: ignore
 import onnxruntime as rt  # type: ignore
 from PIL import Image  # type: ignore
+from pkg_resources import resource_filename
 
 from pysjtu.utils import range_in_set
 

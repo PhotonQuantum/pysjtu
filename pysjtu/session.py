@@ -7,7 +7,7 @@ from functools import partial
 from http.cookiejar import CookieJar
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Union
-from urllib.parse import parse_qs, urlparse, urljoin
+from urllib.parse import parse_qs, urljoin, urlparse
 
 import httpx
 from httpx.auth import AuthTypes
@@ -23,9 +23,9 @@ from httpx.models import (
     URLTypes,
 )
 
+from pysjtu.ocr import NNRecognizer, Recognizer
 from . import consts
 from .exceptions import DumpWarning, LoadWarning, LoginException, ServiceUnavailable, SessionException
-from pysjtu.ocr import NNRecognizer, Recognizer
 from .utils import FileTypes
 
 
@@ -181,7 +181,7 @@ class Session(BaseSession):
         """
         # complete the url in case base_url is omitted
         url_parsed = urlparse(url)
-        url = url if all([getattr(url_parsed, attr) for attr in ["scheme", "netloc", "path"]])\
+        url = url if all([getattr(url_parsed, attr) for attr in ["scheme", "netloc", "path"]]) \
             else urljoin(self._base_url, url)
         rtn = self._client.request(method=method,
                                    url=url,
@@ -205,7 +205,8 @@ class Session(BaseSession):
                 raise SessionException("Session expired.")
             self._secure_req(partial(self.get, consts.LOGIN_URL, validate_session=False))  # refresh token
             # Sometimes JAccount OAuth token isn't expired
-            if self.get(consts.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
+            if self.get(consts.HOME_URL,
+                        validate_session=False).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
                 if self._username and self._password:
                     self.login(self._username, self._password)
                 else:
@@ -223,7 +224,7 @@ class Session(BaseSession):
                                 allow_redirects=allow_redirects,
                                 timeout=timeout,
                                 validate_session=validate_session,
-                                auto_renew=False)    # disable auto_renew to avoid infinite recursion
+                                auto_renew=False)  # disable auto_renew to avoid infinite recursion
         else:
             return rtn
 

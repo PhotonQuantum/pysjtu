@@ -2,8 +2,8 @@ import re
 from datetime import date, datetime
 
 from pysjtu import consts
-from pysjtu.client.base import BaseClient
 from pysjtu.client.api import CourseLibMixin, ExamMixin, GPAMixin, ScheduleMixin, ScoreMixin
+from pysjtu.client.base import BaseClient
 from pysjtu.session import BaseSession, Session
 
 
