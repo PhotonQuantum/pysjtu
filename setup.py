@@ -48,7 +48,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'
     ),
     install_requires=[
-        'httpx~=0.11.0',
+        'httpx==0.11.0',
         'marshmallow',
         'numpy',
         'Pillow>=7.0.0',
@@ -57,6 +57,6 @@ setup(
     tests_require=['pytest',
                    'pytest-cov',
                    'pytest-mock',
-                   'respx',
+                   'respx==0.9.0',
                    'flask']
 )
