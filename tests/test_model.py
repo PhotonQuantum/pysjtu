@@ -109,8 +109,9 @@ def test_query_result(dummy_req):
 
     (Exam,
      ["name", "location", "course_id", "course_name", "class_name", "rebuild", "credit", "self_study", "date", "time"],
-     ({"name": "Calculus", "location": "LocDummy", "date": date(2012, 12, 21), "time": [time(13, 0), time(15, 0)]},
-      "<Exam \"Calculus\" location=LocDummy datetime=2012-12-21(13:00-15:00)>")),
+     ({"name": "Calculus Final", "course_name": "Calculus",
+       "location": "LocDummy", "date": date(2012, 12, 21), "time": [time(13, 0), time(15, 0)]},
+      "<Exam \"Calculus Final\" course_name=Calculus location=LocDummy datetime=2012-12-21(13:00-15:00)>")),
 
     (ScoreFactor,
      ["name", "percentage", "score"],

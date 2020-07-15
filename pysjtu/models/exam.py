@@ -52,7 +52,8 @@ class Exam(Result):
     def __repr__(self):
         date_out = self.date.strftime("%Y-%m-%d")
         time_out = [time.strftime("%H:%M") for time in self.time]
-        return f"<Exam \"{self.name}\" location={self.location} datetime={date_out}({time_out[0]}-{time_out[1]})>"
+        return f"<Exam \"{self.name}\" course_name={self.course_name} location={self.location} " \
+               f"datetime={date_out}({time_out[0]}-{time_out[1]})>"
 
 
 from pysjtu.schemas.exam import ExamSchema
