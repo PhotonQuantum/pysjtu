@@ -53,7 +53,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pip install pytest pytest-cov pytest-mock respx flask
+        pip install pytest pytest-cov pytest-mock respx==0.9.0 flask
         pytest --cov-report xml --cov=pysjtu
 
     - name: Setup Java JDK
