@@ -48,11 +48,11 @@ def test_score_factor_schema(resp_loader):
 
     assert score_factors[0].name == "平时"
     assert score_factors[0].percentage == 0.4
-    assert score_factors[0].score == 93 and isinstance(score_factors[0].score, float)
+    assert score_factors[0].score == "93"
 
     assert score_factors[1].name == "期末"
     assert score_factors[1].percentage == 0.6
-    assert score_factors[1].score == 90 and isinstance(score_factors[0].score, float)
+    assert score_factors[1].score == "B+"
 
 
 def test_score_schema(resp_loader):
