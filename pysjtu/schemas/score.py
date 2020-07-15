@@ -37,7 +37,7 @@ class ScoreFactorSchema(Schema):
 
     name = ScoreFactorName(required=True, data_key="xmblmc")
     percentage = ScoreFactorPercentage(required=True, data_key="xmblmc", load_only=True)
-    score = fields.Float(required=True, data_key="xmcj")
+    score = fields.String(required=True, data_key="xmcj")
 
     # noinspection PyUnusedLocal
     @post_load
