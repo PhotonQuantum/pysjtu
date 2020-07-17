@@ -1,8 +1,10 @@
-from typing import List
+from typing import List, Optional
+from dataclasses import dataclass
 
 from pysjtu.models.base import Result
 
 
+@dataclass
 class LibCourse(Result):
     """
     A model which describes a course in CourseLib. Some fields may be empty.
@@ -45,30 +47,23 @@ class LibCourse(Result):
     :type students_planned: int
     """
     name: str
-    day: int
-    week: list
-    time: range
-    location: str
-    locations: List[str]
-    faculty: str
-    credit: float
-    teacher: List[str]
-    course_id: str
-    class_name: str
-    class_id: str
-    class_composition: List[str]
-    hour_total: int
-    hour_remark: dict
-    seats: int
-    students_elected: int
-    students_planned: int
-
-    _members = ["name", "day", "week", "time", "location", "locations", "faculty", "credit", "teacher",
-                "course_id", "class_name", "class_id", "class_composition", "hour_total",
-                "hour_remark", "seats", "students_elected", "students_planned"]
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    day: Optional[int] = None
+    week: Optional[list] = None
+    time: Optional[range] = None
+    location: Optional[str] = None
+    locations: Optional[List[str]] = None
+    faculty: Optional[str] = None
+    credit: Optional[float] = None
+    teacher: Optional[List[str]] = None
+    course_id: Optional[str] = None
+    class_name: Optional[str] = None
+    class_id: Optional[str] = None
+    class_composition: Optional[List[str]] = None
+    hour_total: Optional[int] = None
+    hour_remark: Optional[dict] = None
+    seats: Optional[int] = None
+    students_elected: Optional[int] = None
+    students_planned: Optional[int] = None
 
     def __repr__(self):
         return f"<LibCourse {self.name} class_name={self.class_name}>"

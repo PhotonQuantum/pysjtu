@@ -134,14 +134,12 @@ def test_dict_model(model, members, repr_pair):
     for idx, member in zip(range(len(members)), members):
         assert getattr(model_1, member) == idx
 
-    model_2 = model()
-    for member in members:
-        assert getattr(model_2, member) is None
-
     with pytest.raises(TypeError):
         model(fake_arg=0)
 
-    assert repr(model(**repr_pair[0])) == repr_pair[1]
+    repr_kwargs = repr_pair[0]
+    repr_kwargs.update({member: None for member in members if member not in repr_kwargs})
+    assert repr(model(**repr_kwargs)) == repr_pair[1]
 
 
 def test_score_detail(mocker):

@@ -8,14 +8,6 @@ from pysjtu.utils import overlap, parse_slice, range_in_set
 
 class Result:
     """ Base class for Result """
-    _members: list = []
-
-    def __init__(self, **kwargs):
-        for member in self._members:
-            setattr(self, member, kwargs.pop(member, None))
-        if kwargs:
-            raise TypeError(f"__init__() got an unexpected keyword argument '{list(kwargs.keys())[0]}'")
-
     def __repr__(self):
         raise NotImplementedError  # pragma: no cover
 
@@ -149,11 +141,13 @@ class Results(List[T_Result]):
     """
     _schema: Type[Schema]
     _result_model: Type[T_Result]
+    _valid_fields: List[str]
 
     def __init__(self, year: int = 0, term: int = 0):
         super().__init__()
         self._year = year
         self._term = term
+        self._valid_fields = list(self._result_model.__annotations__.keys())
 
     @property
     def year(self) -> int:
@@ -183,7 +177,7 @@ class Results(List[T_Result]):
         """
         rtn = list(self)
         for (k, v) in param.items():
-            if not hasattr(self._result_model(), k):
+            if k not in self._valid_fields:
                 raise KeyError("Invalid criteria!")
             if k in ("week", "time", "day"):
                 rtn = list(filter(lambda x: overlap(getattr(x, k), v), rtn))

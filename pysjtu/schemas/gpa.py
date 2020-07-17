@@ -169,24 +169,24 @@ class GPAQueryParamsSchema(Schema):
     class Meta:
         unknown = EXCLUDE
 
-    start_term = fields.Int(dump_key="qsXnxq", dump_only=True)
-    end_term = fields.Int(dump_key="zzXnxq", dump_only=True)
-    condition_logic = ConditionLogic(dump_key="tjgx", dump_only=True)
-    makeup_as_60 = MakeupAsPass(dump_only=True)
-    rebuild_as_60 = RebuildAsPass(dump_only=True)
-    gp_round = fields.Int(load_key="cjblws", dump_key="sspjfblws")
-    gpa_round = fields.Int(load_key="jdblws", dump_key="pjjdblws")
-    exclude_gp = fields.Str(data_key="bjjd")
-    exclude_gpa = fields.Str(data_key="bjpjf")
-    course_whole = CommaSplitted(load_key="tjqckc", dump_key="kch_ids")
-    course_range = CourseRangeField(dump_key="kcfw", dump_only=True)
-    ranking = RankingField(dump_key="tjfw", dump_only=True)
-    has_roll = HasRoll(data_key="atjc", load_only=True)
-    registered = Registered(data_key="atjc", load_only=True)
-    attending = Attending(data_key="atjc", load_only=True)
-    has_roll_dump = HasRoll(data_key="xjzt", dump_only=True)
-    registered_dump = Registered(data_key="zczt", dump_only=True)
-    attending_dump = Attending(data_key="sfzx", dump_only=True)
+    start_term = fields.Int(required=True, dump_key="qsXnxq", dump_only=True)
+    end_term = fields.Int(required=True, dump_key="zzXnxq", dump_only=True)
+    condition_logic = ConditionLogic(required=True, dump_key="tjgx", dump_only=True)
+    makeup_as_60 = MakeupAsPass(required=True, dump_only=True)
+    rebuild_as_60 = RebuildAsPass(required=True, dump_only=True)
+    gp_round = fields.Int(required=True, load_key="cjblws", dump_key="sspjfblws")
+    gpa_round = fields.Int(required=True, load_key="jdblws", dump_key="pjjdblws")
+    exclude_gp = fields.Str(required=True, data_key="bjjd")
+    exclude_gpa = fields.Str(required=True, data_key="bjpjf")
+    course_whole = CommaSplitted(required=True, load_key="tjqckc", dump_key="kch_ids")
+    course_range = CourseRangeField(required=True, dump_key="kcfw", dump_only=True)
+    ranking = RankingField(required=True, dump_key="tjfw", dump_only=True)
+    has_roll = HasRoll(required=True, data_key="atjc", load_only=True)
+    registered = Registered(required=True, data_key="atjc", load_only=True)
+    attending = Attending(required=True, data_key="atjc", load_only=True)
+    has_roll_dump = HasRoll(required=True, data_key="xjzt", dump_only=True)
+    registered_dump = Registered(required=True, data_key="zczt", dump_only=True)
+    attending_dump = Attending(required=True, data_key="sfzx", dump_only=True)
 
     # noinspection PyUnusedLocal
     @pre_load
@@ -240,18 +240,18 @@ class GPASchema(Schema):
     class Meta:
         unknown = EXCLUDE
 
-    total_score = fields.Int(data_key="zf")
-    course_count = fields.Int(data_key="ms")
-    fail_count = fields.Int(data_key="bjgms")
-    total_credit = fields.Float(data_key="zxf")
-    acquired_credit = fields.Float(data_key="hdxf")
-    failed_credit = fields.Float(data_key="bjgxf")
-    pass_rate = Percentage(data_key="tgl")
-    gp = fields.Float(data_key="xjf")
-    gp_ranking = RankingResultField(data_key="xjfpm")
-    gpa = fields.Float(data_key="gpa")
-    gpa_ranking = RankingResultField(data_key="gpapm", load_only=True)
-    total_students = StudentCountFromRanking(data_key="gpapm", load_only=True)
+    total_score = fields.Int(required=True, data_key="zf")
+    course_count = fields.Int(required=True, data_key="ms")
+    fail_count = fields.Int(required=True, data_key="bjgms")
+    total_credit = fields.Float(required=True, data_key="zxf")
+    acquired_credit = fields.Float(required=True, data_key="hdxf")
+    failed_credit = fields.Float(required=True, data_key="bjgxf")
+    pass_rate = Percentage(required=True, data_key="tgl")
+    gp = fields.Float(required=True, data_key="xjf")
+    gp_ranking = RankingResultField(required=True, data_key="xjfpm")
+    gpa = fields.Float(required=True, data_key="gpa")
+    gpa_ranking = RankingResultField(required=True, data_key="gpapm", load_only=True)
+    total_students = StudentCountFromRanking(required=True, data_key="gpapm", load_only=True)
 
     # noinspection PyUnusedLocal
     @post_load

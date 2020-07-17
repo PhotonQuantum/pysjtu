@@ -1,5 +1,6 @@
 from enum import Enum
 from typing import List
+from dataclasses import dataclass
 
 from pysjtu.models.base import Result
 
@@ -21,6 +22,7 @@ class Ranking(Enum):
     GRADE_AND_FIELD = "njzy"
 
 
+@dataclass
 class GPAQueryParams(Result):
     """
     A model which describes GPA query parameters. Used when performing gpa queries (pysjtu.Client().query_gpa(...)).
@@ -73,17 +75,11 @@ class GPAQueryParams(Result):
     registered: bool
     attending: bool
 
-    _members = ["start_term", "end_term", "condition_logic", "makeup_as_60", "rebuild_as_60", "gp_round", "gpa_round",
-                "exclude_gp", "exclude_gpa", "course_whole", "course_range", "ranking", "has_roll",
-                "registered", "attending"]
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def __repr__(self):
         return f"<GPAQueryParams {self.__dict__}>"
 
 
+@dataclass
 class GPA(Result):
     """
     A model which describes GP & GPA and rankings.
@@ -125,12 +121,6 @@ class GPA(Result):
     gpa: float
     gpa_ranking: int
     total_students: int
-
-    _members = ["total_score", "course_count", "fail_count", "total_credit", "acquired_credit", "failed_credit",
-                "pass_rate", "gp", "gp_ranking", "gpa", "gpa_ranking", "total_students"]
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
 
     def __repr__(self):
         return f"<GPA gp={self.gp} {self.gp_ranking}/{self.total_students} " \
