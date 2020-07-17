@@ -1,7 +1,7 @@
 QuickStart
 ==========
 
-PySJTU supports Python 3.6+, and there's no plan to support Python 2. So you need to have Python 3.6 or higher installed.
+PySJTU supports Python 3.7+, and there's no plan to support Python 2. So you need to have Python 3.7 or higher installed.
 
 Installation
 ------------

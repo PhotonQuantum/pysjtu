@@ -71,7 +71,7 @@ Install with pip:
 $ pip install pysjtu
 ```
 
-PySJTU requires Python 3.6+.
+PySJTU requires Python 3.7+.
 
 ## Built With
 
