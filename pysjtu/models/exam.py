@@ -1,9 +1,11 @@
 import datetime
-from typing import List
+from typing import List, Optional
+from dataclasses import dataclass
 
 from pysjtu.models.base import Result, Results
 
 
+@dataclass
 class Exam(Result):
     """
     A model which describes an exam. Some fields may be empty.
@@ -32,22 +34,16 @@ class Exam(Result):
     :type time: List[datetime.time]
     """
     name: str
-    location: str
-    seat: int
-    course_id: str
-    course_name: str
-    class_name: str
-    rebuild: bool
-    credit: float
-    self_study: bool
-    date: datetime.date
-    time: List[datetime.time]
-
-    _members = ["name", "location", "seat", "course_id", "course_name", "class_name", "rebuild", "credit", "self_study",
-                "date", "time"]
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    location: Optional[str] = None
+    seat: Optional[int] = None
+    course_id: Optional[str] = None
+    course_name: Optional[str] = None
+    class_name: Optional[str] = None
+    rebuild: Optional[bool] = None
+    credit: Optional[float] = None
+    self_study: Optional[bool] = None
+    date: Optional[datetime.date] = None
+    time: Optional[List[datetime.time]] = None
 
     def __repr__(self):
         date_out = self.date.strftime("%Y-%m-%d")

@@ -1,8 +1,10 @@
-from typing import Callable, List
+from typing import Callable, List, Optional
+from dataclasses import dataclass
 
 from pysjtu.models.base import Result, Results
 
 
+@dataclass
 class ScoreFactor(Result):
     """
     A model which describes detailed composition of a course's score.
@@ -15,15 +17,11 @@ class ScoreFactor(Result):
     percentage: float
     score: float
 
-    _members = ["name", "percentage", "score"]
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     def __repr__(self):
         return f"<ScoreFactor {self.name}({self.percentage * 100}%)={self.score}>"
 
 
+@dataclass
 class Score(Result):
     """
     A model which describes the score of a specific course. Some fields may be empty.
@@ -62,29 +60,18 @@ class Score(Result):
     score: str
     credit: float
     gp: float
-    invalid: bool
-    course_type: str
-    category: str
-    score_type: str
-    method: str
-    course_id: str
-    class_name: str
-    class_id: str
-    year: int
-    term: int
-    _detail: List[ScoreFactor]
-    _func_detail: Callable
-
-    _members = ["name", "teacher", "score", "credit", "gp", "invalid", "course_type", "category", "score_type",
-                "method", "course_id", "class_name", "class_id"]
-
-    # noinspection PyTypeChecker
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self._detail = None
-        self.year = 0
-        self.term = 0
-        self._func_detail = None
+    invalid: Optional[bool] = None
+    course_type: Optional[str] = None
+    category: Optional[str] = None
+    score_type: Optional[str] = None
+    method: Optional[str] = None
+    course_id: Optional[str] = None
+    class_name: Optional[str] = None
+    class_id: Optional[str] = None
+    year: int = 0
+    term: int = 0
+    _detail: List[ScoreFactor] = None
+    _func_detail: Callable = None
 
     def __repr__(self):
         return f"<Score {self.name} score={self.score} credit={self.credit} gp={self.gp}>"

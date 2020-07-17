@@ -1,8 +1,10 @@
-from typing import List
+from typing import List, Optional
+from dataclasses import dataclass
 
 from pysjtu.models.base import Result, Results
 
 
+@dataclass
 class ScheduleCourse(Result):
     """
     A model which describes a course in CourseLib. Some fields may be empty.
@@ -43,29 +45,22 @@ class ScheduleCourse(Result):
     :type field: str
     """
     name: str
-    day: int
-    week: list
-    time: range
-    location: str
-    credit: int
-    assessment: str
-    remark: str
-    teacher_name: List[str]
-    teacher_title: List[str]
     course_id: str
     class_name: str
     class_id: str
-    hour_total: int
-    hour_remark: dict
-    hour_week: int
-    field: str
-
-    _members = ["name", "day", "week", "time", "location", "credit", "assessment", "remark", "teacher_name",
-                "teacher_title", "course_id", "class_name", "class_id", "hour_total", "hour_remark", "hour_week",
-                "field"]
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    day: Optional[int] = None
+    week: Optional[list] = None
+    time: Optional[range] = None
+    location: Optional[str] = None
+    credit: Optional[int] = None
+    assessment: Optional[str] = None
+    remark: Optional[str] = None
+    teacher_name: Optional[List[str]] = None
+    teacher_title: Optional[List[str]] = None
+    hour_total: Optional[int] = None
+    hour_remark: Optional[dict] = None
+    hour_week: Optional[int] = None
+    field: Optional[str] = None
 
     def __repr__(self):
         return f"<ScheduleCourse {self.name} week={self.week} day={self.day} time={self.time}>"
