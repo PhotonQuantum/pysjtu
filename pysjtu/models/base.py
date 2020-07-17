@@ -8,6 +8,7 @@ from pysjtu.utils import overlap, parse_slice, range_in_set
 
 class Result:
     """ Base class for Result """
+
     def __repr__(self):
         raise NotImplementedError  # pragma: no cover
 
