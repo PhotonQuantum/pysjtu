@@ -2,6 +2,8 @@ import typing
 
 from marshmallow import fields  # type: ignore
 
+from pysjtu.utils import parse_course_week
+
 
 class ChineseBool(fields.Field):
     def _deserialize(
@@ -76,16 +78,9 @@ class CourseWeek(fields.Field):
             data: typing.Optional[typing.Mapping[str, typing.Any]],
             **kwargs
     ):
-        rtn = []
-        for item in value.split(','):
-            if item[-2] in ["单", "双"]:
-                start, end = map(int, item[:-4].split('-'))
-                start += (1 - start % 2) if item[-2] == "单" else (start % 2)
-                rtn.append(range(start, end + 1, 2))
-            else:
-                x = list(map(int, item[:-1].split('-')))
-                rtn.append(x[0] if len(x) == 1 else range(x[0], x[1] + 1))  # type: ignore
-        return rtn
+        if not value:
+            return None  # pragma: no cover
+        return parse_course_week(value)
 
 
 class ColonSplitted(fields.Field):
@@ -102,3 +97,19 @@ class ColonSplitted(fields.Field):
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         return ";".join(str(item) for item in value)  # pragma: no cover
+
+
+class BrSplitted(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return None  # pragma: no cover
+        return value.split("<br/>")
+
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        return "<br/>".join(str(item) for item in value)  # pragma: no cover

@@ -6,6 +6,36 @@ from typing import BinaryIO, Union
 FileTypes = Union[BinaryIO, str, Path]
 
 
+def elfhash(input_str: str):
+    s = input_str.encode("utf-8")
+    _hash = 0
+    x = 0
+    for c in s:
+        _hash = (_hash << 4) + c
+        x = _hash & 0xF0000000
+        if x:
+            _hash ^= (x >> 24)
+            _hash &= ~x
+    return _hash & 0x7FFFFFFF
+
+
+def dict_exclude(input_dict: dict, exclude_fields: list):
+    return {k: v for k, v in filter(lambda x: x[0] not in exclude_fields, input_dict.items())}
+
+
+def parse_course_week(value):
+    def _parse(item):
+        if item[-2] in ["单", "双"]:
+            start, end = map(int, item[:-4].split('-'))
+            start += (1 - start % 2) if item[-2] == "单" else (start % 2)
+            return range(start, end + 1, 2)
+        else:
+            x = list(map(int, item[:-1].split('-')))
+            return x[0] if len(x) == 1 else range(x[0], x[1] + 1)  # type: ignore
+
+    return [_parse(item) for item in value.split(",")]
+
+
 def parse_slice(val):
     if isinstance(val, int):
         return val
