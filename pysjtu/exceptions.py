@@ -10,6 +10,10 @@ class GPACalculationException(Exception):
     """ A failure has been reported by the remote server when calculating GPA. """
 
 
+class SelectionClassFetchException(Exception):
+    """ Unable to fetch selection class information. """
+
+
 class SessionException(Exception):
     """ The session is expired or invalid, and we can't renew it automatically. """
 
