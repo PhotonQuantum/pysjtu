@@ -1,6 +1,6 @@
 alabaster
 flask
-httpx==0.11.0
+httpx==0.11.1
 marshmallow
 numpy
 onnxruntime
