@@ -1,3 +1,4 @@
+import base64
 import collections
 from math import inf
 from pathlib import Path
@@ -7,7 +8,7 @@ FileTypes = Union[BinaryIO, str, Path]
 
 
 def elfhash(input_str: str):
-    s = input_str.encode("utf-8")
+    s = base64.b64encode(input_str.encode("utf-8"))
     _hash = 0
     x = 0
     for c in s:
