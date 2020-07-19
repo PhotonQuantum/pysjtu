@@ -2,11 +2,12 @@ import re
 import typing
 from dataclasses import dataclass
 from typing import List, Union
+from enum import IntEnum
 
 from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
 from pysjtu.consts import CHINESE_WEEK
-from pysjtu.schemas.base import BrSplitted, CommaSplitted
+from pysjtu.schemas.base import SplitField
 from pysjtu.utils import parse_course_week
 
 
@@ -15,6 +16,27 @@ class LessonTime:
     weekday: int
     week: List[Union[range, int]]
     time: List[range]
+
+
+class Gender(IntEnum):
+    male = 1
+    female = 2
+
+
+class GenderField(fields.Field):
+    def _deserialize(
+        self,
+        value: typing.Any,
+        attr: typing.Optional[str],
+        data: typing.Optional[typing.Mapping[str, typing.Any]],
+        **kwargs
+    ):
+        if not value:
+            return None
+        return Gender(int(value))
+
+    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
+        return value.value
 
 
 class TimeField(fields.Field):
@@ -64,6 +86,11 @@ class SelectionSharedInfoSchema(Schema):
     student_grade = fields.Int(required=True, data_key="njdm_id")
     natural_class_id = fields.Str(required=True, data_key="bh_id")
     self_selecting_status = fields.Int(required=True, data_key="xszxzt")
+    ccdm = fields.Str(required=True)
+    student_type_code = fields.Int(required=True, data_key="xslbdm")
+    gender = GenderField(required=True, data_key="xbm")
+    field_id = fields.Str(required=True, data_key="zyfx_id")
+    student_background = fields.Int(required=True, data_key="xsbj")
 
     # noinspection PyUnusedLocal
     @post_load
@@ -78,6 +105,7 @@ class SelectionSectorSchema(Schema):
     sector_type_id = fields.Str(required=True, data_key="bklx_id")
     course_type_code = fields.Str(required=True, dump_only=True, data_key="kklxdm")
     txbsfrl = fields.Int(required=True)
+    kkbk = fields.Int()
     xkkz_id = fields.Str(dump_only=True)
 
     # noinspection PyUnusedLocal
@@ -106,9 +134,9 @@ class SelectionClassSchema(Schema):
     class_id = fields.Str(required=True, data_key="jxb_id")
     register_id = fields.Str(required=True, data_key="do_jxb_id")
     teachers = TeacherField(required=True, data_key="jsxx")
-    locations = BrSplitted(required=True, data_key="jxdd")
+    locations = SplitField(required=True, data_key="jxdd", sep="<br/>")
     time = TimeField(required=True, data_key="sksj")
-    course_type = CommaSplitted(required=True, data_key="kcxzmc")
+    course_type = SplitField(required=True, data_key="kcxzmc", sep=",")
     remark = fields.Str(data_key="xkbz", missing=None)
     students_planned = fields.Int(required=True, data_key="jxbrl")
 

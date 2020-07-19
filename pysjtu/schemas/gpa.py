@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from marshmallow import EXCLUDE, Schema, fields, post_dump, post_load, pre_dump, pre_load  # type: ignore
 
-from pysjtu.schemas.base import CommaSplitted
+from pysjtu.schemas.base import SplitField
 from pysjtu.utils import replace_keys
 
 
@@ -178,7 +178,7 @@ class GPAQueryParamsSchema(Schema):
     gpa_round = fields.Int(required=True, load_key="jdblws", dump_key="pjjdblws")
     exclude_gp = fields.Str(required=True, data_key="bjjd")
     exclude_gpa = fields.Str(required=True, data_key="bjpjf")
-    course_whole = CommaSplitted(required=True, load_key="tjqckc", dump_key="kch_ids")
+    course_whole = SplitField(required=True, load_key="tjqckc", dump_key="kch_ids", sep=",")
     course_range = CourseRangeField(required=True, dump_key="kcfw", dump_only=True)
     ranking = RankingField(required=True, dump_key="tjfw", dump_only=True)
     has_roll = HasRoll(required=True, data_key="atjc", load_only=True)

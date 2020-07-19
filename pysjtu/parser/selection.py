@@ -38,5 +38,5 @@ def parse_sectors(html: str) -> List[Tuple[str]]:
     return sectors_pattern.findall(html)
 
 
-parse_shared_info = partial(parse_fields, fields=["xqh_id", "zyh_id", "njdm_id", "bh_id", "xkxnm", "xkxqm", "xszxzt"])
-parse_sector = partial(parse_fields, fields=["rwlx", "xkly", "tykczgxdcs", "bklx_id", "txbsfrl"])
+parse_shared_info = partial(parse_fields, fields=["xqh_id", "zyh_id", "njdm_id", "bh_id", "xkxnm", "xkxqm", "xszxzt", "ccdm", "xslbdm", "xbm", "zyfx_id", "xsbj"])
+parse_sector = partial(parse_fields, fields=["rwlx", "xkly", "tykczgxdcs", "bklx_id", "txbsfrl", "kkbk"])

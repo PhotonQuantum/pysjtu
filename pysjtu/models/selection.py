@@ -27,6 +27,16 @@ class SelectionSharedInfo:
     :type natural_class_id: str
     :param self_selecting_status: unknown parameter.
     :type self_selecting_status: int
+    :param ccdm: unknown parameter.
+    :type ccdm: str
+    :param student_type_code: unknown parameter.
+    :type student_type_code: int
+    :param gender: student's gender.
+    :type gender: Gender
+    :param field_id: student's professional field.
+    :type field_id: str
+    :param student_background: unknown parameter.
+    :type student_background: int
     """
     term: str
     selection_year: int
@@ -35,6 +45,11 @@ class SelectionSharedInfo:
     student_grade: int
     natural_class_id: str
     self_selecting_status: int
+    ccdm: str
+    student_type_code: int
+    gender: Gender
+    field_id: str
+    student_background: int
 
 
 # noinspection PyAbstractClass
@@ -57,6 +72,8 @@ class SelectionSector(Result):
     :type sector_type_id: str
     :param txbsfrl: unknown parameter. (used when deregistering courses.)
     :type txbsfrl: int
+    :param kkbk: unknown parameter.
+    :type kkbk: int
     :param course_type_code: unknown parameter.
     :type course_type_code: str
     :param xkkz_id: unknown parameter.
@@ -67,6 +84,7 @@ class SelectionSector(Result):
     pe_op_param: int
     sector_type_id: str
     txbsfrl: int
+    kkbk: int
     course_type_code: Optional[str] = None
     name: Optional[str] = None
     xkkz_id: Optional[str] = None
@@ -87,7 +105,7 @@ class SelectionSector(Result):
         return self._func_classes()
 
 
-from pysjtu.schemas.selection import LessonTime
+from pysjtu.schemas.selection import LessonTime, Gender
 
 
 @dataclass

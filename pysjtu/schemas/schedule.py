@@ -1,6 +1,6 @@
 from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
-from pysjtu.schemas.base import CommaSplitted, CourseTime, CourseWeek, CreditHourDetail
+from pysjtu.schemas.base import SplitField, CourseTime, CourseWeek, CreditHourDetail
 
 
 class ScheduleCourseSchema(Schema):
@@ -15,8 +15,8 @@ class ScheduleCourseSchema(Schema):
     credit = fields.Float(data_key="xf")
     assessment = fields.Str(data_key="khfsmc")
     remark = fields.Str(data_key="xkbz")
-    teacher_name = CommaSplitted(data_key="xm")
-    teacher_title = CommaSplitted(data_key="zcmc")
+    teacher_name = SplitField(data_key="xm", sep=",")
+    teacher_title = SplitField(data_key="zcmc", sep=",")
     course_id = fields.Str(required=True, data_key="kch_id")
     class_name = fields.Str(required=True, data_key="jxbmc")
     class_id = fields.Str(required=True, data_key="jxb_id")

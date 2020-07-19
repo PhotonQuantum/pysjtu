@@ -18,7 +18,11 @@ class ChineseBool(fields.Field):
         return value == "是"
 
 
-class CommaSplitted(fields.Field):
+class SplitField(fields.Field):
+    def __init__(self, sep: str, *args, **kwargs):
+        self.sep = sep
+        super().__init__(*args, **kwargs)
+
     def _deserialize(
             self,
             value: typing.Any,
@@ -28,10 +32,10 @@ class CommaSplitted(fields.Field):
     ):
         if not value:
             return None  # pragma: no cover
-        return value.split(",")
+        return value.split(self.sep)
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
-        return ",".join(str(item) for item in value)
+        return self.sep.join(str(item) for item in value)
 
 
 class CourseTime(fields.Field):
@@ -81,35 +85,3 @@ class CourseWeek(fields.Field):
         if not value:
             return None  # pragma: no cover
         return parse_course_week(value)
-
-
-class ColonSplitted(fields.Field):
-    def _deserialize(
-            self,
-            value: typing.Any,
-            attr: typing.Optional[str],
-            data: typing.Optional[typing.Mapping[str, typing.Any]],
-            **kwargs
-    ):
-        if not value:
-            return None  # pragma: no cover
-        return value.split(";")
-
-    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
-        return ";".join(str(item) for item in value)  # pragma: no cover
-
-
-class BrSplitted(fields.Field):
-    def _deserialize(
-            self,
-            value: typing.Any,
-            attr: typing.Optional[str],
-            data: typing.Optional[typing.Mapping[str, typing.Any]],
-            **kwargs
-    ):
-        if not value:
-            return None  # pragma: no cover
-        return value.split("<br/>")
-
-    def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
-        return "<br/>".join(str(item) for item in value)  # pragma: no cover
