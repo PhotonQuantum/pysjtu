@@ -129,3 +129,35 @@ class SelectionClass(LazyResult):
 
     def __repr__(self):
         return f"<SelectionClass {self.class_name} {self.name}>"
+
+    def is_registered(self, timeout=10) -> bool:
+        """
+        Check whether the student has registered for this class.
+
+        :param timeout: (optional) How long to wait for the server to send data before giving up.
+        :return: A boolean value indicates the registration status.
+        :rtype: bool
+        """
+        raise NotImplemented
+
+    def register(self, timeout=10):
+        """
+        Register for this class.
+
+        :param timeout: (optional) How long to wait for the server to send data before giving up.
+        :return: None
+        :raises RegistrationException
+        :raises FullCapacityException
+        :raises TimeConflictException
+        """
+        raise NotImplemented
+
+    def deregister(self, timeout=10):
+        """
+        Drop this class.
+
+        :param timeout: (optional) How long to wait for the server to send data before giving up.
+        :return: None
+        :raises DeregistrationException
+        """
+        raise NotImplemented
