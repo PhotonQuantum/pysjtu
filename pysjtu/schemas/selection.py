@@ -1,26 +1,13 @@
 import re
 import typing
-from dataclasses import dataclass
-from typing import List, Union
-from enum import IntEnum
+from typing import List
 
 from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
 from pysjtu.consts import CHINESE_WEEK
 from pysjtu.schemas.base import SplitField
 from pysjtu.utils import parse_course_week
-
-
-@dataclass
-class LessonTime:
-    weekday: int
-    week: List[Union[range, int]]
-    time: List[range]
-
-
-class Gender(IntEnum):
-    male = 1
-    female = 2
+from pysjtu.models.selection import Gender, LessonTime
 
 
 class GenderField(fields.Field):
@@ -32,7 +19,7 @@ class GenderField(fields.Field):
         **kwargs
     ):
         if not value:
-            return None
+            return None     # pragma: no cover
         return Gender(int(value))
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
@@ -53,7 +40,8 @@ class TimeField(fields.Field):
             return None  # pragma: no cover
 
         def _parse_time(input_str: str) -> List[range]:
-            return [range(int(time[0]), int(time[1])) for time in [times.split('-') for times in input_str.split(",")]]
+            return [range(int(time[0]), int(time[1]) + 1)
+                    for time in [times.split('-') for times in input_str.split(",")]]
 
         def _dict_to_time(input_dict: dict) -> LessonTime:
             return LessonTime(

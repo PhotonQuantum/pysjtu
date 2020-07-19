@@ -53,27 +53,6 @@ class CourseTime(fields.Field):
         return list(cs) if len(cs) == 1 else range(cs[0], cs[1] + 1)
 
 
-class CreditHourDetail(fields.Field):
-    def _deserialize(
-            self,
-            value: typing.Any,
-            attr: typing.Optional[str],
-            data: typing.Optional[typing.Mapping[str, typing.Any]],
-            **kwargs
-    ):
-        if not value:
-            return None  # pragma: no cover
-        class_hour_details = value.split(",")
-        rtn = {}
-        for item in class_hour_details:
-            try:
-                name, hour = item.split(":")
-                rtn[name] = float(hour)
-            except ValueError:
-                rtn["N/A"] = 0
-        return rtn
-
-
 class CourseWeek(fields.Field):
     def _deserialize(
             self,
