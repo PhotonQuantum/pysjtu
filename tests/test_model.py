@@ -4,8 +4,8 @@ from math import ceil
 
 import pytest
 
-from pysjtu.models import QueryResult, GPAQueryParams, GPA, LibCourse, Exam, ScoreFactor, Score, ScheduleCourse, Exams, \
-    Scores, Schedule
+from pysjtu.models import QueryResult, GPAQueryParams, GPA, LibCourse, Exam, ScoreFactor, Score, ScheduleCourse, \
+    Exams, Scores, Schedule, LazyResult, PARTIAL, SelectionClass, SelectionSector
 from pysjtu.schemas import ExamSchema, ScoreSchema, ScheduleCourseSchema
 
 
@@ -86,7 +86,41 @@ def test_query_result(dummy_req):
     assert dummy_obj.is_called
 
 
+def test_lazy_model(mocker):
+    class DummyModel(LazyResult):
+        normal_field: int = 0
+        lazy_field_1: int = PARTIAL
+        lazy_field_2: str = PARTIAL
+
+    fake_load_func = mocker.Mock(return_value={"lazy_field_1": 1, "lazy_field_2": "2"})
+    model = DummyModel()
+    model._load_func = fake_load_func
+
+    assert model.normal_field == 0
+    fake_load_func.assert_not_called()
+    fake_load_func.reset_mock()
+
+    assert model.lazy_field_1 == 1
+    fake_load_func.assert_called_once()
+    fake_load_func.reset_mock()
+
+    assert model.lazy_field_2 == "2"
+    fake_load_func.assert_not_called()
+
+
 @pytest.mark.parametrize("model, members, repr_pair", [
+    (SelectionClass,
+     ["name", "credit", "course_id", "internal_course_id", "class_name", "class_id", "students_registered",
+      "register_id", "teachers", "locations", "time", "course_type", "remark", "students_planned", "sector"],
+     ({"class_name": "Calculus", "name": "AA000-0"},
+      "<SelectionClass Calculus AA000-0>")),
+
+    (SelectionSector,
+     ["task_type", "xkly", "pe_op_param", "sector_type_id", "txbsfrl", "kkbk", "course_type_code", "name", "xkkz_id",
+      "shared_info"],
+     ({"name": "major"},
+      "<SelectionSector major>")),
+
     (GPAQueryParams,
      ["start_term", "end_term", "condition_logic", "makeup_as_60", "rebuild_as_60", "gp_round", "gpa_round",
       "exclude_gp", "exclude_gpa", "course_whole", "course_range", "ranking", "has_roll", "registered", "attending"],
@@ -97,7 +131,8 @@ def test_query_result(dummy_req):
       "'attending': None}>")),
 
     (GPA,
-     ["total_score", "course_count", "fail_count", "total_credit", "acquired_credit", "failed_credit", "pass_rate", "gp",
+     ["total_score", "course_count", "fail_count", "total_credit", "acquired_credit", "failed_credit", "pass_rate",
+      "gp",
       "gp_ranking", "gpa", "gpa_ranking", "total_students"],
      ({"gp": 80, "gp_ranking": 50, "gpa": 3.8, "gpa_ranking": 40, "total_students": 200},
       "<GPA gp=80 50/200 gpa=3.8 40/200>")),
@@ -140,6 +175,25 @@ def test_dict_model(model, members, repr_pair):
     repr_kwargs = repr_pair[0]
     repr_kwargs.update({member: None for member in members if member not in repr_kwargs})
     assert repr(model(**repr_kwargs)) == repr_pair[1]
+
+
+def test_selection_sector(mocker):
+    hash_func = mocker.patch("pysjtu.models.selection.elfhash", return_value=919293949)
+    class_func = mocker.Mock(return_value=["1"])
+
+    members = ["task_type", "xkly", "pe_op_param", "sector_type_id", "txbsfrl", "kkbk", "course_type_code", "name",
+               "xkkz_id", "shared_info"]
+    kwargs = {member: idx for idx, member in zip(range(len(members)), members) if member != "name"}
+    model_1 = SelectionSector(name="dummy", _func_classes=class_func, **kwargs)
+
+    assert hash(model_1) == 919293949
+    hash_func.assert_called_once()
+    hash_func.reset_mock()
+    assert hash(model_1) == 919293949
+    hash_func.assert_not_called()
+
+    assert model_1.classes == ["1"]
+    class_func.assert_called_once()
 
 
 def test_score_detail(mocker):

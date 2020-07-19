@@ -20,10 +20,6 @@ def elfhash(input_str: str):
     return _hash & 0x7FFFFFFF
 
 
-def dict_exclude(input_dict: dict, exclude_fields: list):
-    return {k: v for k, v in filter(lambda x: x[0] not in exclude_fields, input_dict.items())}
-
-
 def parse_course_week(value):
     def _parse(item):
         if item[-2] in ["单", "双"]:

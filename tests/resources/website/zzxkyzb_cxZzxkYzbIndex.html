@@ -1,0 +1,441 @@
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html lang="zh-CN">
+
+
+
+<head>
+	<title>&nbsp;</title>
+
+
+
+
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="Copyright" content="zfsoft" />
+<link rel="icon" href="/logo/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="/logo/favicon.ico" type="image/x-icon" />
+<style type="text/css">
+	.active{font-weight: bolder;}
+	#navbar-tabs li{ margin-top: 2px;}
+	#navbar-tabs li a{ border-top: 2px solid transparent;}
+	#navbar-tabs li.active a{border-top: 2px solid #0770cd;}
+</style>
+
+
+
+<!--jQuery核心框架库 -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/other_jquery/jquery.min.js?ver=20200701"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/jquery-migrate.min.js?ver=20200701"></script>
+<!--jQuery浏览器检测 -->
+<script type="text/javascript" src="/js/browse/browse-judge.js?ver=20200701"></script>
+<script type="text/javascript">
+	//浏览器版本验证
+	var broswer = broswer();
+	if(broswer.msie==true||broswer.safari==true||broswer.mozilla==true||broswer.chrome==true){
+		if(broswer.msie==true&&broswer.version<9){
+		   window.location.href = _path+"/xtgl/init_cxBrowser.html";
+		}
+	}else{
+		 window.location.href = _path+"/xtgl/init_cxBrowser.html";
+	}
+</script>
+<script type="text/javascript">
+var _path 				= "";
+var _systemPath 		= "";
+var _stylePath 			= "/zftal-ui-v5-1.0.2";
+var _reportPath 		= "http://10.119.2.65:80/WebReport";
+var _refreshInterval	= "10";
+var _localeKey 			= "zh_CN";
+</script>
+<!--
+jquery.ui 需要在bootstrap之前加载，解决冲突问题
+http://blog.csdn.net/remote_roamer/article/details/14105999
+-->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/jquery-ui-custom.contact-1.0.0.js?ver=20200701"></script>
+<!--Bootstrap布局框架-->
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/bootstrap/css/bootstrap.min.css?ver=20200701" />
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/css/error.css?ver=20200701" />
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/css/zftal-ui.css?ver=20200701" />
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/bootstrap/js/bootstrap.min.js?ver=20200701" charset="utf-8"></script>
+<!--jQuery常用工具扩展库：基础工具,资源加载工具,元素尺寸相关工具 -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/jquery.utils.contact-min.js?ver=20200701" charset="utf-8"></script>
+<!--jQuery基础工具库：$.browser,$.cookie,$.actual等 -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/jquery.plugins.contact-min.js?ver=20200701" charset="utf-8"></script>
+<!--jQuery自定义event事件库 -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/jquery.events.contact-min.js?ver=20200701" charset="utf-8"></script>
+<!--JavaScript对象扩展库：Array,Date,Number,String -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/jquery.extends.contact-min.js?ver=20200701" charset="utf-8"></script>
+<!--Bootbox弹窗插件-->
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/bootbox/css/bootbox.css?ver=20200701" />
+<script src="/zftal-ui-v5-1.0.2/assets/plugins/bootbox/bootbox.concat-min.js?ver=20200701" type="text/javascript" charset="utf-8"></script>
+<script src="/zftal-ui-v5-1.0.2/assets/plugins/bootbox/lang/zh_CN.js?ver=20200701" type="text/javascript" charset="utf-8"></script>
+
+<!--jQuery模拟滚动条库-->
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/customscrollbar/css/jquery.mCustomScrollbar.min.css?ver=20200701" />
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/customscrollbar/js/jquery.mCustomScrollbar.min.js?ver=20200701" charset="utf-8"></script>
+<!--jQuery.chosen美化插件-->
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/chosen/css/chosen-min.css?ver=20200701" />
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/chosen/jquery.choosen.concat-min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/chosen/lang/zh_CN-min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/utils/jquery.utils.pinyin.min.js?ver=20200701" charset="utf-8"></script>
+<!--[if lt IE 9]>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/html5shiv.min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/respond.min.js?ver=20200701" charset="utf-8"></script>
+<![endif]-->
+<!--业务框架jQuery全局设置和通用函数库-->
+<script type="text/javascript" src="/js/jquery.zftal.contact-min.js?ver=20200701"></script>
+<!--国际化js库 -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/i18n/jquery.i18n-min.js?ver=20200701" charset="utf-8"></script>
+<!--全局国际化js. -->
+<script type="text/javascript" src="/js/globalweb/i18n-global_zh_CN.js?ver=20200701" charset="utf-8"></script>
+<!--业务框架前端脚本国际化库-->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/lang/jquery.zftal_zh_CN-min.js?ver=20200701"></script>
+<!--密码强弱判断-->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/utils/jquery.utils.strength.min.js?ver=20200701"></script>
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+
+	var _path 		= "";
+	var _systemPath = "";
+	var _stylePath  = "/zftal-ui-v5-1.0.2";
+	var _reportPath = "http://10.119.2.65:80/WebReport";
+	var _localeKey 			= "zh_CN";
+
+	jQuery(function($){
+		$('[data-toggle*="validation"]').trigger("validation");
+		$('[data-toggle*="fixed"]').trigger("fixed");
+		if($.fn.tooltip){
+			$('[data-toggle*="tooltip"]').tooltip({container:'body'});
+		}
+	});
+
+</script>
+<!--教务系统通用业务js引用:比如学年，学期等公共的信息会放在这里-->
+<script type="text/javascript" src="/js/globalweb/comp/i18n/jwglxt-common_zh_CN.js?ver=20200701"></script>
+<!--业务模块的properties初始化-->
+<!--国际化js库 -->
+<script type="text/javascript" src="/js/globalweb/comp/i18n/N253512_zh_CN.js?ver=20200630" charset="utf-8"></script>
+
+	<style type="text/css">
+		.btn-quick{
+			margin-right:30px;
+			height:25px;
+			padding: 0px 10px;
+		}
+	</style>
+
+</head>
+<body>
+<input type="hidden" id="pkey" name="pkey" value="" />
+<input type="hidden" id="localeKey" name="localeKey" value="zh_CN" />
+<input type="hidden" id="csrftoken" name="csrftoken" value="eb0068de-6390-4817-bbb6-0000000064cc,eb0068de6390481000000000098564cc"/>
+	<!-- 头部 开始 -->
+	<header class="navbar-inverse top2">
+		<div class="container" id="navbar_container">
+					<div class="container">
+			<div class="navbar-header">
+				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+					<span class="sr-only"> 自主选课</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a href="#" id="topButton" class="navbar-brand" onclick="onClickMenu('/xsxk/zzxkyzb_cxZzxkYzbIndex.html','N253512')">
+					自主选课
+				</a>
+				<script type="text/javascript">
+					document.title="自主选课";
+				</script>
+			</div>
+		</div>
+<!-- navbar-end  -->
+		</div>
+	</header>
+
+	<!--头部 结束 -->
+	<div style="width: 100%; padding: 0px; margin: 0px;" id="bodyContainer">
+		<!-- requestMap中的参数为系统级别控制参数，请勿删除 -->
+		<form id="requestMap">
+			 <input type="hidden" id="sessionUserKey" value="519027910001" />
+
+			 	<input type="hidden" id="gnmkdmKey" value="N253512" />
+
+
+		</form>
+		<div class="container container-func sl_all_bg" id="yhgnPage">
+			<div id="innerContainer">
+				<!-- 放置页面显示内容 -->
+
+
+
+<!doctype html>
+
+
+	<div class="row sl_add_btn">
+	    <div class="col-sm-12">
+	    	<!-- 加载当前菜单栏目下操作   -->
+			<div class="btn-toolbar" role="toolbar" style="float:right;"><div class="btn-group" id="but_ancd"> </div> </div>
+			<!-- 加载当前菜单栏目下操作 -->
+	    </div>
+	</div>
+	<div id="searchBox"></div>
+
+
+
+
+ 		<div class="col-md-12 col-sm-12 border-b"  style="padding:8px 0px;">
+			<div  style="float:left;padding:10px 15px;">
+				<h5>
+				<font id="xkxn"></font> 学年 <font id="xkxq"></font> 学期<font id="txt_xklc"></font><span id="sysj"></span>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>本学期选课要求</b>总学分(不包括)最低&nbsp;<font color="red">0</font>
+
+					&nbsp;&nbsp;最高&nbsp;<font color="red">58</font>
+
+				&nbsp;&nbsp;&nbsp;已获得学分&nbsp;&nbsp;<font color="red">40.5</font>&nbsp;&nbsp;&nbsp;本学期已选学分&nbsp;&nbsp;<font color="red" id="yxxfs">0</font>
+				</h5>
+			</div>
+			<div style="margin-right:20px;float:right;padding:8px 15px;">
+				<!-- <div style="float:left;margin-top:-2px;margin-right:20px;font-size:20px">【<a style="text-decoration:underline;" href="javascript:void(0)" onclick="$.showDialog(_path+'/xjyj/xsxyqk_ckXsXyxxHtmlView.html','我的修业情况',$.extend({},viewConfig,{width: ($('#yhgnPage').innerWidth()-200)+'px'}));">我的修业情况</a>】</div> -->
+				<div id="quickXk" style="float:left;"></div>
+				<div style="float:left;">
+					<p style="margin-top:4px;margin-right:5px;float:left;border:1px solid #BCE8F1;background-color:#D9EDF7;height:15px;width:30px;"></p>未选
+				</div>
+				<div style="float:left;margin-left:20px">
+					<p style="margin-top:4px;margin-right:5px;float:left;border:1px solid #BCE8F1;background-color:#fff7b2;height:15px;width:30px;"></p>重修未选
+				</div>
+				<div style="float:left;margin-left:20px">
+					<p style="margin-top:4px;margin-right:5px;float:left;border:1px solid #BCE8F1;background-color:#C1FFC1;height:15px;width:30px;"></p>已选
+				</div>
+			</div>
+		</div>
+
+		<input type="hidden" name="iskxk" id="iskxk" value="1"/>
+		<input type="hidden" name="jgh_id" id="jgh_id"/>
+		<input type="hidden" name="jzxkf" id="jzxkf" value="0"/>
+		<input type="hidden" name="xkzgmc" id="xkzgmc" value="28"/>
+		<input type="hidden" name="xkzgxf" id="xkzgxf" value="58"/>
+		<input type="hidden" name="zkcs" id="zkcs" value="17"/>
+		<input type="hidden" name="zxfs" id="zxfs" value="25.5"/>
+		<input type="hidden" name="bdzcbj" id="bdzcbj" value="0"/>
+		<input type="hidden" name="xkxnm" id="xkxnm" value="2020"/>
+		<input type="hidden" name="xkxqm" id="xkxqm" value="3"/>
+		<input type="hidden" name="xkxnmc" id="xkxnmc" value="2020-2021"/>
+		<input type="hidden" name="xkxqmc" id="xkxqmc" value="1"/>
+		<input type="hidden" name="xh_id" id="xh_id" value="519027910001"/>
+		<input type="hidden" name="xqh_id" id="xqh_id" value="02"/>
+		<input type="hidden" name="jg_id_1" id="jg_id_1" value="00000"/>
+		<input type="hidden" name="zyh_id" id="zyh_id" value="000000"/>
+		<input type="hidden" name="zyfx_id" id="zyfx_id" value="wfx"/>
+		<input type="hidden" name="njdm_id" id="njdm_id" value="2019"/>
+		<input type="hidden" name="bh_id" id="bh_id" value="F1900001"/>
+		<input type="hidden" name="xbm" id="xbm" value="2"/>
+		<input type="hidden" name="zh" id="zh" value=""/>
+		<input type="hidden" name="xslbdm" id="xslbdm" value="999"/>
+		<input type="hidden" name="ccdm" id="ccdm" value="0"/>
+		<input type="hidden" name="xsbj" id="xsbj" value="99999"/>
+		<input type="hidden" name="sjhm" id="sjhm" value="17000000000"/>
+		<input type="hidden" name="xszxzt" id="xszxzt" value="1"/>
+
+		<input type="hidden" name="sfxsxkbz" id="sfxsxkbz" value="1"/>
+		<input type="hidden" name="jxbzbkg" id="jxbzbkg" value="0"/>
+		<input type="hidden" name="tykpzykg" id="tykpzykg" value="0"/>
+		<input type="hidden" name="tkdxyzms" id="tkdxyzms" value="0"/>
+		<input type="hidden" name="jxbzhkg" id="jxbzhkg" value="0"/>
+		<input type="hidden" name="xxdm" id="xxdm" value="00000"/>
+		<input type="hidden" name="kxqxktskg" id="kxqxktskg" value="1"/>
+
+		<input type="hidden" name="zzxkgjcxkg_nj" id="zzxkgjcxkg_nj" value="0"/>
+		<input type="hidden" name="zzxkgjcxkg_xy" id="zzxkgjcxkg_xy" value="0"/>
+		<input type="hidden" name="zzxkgjcxkg_zy" id="zzxkgjcxkg_zy" value="0"/>
+		<input type="hidden" name="zzxkgjcxkg_kkxy" id="zzxkgjcxkg_kkxy" value="1"/>
+		<input type="hidden" name="zzxkgjcxkg_xqu" id="zzxkgjcxkg_xqu" value="0"/>
+		<input type="hidden" name="zzxkgjcxkg_kclb" id="zzxkgjcxkg_kclb" value="0"/>
+		<input type="hidden" name="zzxkgjcxkg_kcxz" id="zzxkgjcxkg_kcxz" value="1"/>
+		<input type="hidden" name="zzxkgjcxkg_jxms" id="zzxkgjcxkg_jxms" value="1"/>
+		<input type="hidden" name="zzxkgjcxkg_kcgs" id="zzxkgjcxkg_kcgs" value="1"/>
+		<input type="hidden" name="zzxkgjcxkg_skxq" id="zzxkgjcxkg_skxq" value="1"/>
+		<input type="hidden" name="zzxkgjcxkg_skjc" id="zzxkgjcxkg_skjc" value="1"/>
+		<input type="hidden" name="zzxkgjcxkg_jxb" id="zzxkgjcxkg_jxb" value="1"/>
+		<input type="hidden" name="zzxkgjcxkg_sfcx" id="zzxkgjcxkg_sfcx" value="1"/>
+		<input type="hidden" name="zzxkgjcxkg_ywyl" id="zzxkgjcxkg_ywyl" value="1"/>
+
+		<input type="hidden" name="xkczbj" id="xkczbj" value="1"/>
+		<input type="hidden" name="isSlct" id="isSlct" value="0"/>
+		<input type="hidden" name="kklxdm" id="kklxdm" value=""/>
+		<input type="hidden" name="xkkz_id" id="xkkz_id" value=""/>
+		<input type="hidden" name="jxbzb" id="jxbzb" value=""/>
+
+
+			<div class="panel panel-info">
+			<!-- 开始 -->
+			<ul class="nav nav-tabs sl_nav_tabs" role="tablist" id="nav_tab">
+
+
+						<li class="active"><a href="javascript:void(0)" onclick="queryCourse(this,'01','A000000000000B76E055F8163ED16360','2019','000000')" role="tab" data-toggle="tab">主修课程</a></li>
+						<input type="hidden" name="firstKklxdm" id="firstKklxdm" value="01"/>
+						<input type="hidden" name="firstXkkzId" id="firstXkkzId" value="A000000000000B76E055F8163ED16360"/>
+						<input type="hidden" name="firstNjdmId" id="firstNjdmId" value="2019"/>
+						<input type="hidden" name="firstZyhId" id="firstZyhId" value="000000"/>
+
+
+
+
+
+			 			<li><a href="javascript:void(0)" onclick="queryCourse(this,'71','A000000000000A7FE055F8163ED16360','2019','000000')" role="tab" data-toggle="tab">民族生课程</a></li>
+
+
+
+
+			 			<li><a href="javascript:void(0)" onclick="queryCourse(this,'72','A000000000000881E055F8163ED16360','2019','000000')" role="tab" data-toggle="tab">留学生课程</a></li>
+
+
+
+
+			 			<li><a href="javascript:void(0)" onclick="queryCourse(this,'06','A000000000000F12E055F8163ED16360','2019','000000')" role="tab" data-toggle="tab">板块课(体育（3）)</a></li>
+
+
+
+
+			 			<li><a href="javascript:void(0)" onclick="queryCourse(this,'10','A000000000000455E055F8163ED16360','2019','000000')" role="tab" data-toggle="tab">通识课</a></li>
+
+
+
+
+			 			<li><a href="javascript:void(0)" onclick="queryCourse(this,'11','A000000000000B28E055F8163ED16360','2019','000000')" role="tab" data-toggle="tab">通选课</a></li>
+
+
+		 		<div class="pull-right" style="margin-top:4px;margin-right:30px">
+
+		 		</div>
+			</ul>
+			</div>
+
+
+	<div id="displayBox"></div>
+	<div id="choosedBox"></div>
+	<div id="endsign" style="display:none; text-align:center; height: 50px"><i class="red">......已到最后......</i></div><!-- （共 <font id="searchCount"></font> 条记录） -->
+	<!-- <div id="waitsign" style="display:none; text-align:center; height: 50px"><i class="red bigger-300 icon-spinner icon-spin"></i></div> -->
+	<div id="more" style="text-align:center; display:none"><font color="#2a6496" size="5">[<a href="javascript:void(0)" onclick="loadCoursesByPaged();">点此查看更多</a>]</font></div>
+<!--jQuery.jqGrid -->
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/jqGrid/css/jquery.jqgrid.css?ver=20200701" />
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/jqGrid/jquery.jqgrid.src-min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/jqGrid/jquery.jqgrid.contact-min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/jqGrid/lang/zh_CN.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/js/plugins/jqGrid4.6/jquery.jqgrid.settings.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/js/plugins/jqGrid4.6/jquery.jqGrid-min.js?ver=20200701" charset="utf-8"></script>
+<!--jQuery.validation -->
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/validation/css/jquery.validate-min.css?ver=20200701" />
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/validation/js/jquery.validate-min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/validation/js/jquery.validate.contact-min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/validation/js/jquery.validate.methods.contact-min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/validation/lang/zh_CN-min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript">
+	jQuery(function($){
+		$('[data-toggle*="validation"]').trigger("validation");
+	});
+</script>
+
+<link rel="stylesheet" type="text/css" href="/js/plugins/searchbox/css/jquery.searchbox-min.css?ver=20200701" />
+<script type="text/javascript" src="/js/plugins/searchbox/jquery.searchbox.contact-min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/js/plugins/searchbox/jquery.searchbox.contact-zh_CN.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/js/comp/jwglxt/xkgl/xsxk/zzxkYzb.js?ver=20200701"></script>
+
+			</div>
+		</div>
+	</div>
+	<!-- footer -->
+
+
+<!-- footer -->
+<div id="footerID" class="footer">
+	<p>沪交ICP备20180167</p>
+</div>
+<script type="text/javascript">
+	//系统中页面底部的时间随系统时间来定
+	var date=new Date;
+	var year=date.getFullYear();
+	var s = $("#footerID").text().indexOf('-');
+	var textNr =$("#footerID").text().substr(0,s+1)+year+$("#footerID").text().substr(s+5);
+	$("#footerID").text("");
+	$("#footerID").text(textNr);
+</script>
+<!-- footer-end -->
+	<!-- footer-end -->
+</body>
+<script type="text/javascript">
+	jQuery(function($) {
+		if ($("#navbar-tabs").length > 0) {
+			$("#navbar-tabs li:eq(0) a").tab('show');
+		}
+
+		setMinheight();
+
+		$('#yhgnPage').resize(function(){
+			var minHeight  = $(this).data('min-height');
+			var innerHeight =  $('#innerContainer').outerHeight(true);
+			$(this).css('min-height', Math.max(minHeight,innerHeight));
+		});
+
+		function setMinheight(){
+			//计算grid页面高度
+			var docuemntHeight = $(document).height();
+			var topHeight = $('header').height();
+			var footerHeight = $('.footer').height();
+			var containerHeight = docuemntHeight-topHeight-footerHeight-60;
+			$('#yhgnPage').css('min-height',containerHeight).data('min-height',containerHeight);
+		}
+
+		//加载title名称，根据系统内置表设置，取菜单名称或者系统名称
+		$(document).attr("title",'自主选课');
+
+	});
+</script>
+<!-- 设置元素固定位置显示插件  scrolltofixed 相应ini文件引用-->
+<!-- è®¾ç½®åç´ åºå®ä½ç½®æ¾ç¤ºæä»¶  scrolltofixed -->
+<script type="text/javascript" src="/js/plugins/scrolltofixed/jquery-scrolltofixed-min.js?ver=20200701"></script>
+<script>
+	$(document).ready(function() {
+		$("div.sl_add_btn .btn-toolbar").scrollToFixed({
+			marginTop:35,
+			zIndex:1050,
+			fixed:function(){
+				$(this).css("width","auto");
+			}
+		});
+		$("div.ui-state-default").scrollToFixed({
+				//marginTop:3,
+			    spacerClass:'hide-div',
+		});
+	});
+</script>
+<style>
+	.hide-div{
+		display:none;
+	}
+</style>
+<!-- 软件评价 相应ini文件引用-->
+
+
+
+</html>
