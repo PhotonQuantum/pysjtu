@@ -1,10 +1,23 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple
+from enum import IntEnum
+from typing import Callable, List, Optional, Tuple, Union
 
 from pysjtu.models.base import LazyResult, PARTIAL, Result
 from pysjtu.utils import elfhash
+
+
+@dataclass
+class LessonTime:
+    weekday: int
+    week: List[Union[range, int]]
+    time: List[range]
+
+
+class Gender(IntEnum):
+    male = 1
+    female = 2
 
 
 # noinspection PyAbstractClass
@@ -105,11 +118,40 @@ class SelectionSector(Result):
         return self._func_classes()
 
 
-from pysjtu.schemas.selection import LessonTime, Gender
-
-
 @dataclass
 class SelectionClass(LazyResult):
+    """
+    A model which describes a selectable class in this round of selection.
+
+    :param name: literal name of the course.
+    :type name: str
+    :param credit: credits that the course provides.
+    :type credit: int
+    :param course_id: course id.
+    :type course_id: str
+    :param course_id: internal course id.
+    :type course_id: str
+    :param class_name: class name (constant between years).
+    :type class_name: str
+    :param class_id: class id (variable between years).
+    :type class_id: str
+    :param students_elected: number of students registered for this course.
+    :type students_elected: int
+    :param students_planned: number of students planned when setting this course.
+    :type students_planned: int
+    :param register_id: dynamic id used when (de)registering for this class.
+    :param teacher: the teachers who offer this course.
+    :type teacher: List[Tuple[str]]
+    :param locations: the places where classes are given.
+    :type locations: List[str]
+    :param time: the time when the class is given.
+    :type time: LessonTime
+    :param course_type: course type. (eg. general, required, optional, ...)
+    :type course_type: str
+    :param remark: remarks of this class.
+    :type remark: str
+    :param sector: the sector which this course lies in.
+    """
     name: str
     credit: float
     course_id: str
@@ -138,7 +180,7 @@ class SelectionClass(LazyResult):
         :return: A boolean value indicates the registration status.
         :rtype: bool
         """
-        raise NotImplemented
+        raise NotImplemented  # pragma: no cover
 
     def register(self, timeout=10):
         """
@@ -150,7 +192,7 @@ class SelectionClass(LazyResult):
         :raises FullCapacityException
         :raises TimeConflictException
         """
-        raise NotImplemented
+        raise NotImplementedError  # pragma: no cover
 
     def deregister(self, timeout=10):
         """
@@ -160,4 +202,4 @@ class SelectionClass(LazyResult):
         :return: None
         :raises DeregistrationException
         """
-        raise NotImplemented
+        raise NotImplementedError  # pragma: no cover

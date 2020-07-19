@@ -1,6 +1,29 @@
+import typing
+
 from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
-from pysjtu.schemas.base import SplitField, CourseTime, CourseWeek, CreditHourDetail
+from pysjtu.schemas.base import CourseTime, CourseWeek, SplitField
+
+
+class CreditHourDetail(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return None  # pragma: no cover
+        class_hour_details = value.split(",")
+        rtn = {}
+        for item in class_hour_details:
+            try:
+                name, hour = item.split(":")
+                rtn[name] = float(hour)
+            except ValueError:
+                rtn["N/A"] = 0
+        return rtn
 
 
 class ScheduleCourseSchema(Schema):
