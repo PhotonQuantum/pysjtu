@@ -48,7 +48,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'
     ),
     install_requires=[
-        'httpx==0.11.0',
+        'httpx==0.11.1',
         'marshmallow',
         'numpy',
         'Pillow>=7.0.0',

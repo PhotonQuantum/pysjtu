@@ -3,4 +3,4 @@ from .client import Client, create_client
 from .models import CourseRange, LogicEnum, Ranking
 from .session import Session
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
