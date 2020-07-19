@@ -3,10 +3,16 @@ from os import path
 
 import pytest
 
-from pysjtu.utils import has_callable, replace_keys, schema_post_loader, range_list_to_str, range_in_set, overlap, \
-    flatten, parse_slice
+from pysjtu.utils import elfhash, flatten, has_callable, overlap, parse_slice, range_in_set, range_list_to_str, \
+    replace_keys, schema_post_loader
 
 DATA_DIR = path.join(path.dirname(path.abspath(__file__)), 'data')
+
+
+def test_elfhash():
+    assert elfhash("hello world") == 224648685
+    assert elfhash("生活就像海洋，只有意志坚强的人才能到达彼岸。"
+                   "This is an apple. I like apples. Apples are good for our health.") == 238480205
 
 
 def test_parse_slice():

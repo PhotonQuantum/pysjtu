@@ -7,14 +7,12 @@ import httpx
 import pytest
 import respx
 
-from pysjtu.consts import HOME_URL
-from pysjtu.session import Session, BaseSession
 from pysjtu.client import Client, create_client
-from pysjtu.exceptions import LoadWarning, DumpWarning, ServiceUnavailable, SessionException, LoginException, \
-    GPACalculationException
-
-from pysjtu.models import GPAQueryParams, Schedule, Scores, Exams, QueryResult, LogicEnum, CourseRange, GPA
+from pysjtu.exceptions import DumpWarning, GPACalculationException, LoadWarning, LoginException, ServiceUnavailable, \
+    SessionException
+from pysjtu.models import CourseRange, Exams, GPA, GPAQueryParams, LogicEnum, QueryResult, Schedule, Scores
 from pysjtu.ocr import NNRecognizer
+from pysjtu.session import BaseSession, Session
 from .mock_server import app
 
 
@@ -27,14 +25,6 @@ def logged_session(mocker):
 
 
 @pytest.fixture
-def buggy_request():
-    def _buggy_request():
-        httpx.get("http://secure.page.edu.cn")
-
-    return _buggy_request
-
-
-@pytest.fixture
 def check_login():
     def _check_login(session):
         return "519027910001" in session.get("https://i.sjtu.edu.cn/xtgl/index_initMenu.html").text
@@ -43,6 +33,17 @@ def check_login():
 
 
 class TestSession:
+    @respx.mock
+    def test_base_url(self):
+        respx.get("https://i.sjtu.edu.cn/test", content="1")
+        respx.get("https://kbcx.sjtu.edu.cn/test", content="2")
+        sess = Session()
+        assert sess.base_url == "https://i.sjtu.edu.cn"
+        assert sess.get("/test").text == "1"
+        sess_2 = Session(base_url="https://kbcx.sjtu.edu.cn")
+        assert sess_2.base_url == "https://kbcx.sjtu.edu.cn"
+        assert sess_2.get("/test").text == "2"
+
     @respx.mock
     def test_secure_req(self):
         respx.get("http://secure.page.edu.cn", content=httpx.ConnectionClosed())

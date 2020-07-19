@@ -1,9 +1,15 @@
-import pytest
-import json
 import datetime
+import json
 from os import path
-from pysjtu.schemas import ScheduleCourseSchema, ScoreSchema, ScoreFactorSchema, ExamSchema, LibCourseSchema, GPAQueryParamsSchema, GPASchema
-from pysjtu.models import LogicEnum, CourseRange, Ranking
+
+import pytest
+
+from pysjtu.models import CourseRange, LogicEnum, Ranking
+from pysjtu.models.selection import Gender, LessonTime
+from pysjtu.schemas import ExamSchema, GPAQueryParamsSchema, GPASchema, LibCourseSchema, ScheduleCourseSchema, \
+    ScoreFactorSchema, ScoreSchema, SelectionClassSchema, SelectionCourseSchema, SelectionSectorSchema, \
+    SelectionSharedInfoSchema
+from pysjtu.schemas.schedule import CreditHourDetail
 
 
 @pytest.fixture()
@@ -15,6 +21,93 @@ def resp_loader():
             return json.load(f)
 
     return _resp_loader
+
+
+def test_selection_course_schema(resp_loader):
+    raw_resp = resp_loader("selection_course")
+    schema = SelectionCourseSchema()
+    course = schema.load(raw_resp)
+
+    assert course == {
+        "name": "问题求解与实践",
+        "credit": 3.0,
+        "course_id": "CS241",
+        "internal_course_id": "_CS241",
+        "class_name": "(2020-2021-1)-CS241-1",
+        "class_id": "A86B96D4FB8A3CFEE055F8163ED16360",
+        "students_registered": 11
+    }
+
+
+def test_selection_class_schema(resp_loader):
+    raw_resp = resp_loader("selection_class")
+    schema = SelectionClassSchema()
+    _class = schema.load(raw_resp)
+
+    assert _class == {
+        "class_id": "A86B96D4FB8A3CFEE055F8163ED16360",
+        "register_id": "2914000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "teachers": [("陈雨亭", "副教授"), ("沈艳艳", "讲师(高校)")],
+        "locations": ["中院312", "中院312", "中院312", "中院312"],
+        "time": [
+            LessonTime(2, [range(1, 13)], [range(9, 11)]),
+            LessonTime(2, [range(1, 13)], [range(9, 11)]),
+            LessonTime(5, [range(1, 13, 2)], [range(3, 5)]),
+            LessonTime(5, [range(1, 13)], [range(3, 5), range(7, 9)])
+        ],
+        "course_type": ["必修", "测试"],
+        "remark": None,
+        "students_planned": 80
+    }
+
+    class_2 = schema.load({"xkbz": "N/A", **raw_resp})
+    assert class_2["remark"] == "N/A"
+
+
+def test_selection_sector_schema(resp_loader):
+    raw_resp = resp_loader("selection_sector")
+    schema = SelectionSectorSchema()
+    sector = schema.load(raw_resp)
+
+    assert sector.task_type == 1
+    assert sector.xkly == 1
+    assert sector.pe_op_param == 30
+    assert sector.sector_type_id == "0"
+    assert sector.txbsfrl == 1
+    assert sector.kkbk == 0
+
+    sector.course_type_code = "01"
+    sector.xkkz_id = "A000000000000B76E055F8163ED16360"
+    assert {k: str(v) for k, v in schema.dump(sector).items()} == \
+           {"kklxdm": "01", "xkkz_id": "A000000000000B76E055F8163ED16360",
+            **raw_resp}
+
+
+def test_selection_shared_info_schema(resp_loader):
+    raw_resp = resp_loader("selection_shared_info")
+    schema = SelectionSharedInfoSchema()
+    shared_info = schema.load(raw_resp)
+
+    assert shared_info.term == "02"
+    assert shared_info.selection_year == 2020
+    assert shared_info.selection_term == 3
+    assert shared_info.major_id == "000000"
+    assert shared_info.student_grade == 2019
+    assert shared_info.natural_class_id == "F1900001"
+    assert shared_info.self_selecting_status == 1
+    assert shared_info.ccdm == "0"
+    assert shared_info.student_type_code == 999
+    assert shared_info.gender == Gender.female
+    assert shared_info.field_id == "wfx"
+    assert shared_info.student_background == 99999
+
+    assert {k: str(v) for k, v in schema.dump(shared_info).items()} == raw_resp
+
+
+def test_schedule_credit_hour_detail_field():
+    field = CreditHourDetail()
+    assert field.deserialize("task_1:3.0,task_2:0.5") == {"task_1": 3.0, "task_2": 0.5}
+    assert field.deserialize("-") == {"N/A": 0}
 
 
 def test_schedule_course_schema(resp_loader):
@@ -139,7 +232,9 @@ def test_gpa_query_params_schema_dump(resp_loader):
 
     dump_dict = schema.dump(gpa_query_params)
 
-    assert dump_dict == {'zczt': 1, 'bjjd': '缓考', 'xjzt': 0, 'bjpjf': '缓考', 'qsXnxq': '', 'tjfw': 'njzy', 'kch_ids': 'TH020,TH009', 'sspjfblws': 9, 'tjgx': 0, 'pjjdblws': 9, 'zzXnxq': 2019, 'kcfw': 'qbkc', 'alsfj': 'bkcx'}
+    assert dump_dict == {'zczt': 1, 'bjjd': '缓考', 'xjzt': 0, 'bjpjf': '缓考', 'qsXnxq': '', 'tjfw': 'njzy',
+                         'kch_ids': 'TH020,TH009', 'sspjfblws': 9, 'tjgx': 0, 'pjjdblws': 9, 'zzXnxq': 2019,
+                         'kcfw': 'qbkc', 'alsfj': 'bkcx'}
 
 
 def test_gpa_schema(resp_loader):
