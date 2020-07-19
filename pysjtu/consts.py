@@ -20,6 +20,9 @@ SELECTION_ALL_SECTORS_PARAM_URL = "/xsxk/zzxkyzb_cxZzxkYzbIndex.html?gnmkdm=N253
 SELECTION_SECTOR_PARAM_URL = "/xsxk/zzxkyzb_cxZzxkYzbDisplay.html?gnmkdm=N253512&su="
 SELECTION_QUERY_COURSES = "/xsxk/zzxkyzb_cxZzxkYzbPartDisplay.html?gnmkdm=N253512&su="
 SELECTION_QUERY_CLASSES = "/xsxk/zzxkyzb_cxJxbWithKchZzxkYzb.html?gnmkdm=N253512&su="
+SELECTION_REGISTER = "/xsxk/zzxkyzb_xkBcZyZzxkYzb.html?gnmkdm=N253512&su="
+SELECTION_IS_REGISTERED = "/xsxk/zzxkyzb_xkJcInXksjZzxkYzb.html?gnmkdm=N253512&su="
+SELECTION_DEREGISTER = "/xsxk/zzxkyzb_tuikBcZzxkYzb.html?gnmkdm=N253512&su="
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0",
            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
