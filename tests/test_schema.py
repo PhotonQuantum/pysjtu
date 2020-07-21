@@ -2,6 +2,7 @@ import datetime
 import json
 from os import path
 
+from marshmallow import ValidationError
 import pytest
 
 from pysjtu.models import CourseRange, LogicEnum, Ranking
@@ -9,6 +10,7 @@ from pysjtu.models.selection import Gender, LessonTime
 from pysjtu.schemas import ExamSchema, GPAQueryParamsSchema, GPASchema, LibCourseSchema, ScheduleCourseSchema, \
     ScoreFactorSchema, ScoreSchema, SelectionClassSchema, SelectionCourseSchema, SelectionSectorSchema, \
     SelectionSharedInfoSchema
+from pysjtu.schemas.base import StrBool
 from pysjtu.schemas.schedule import CreditHourDetail
 
 
@@ -75,6 +77,10 @@ def test_selection_sector_schema(resp_loader):
     assert sector.sector_type_id == "0"
     assert sector.txbsfrl == 1
     assert sector.kkbk == 0
+    assert sector.include_other_grades is False
+    assert sector.include_other_majors is False
+    assert sector.sfznkx is False
+    assert sector.zdkxms == 0
 
     sector.course_type_code = "01"
     sector.xkkz_id = "A000000000000B76E055F8163ED16360"
@@ -108,6 +114,18 @@ def test_schedule_credit_hour_detail_field():
     field = CreditHourDetail()
     assert field.deserialize("task_1:3.0,task_2:0.5") == {"task_1": 3.0, "task_2": 0.5}
     assert field.deserialize("-") == {"N/A": 0}
+
+
+def test_str_bool_field():
+    field = StrBool()
+    assert field.deserialize("0") is False
+    assert field.deserialize("1") is True
+    with pytest.raises(ValidationError):
+        field.deserialize("-1")
+    assert field.serialize("test", {"test": False}) == "0"
+    assert field.serialize("test", {"test": True}) == "1"
+    with pytest.raises(ValidationError):
+        field.serialize("test", {"test": -1})
 
 
 def test_schedule_course_schema(resp_loader):
