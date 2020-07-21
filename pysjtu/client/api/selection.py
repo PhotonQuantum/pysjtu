@@ -93,7 +93,7 @@ class SelectionMixin(BaseClient):
             **SelectionSectorSchema().dump(sector),
             **SelectionSharedInfoSchema().dump(sector.shared_info),
             "kspage": 1,
-            "jspage": 500
+            "jspage": 5000
         }
         courses_query = self._session.post(f"{consts.SELECTION_QUERY_COURSES}{self.student_id}", data=payload).json()
         selection_classes: List[SelectionClass] = [SelectionClass(**item) for item in
