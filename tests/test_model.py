@@ -117,7 +117,7 @@ def test_lazy_model(mocker):
 
     (SelectionSector,
      ["task_type", "xkly", "pe_op_param", "sector_type_id", "txbsfrl", "kkbk", "course_type_code", "name", "xkkz_id",
-      "shared_info"],
+      "include_other_grades", "include_other_majors", "sfznkx", "zdkxms", "shared_info"],
      ({"name": "major"},
       "<SelectionSector major>")),
 
@@ -182,7 +182,7 @@ def test_selection_sector(mocker):
     class_func = mocker.Mock(return_value=["1"])
 
     members = ["task_type", "xkly", "pe_op_param", "sector_type_id", "txbsfrl", "kkbk", "course_type_code", "name",
-               "xkkz_id", "shared_info"]
+               "xkkz_id", "shared_info", "include_other_grades", "include_other_majors", "sfznkx", "zdkxms"]
     kwargs = {member: idx for idx, member in zip(range(len(members)), members) if member != "name"}
     model_1 = SelectionSector(name="dummy", _func_classes=class_func, **kwargs)
 
