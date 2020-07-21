@@ -83,6 +83,14 @@ class SelectionSector(Result):
     :type pe_op_param: int
     :param sector_type_id: unknown parameter.
     :type sector_type_id: str
+    :param include_other_grades: include courses from other grades.
+    :type include_other_grades: bool
+    :param include_other_majors: include courses from other majors.
+    :type include_other_majors: bool
+    :param sfznkx: unknown parameter.
+    :type sfznkx: str
+    :param zdkxms: unknown parameter.
+    :type zdkxms: int
     :param txbsfrl: unknown parameter. (used when deregistering courses.)
     :type txbsfrl: int
     :param kkbk: unknown parameter.
@@ -96,6 +104,10 @@ class SelectionSector(Result):
     xkly: int
     pe_op_param: int
     sector_type_id: str
+    include_other_grades: bool
+    include_other_majors: bool
+    sfznkx: bool
+    zdkxms: int
     txbsfrl: int
     kkbk: int
     course_type_code: Optional[str] = None

@@ -5,7 +5,7 @@ from typing import List
 from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
 from pysjtu.consts import CHINESE_WEEK
-from pysjtu.schemas.base import SplitField
+from pysjtu.schemas.base import SplitField, StrBool
 from pysjtu.utils import parse_course_week
 from pysjtu.models.selection import Gender, LessonTime
 
@@ -92,8 +92,12 @@ class SelectionSectorSchema(Schema):
     pe_op_param = fields.Int(required=True, data_key="tykczgxdcs")
     sector_type_id = fields.Str(required=True, data_key="bklx_id")
     course_type_code = fields.Str(required=True, dump_only=True, data_key="kklxdm")
+    include_other_grades = StrBool(required=True, data_key="sfkknj")
+    include_other_majors = StrBool(required=True, data_key="sfkkzy")
+    sfznkx = StrBool(required=True)
+    zdkxms = fields.Int(required=True)
     txbsfrl = fields.Int(required=True)
-    kkbk = fields.Int()
+    kkbk = fields.Int(required=True)
     xkkz_id = fields.Str(dump_only=True)
 
     # noinspection PyUnusedLocal
