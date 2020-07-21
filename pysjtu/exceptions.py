@@ -12,7 +12,6 @@ class GPACalculationException(Exception):
 
 class SelectionNotAvailableException(Exception):
     """ Course selection function is not available at this time. """
-    pass
 
 
 class SelectionClassFetchException(Exception):

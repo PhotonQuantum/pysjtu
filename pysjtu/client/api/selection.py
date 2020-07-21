@@ -4,7 +4,7 @@ from typing import List
 from pysjtu import consts
 from pysjtu.client.base import BaseClient
 from pysjtu.exceptions import DeregistrationException, FullCapacityException, RegistrationException, \
-    SelectionClassFetchException, TimeConflictException, SelectionNotAvailableException
+    SelectionClassFetchException, SelectionNotAvailableException, TimeConflictException
 from pysjtu.models.selection import SelectionClass, SelectionSector, SelectionSharedInfo
 from pysjtu.parser.selection import parse_sector, parse_sectors, parse_shared_info
 from pysjtu.schemas.selection import SelectionClassSchema, SelectionCourseSchema, SelectionSectorSchema, \
@@ -37,21 +37,21 @@ class SelectionMixin(BaseClient):
         register = self._session.post(f"{consts.SELECTION_REGISTER}{self.student_id}", data=payload,
                                       timeout=timeout).json()
         if not register or "flag" not in register:
-            raise RegistrationException("Bad request.")     # pragma: no cover
+            raise RegistrationException("Bad request.")  # pragma: no cover
         if register["flag"] == "0":
             if "msg" in register:
                 if register["msg"] == "所选教学班的上课时间与其他教学班有冲突！":
                     raise TimeConflictException
-                else:   # pragma: no cover
-                    raise RegistrationException(register["msg"])    # pragma: no cover
+                else:  # pragma: no cover
+                    raise RegistrationException(register["msg"])  # pragma: no cover
             else:
-                raise RegistrationException("Unknown error.")   # pragma: no cover
+                raise RegistrationException("Unknown error.")  # pragma: no cover
         elif register["flag"] == "-1":
             raise FullCapacityException
         elif register["flag"] == "1":
             return
         else:
-            raise RegistrationException(f"Unexpected response: {register}")     # pragma: no cover
+            raise RegistrationException(f"Unexpected response: {register}")  # pragma: no cover
 
     def _class_deregister(self, _class: SelectionClass, timeout=10):
         payload = {
@@ -62,16 +62,16 @@ class SelectionMixin(BaseClient):
                                         timeout=timeout).json()
         if deregister == "1":
             return
-        elif deregister == "2":     # pragma: no cover
-            raise DeregistrationException("Server busy.")       # pragma: no cover
-        elif deregister == "3":     # pragma: no cover
-            raise DeregistrationException("Unknown error.")     # pragma: no cover
-        elif deregister == "4":     # pragma: no cover
-            raise DeregistrationException("Illegal access.")    # pragma: no cover
-        elif deregister == "5":     # pragma: no cover
-            raise DeregistrationException("Validation failure.")    # pragma: no cover
+        elif deregister == "2":  # pragma: no cover
+            raise DeregistrationException("Server busy.")  # pragma: no cover
+        elif deregister == "3":  # pragma: no cover
+            raise DeregistrationException("Unknown error.")  # pragma: no cover
+        elif deregister == "4":  # pragma: no cover
+            raise DeregistrationException("Illegal access.")  # pragma: no cover
+        elif deregister == "5":  # pragma: no cover
+            raise DeregistrationException("Validation failure.")  # pragma: no cover
         else:
-            raise DeregistrationException(f"Unexpected response: {deregister}")     # pragma: no cover
+            raise DeregistrationException(f"Unexpected response: {deregister}")  # pragma: no cover
 
     def _fetch_selection_classes(self, sector: SelectionSector, internal_course_id: str) -> List[dict]:
         payload = {

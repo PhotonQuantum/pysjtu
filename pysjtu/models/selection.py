@@ -192,7 +192,7 @@ class SelectionClass(LazyResult):
         :return: A boolean value indicates the registration status.
         :rtype: bool
         """
-        raise NotImplemented  # pragma: no cover
+        raise NotImplementedError  # pragma: no cover
 
     def register(self, timeout=10):
         """

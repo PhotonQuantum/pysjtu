@@ -5,21 +5,21 @@ from typing import List
 from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
 from pysjtu.consts import CHINESE_WEEK
+from pysjtu.models.selection import Gender, LessonTime
 from pysjtu.schemas.base import SplitField, StrBool
 from pysjtu.utils import parse_course_week
-from pysjtu.models.selection import Gender, LessonTime
 
 
 class GenderField(fields.Field):
     def _deserialize(
-        self,
-        value: typing.Any,
-        attr: typing.Optional[str],
-        data: typing.Optional[typing.Mapping[str, typing.Any]],
-        **kwargs
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
     ):
         if not value:
-            return None     # pragma: no cover
+            return None  # pragma: no cover
         return Gender(int(value))
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
