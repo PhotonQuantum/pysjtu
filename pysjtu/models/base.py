@@ -8,8 +8,27 @@ from pysjtu.utils import overlap, parse_slice, range_in_set
 
 class Result:
     """ Base class for Result """
+
     def __repr__(self):
         raise NotImplementedError  # pragma: no cover
+
+
+class PARTIAL:
+    pass
+
+
+class LazyResult(Result):
+    """ Base class for LazyResult """
+    _load_func: Callable = None
+
+    def __getattribute__(self, item):
+        value = super().__getattribute__(item)
+        if value == PARTIAL:
+            update_dict = self._load_func()
+            for k, v in update_dict.items():
+                super().__setattr__(k, v)
+            value = super().__getattribute__(item)
+        return value
 
 
 T_Result = TypeVar("T_Result", bound=Result)

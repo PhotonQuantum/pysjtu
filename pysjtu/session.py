@@ -34,10 +34,10 @@ class BaseSession:
     _cache_store: dict
 
     def get(self, *args, **kwargs):
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     def post(self, *args, **kwargs):
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
 
 class Session(BaseSession):

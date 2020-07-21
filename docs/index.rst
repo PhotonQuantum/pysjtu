@@ -15,9 +15,9 @@ Main features of PySJTU:
 - A friendly API with understandable attribute names.
 - Easy session persistence.
 - Robust captcha recognition using ResNet.
-- 80% iSJTU APIs covered. (Course selection APIs will be implemented soon.)
+- 80% iSJTU APIs covered. (Course selection APIs included.)
 - Fully type annotated.
-- 99% test coverage.
+- 100% test coverage.
 
 .. toctree::
    :maxdepth: 2
