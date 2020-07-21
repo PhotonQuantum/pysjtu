@@ -15,6 +15,7 @@ class SelectionMixin(BaseClient):
     def __init__(self):
         super().__init__()
         self._fetch_selection_classes = lru_cache(maxsize=1024)(self._fetch_selection_classes)
+        self._get_selection_classes = lru_cache(maxsize=16)(self._get_selection_classes)
 
     def _class_is_registered(self, _class: SelectionClass, timeout=10) -> bool:
         payload = {
@@ -135,5 +136,5 @@ class SelectionMixin(BaseClient):
 
         return sectors
 
-    def invalidate_selection_class_cache(self):
+    def flush_selection_class_cache(self):
         self._fetch_selection_classes.cache_clear()
