@@ -4,7 +4,7 @@ from typing import List
 from pysjtu import consts
 from pysjtu.client.base import BaseClient
 from pysjtu.exceptions import DeregistrationException, FullCapacityException, RegistrationException, \
-    SelectionClassFetchException, TimeConflictException
+    SelectionClassFetchException, TimeConflictException, SelectionNotAvailableException
 from pysjtu.models.selection import SelectionClass, SelectionSector, SelectionSharedInfo
 from pysjtu.parser.selection import parse_sector, parse_sectors, parse_shared_info
 from pysjtu.schemas.selection import SelectionClassSchema, SelectionCourseSchema, SelectionSectorSchema, \
@@ -113,6 +113,8 @@ class SelectionMixin(BaseClient):
         This property contains all available course sectors in this round of selection.
         """
         sectors_query = self._session.get(f"{consts.SELECTION_ALL_SECTORS_PARAM_URL}{self.student_id}").text
+        if "对不起，当前不属于选课阶段" in sectors_query:
+            raise SelectionNotAvailableException
 
         raw_shared_info = parse_shared_info(sectors_query)
         shared_info: SelectionSharedInfo = SelectionSharedInfoSchema().load(raw_shared_info)
