@@ -1,6 +1,6 @@
 import datetime
-from typing import List, Optional
 from dataclasses import dataclass
+from typing import List, Optional
 
 from pysjtu.models.base import Result, Results
 

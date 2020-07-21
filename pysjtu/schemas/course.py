@@ -2,7 +2,7 @@ import typing
 
 from marshmallow import EXCLUDE, Schema, fields, post_load  # type: ignore
 
-from pysjtu.schemas.base import ColonSplitted, CommaSplitted, CourseTime, CourseWeek
+from pysjtu.schemas.base import CourseTime, CourseWeek, SplitField
 
 
 class LibCreditHourDetail(fields.Field):
@@ -32,14 +32,14 @@ class LibCourseSchema(Schema):
     week = CourseWeek(data_key="qsjsz")
     time = CourseTime(data_key="skjc")
     location = fields.Str(data_key="cdmc")
-    locations = ColonSplitted(data_key="jxdd")
+    locations = SplitField(data_key="jxdd", sep=";")
     faculty = fields.Str(data_key="kkxy")
     credit = fields.Float(data_key="xf")
-    teacher = CommaSplitted(data_key="zjs")
+    teacher = SplitField(data_key="zjs", sep=",")
     course_id = fields.Str(data_key="kch")
     class_name = fields.Str(data_key="jxbmc")
     class_id = fields.Str(data_key="jxb_id")
-    class_composition = ColonSplitted(data_key="jxbzc")
+    class_composition = SplitField(data_key="jxbzc", sep=";")
     hour_total = fields.Int(data_key="rwzxs")
     hour_remark = LibCreditHourDetail(data_key="zhxs")
     seats = fields.Int(data_key="zws")

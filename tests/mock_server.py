@@ -1,6 +1,6 @@
 from os import path
 
-from flask import Flask, redirect, session, request
+from flask import Flask, redirect, request, session
 
 STATIC_DIR = path.join(path.dirname(path.abspath(__file__)), 'resources/website')
 
@@ -197,3 +197,161 @@ def gpa():
     if not session.get("is_gpa_calculated", None):
         return ""
     return app.send_static_file("gpapmtj_cxGpaxjfcxIndex.html")
+
+
+@app.route("/test_selection")
+def enable_selection():
+    session["enable_selection"] = True
+    return "OK"
+
+
+@app.route("/test_no_conflict")
+def no_conflict():
+    session["no_conflict"] = True
+    return "OK"
+
+
+@app.route("/test_no_full")
+def no_full():
+    session["no_full"] = True
+    return "OK"
+
+
+@app.route("/get_session")
+def get_session():
+    return str(session.get(request.args.get("key", ""), ""))
+
+
+@app.route("/xsxk/zzxkyzb_cxZzxkYzbIndex.html", methods=["get"])
+def selection_all_sectors():
+    if not session.get("is_login", None):
+        return redirect("/xtgl/login_slogin.html")
+    if request.args.get("su", None) != SU:
+        return ""
+    if not session.get("enable_selection", None):
+        return app.send_static_file("zzxkyzb_cxZzxkYzbIndex_not_selecting.html")
+    session["query_all_sectors"] = session.get("query_all_sectors", 0) + 1
+    return app.send_static_file("zzxkyzb_cxZzxkYzbIndex.html")
+
+
+@app.route("/xsxk/zzxkyzb_cxZzxkYzbDisplay.html", methods=["post"])
+def selection_sector_param():
+    _args = ["xkkz_id", "xszxzt", "kspage", "jspage"]
+    sectors = [
+        "A000000000000B76E055F8163ED16360",
+        "A000000000000A7FE055F8163ED16360",
+        "A000000000000881E055F8163ED16360",
+        "A000000000000F12E055F8163ED16360",
+        "A000000000000455E055F8163ED16360",
+        "A000000000000B28E055F8163ED16360"
+    ]
+    if not session.get("is_login", None):
+        return redirect("/xtgl/login_slogin.html")
+    if request.args.get("su", None) != SU:
+        return ""
+    for arg in _args:
+        if arg not in request.form.keys():
+            return ""
+    if request.form["xkkz_id"] not in sectors or request.form["xszxzt"] != "1":
+        return ""
+    session["query_sector_param"] = session.get("query_sector_param", 0) + 1
+    return app.send_static_file("zzxkyzb_cxZzxkYzbDisplay.html")
+
+
+@app.route("/xsxk/zzxkyzb_cxZzxkYzbPartDisplay.html", methods=["post"])
+def selection_query_courses():
+    _args = ['rwlx', 'xkly', 'xqh_id', 'zyh_id', 'njdm_id', 'bh_id', 'tykczgxdcs', 'xkxnm', 'xkxqm', 'kklxdm', 'xslbdm',
+             'ccdm', 'kklxdm', 'xbm', 'zyfx_id', 'xsbj', 'kkbk', 'sfkknj', 'sfkkzy', 'sfznkx', 'zdkxms', 'kspage',
+             'jspage']
+    _params = {
+        "rwlx": "1",
+        "xkly": "1",
+        "kklxdm": "01"
+    }
+    if not session.get("is_login", None):
+        return redirect("/xtgl/login_slogin.html")
+    if request.args.get("su", None) != SU:
+        return ""
+    for arg in _args:
+        if arg not in request.form.keys():
+            return ""
+    for k, v in _params.items():
+        if request.form.get(k, None) != v:
+            return ""
+    session["query_courses"] = session.get("query_courses", 0) + 1
+    return app.send_static_file("zzxkyzb_cxZzxkYzbPartDisplay.html")
+
+
+@app.route("/xsxk/zzxkyzb_cxJxbWithKchZzxkYzb.html", methods=["post"])
+def selection_query_classes():
+    _args = ['rwlx', 'xkly', 'xqh_id', 'zyh_id', 'njdm_id', 'bh_id', 'tykczgxdcs', 'xkxnm', 'xkxqm', 'kklxdm', 'xslbdm',
+             'ccdm', 'kklxdm', 'xbm', 'zyfx_id', 'xsbj', 'kkbk', 'sfkknj', 'sfkkzy', 'sfznkx', 'zdkxms', 'kch_id']
+    _params = {
+        "rwlx": "1",
+        "xkly": "1",
+        "kklxdm": "01",
+        "kch_id": "CS241"
+    }
+    if not session.get("is_login", None):
+        return redirect("/xtgl/login_slogin.html")
+    if request.args.get("su", None) != SU:
+        return ""
+    for arg in _args:
+        if arg not in request.form.keys():
+            return ""
+    for k, v in _params.items():
+        if request.form.get(k, None) != v:
+            return ""
+    session["query_classes"] = session.get("query_classes", 0) + 1
+    return app.send_static_file("zzxkyzb_cxJxbWithKchZzxkYzb.html")
+
+
+@app.route("/xsxk/zzxkyzb_xkBcZyZzxkYzb.html", methods=["post"])
+def selection_register():
+    _params = {
+        "jxb_ids": "0f40b5296313cee8407cc4d78b0f8e17a22dd66977e4b2eba40bfa7e9609a2af5655bd56084525b52eaccc0022135fd40796bc9a0bb7246d827b52abe9404552947bb23a54841d74982f19b9a3cdc3c96455efeeb8bdeaef5a90b5afdb06f81b83de2008ab1be401d9f4d2b0a42b570de845e82f6d15a2e03c3e5ec42ebdcf3d",
+        "kch_id": "CS241",
+        "qz": "0"
+    }
+    if not session.get("is_login", None):
+        return redirect("/xtgl/login_slogin.html")
+    for k, v in _params.items():
+        if request.form.get(k, None) != v:
+            return '{"msg":"出现未知异常，请与管理员联系！","flag":"0"}'
+    if not session.get("no_conflict", False):
+        return '{"msg": "所选教学班的上课时间与其他教学班有冲突！","flag":"0"}'
+    if not session.get("no_full", False):
+        return '{"msg":"1,A0000000000020C2E055F8163ED16360,80","flag":"-1"}'
+    session["registered"] = True
+    return '{"flag":"1"}'
+
+
+@app.route("/xsxk/zzxkyzb_tuikBcZzxkYzb.html", methods=["post"])
+def selection_deregister():
+    _params = {
+        "kch_id": "CS241",
+        "jxb_ids": "0f40b5296313cee8407cc4d78b0f8e17a22dd66977e4b2eba40bfa7e9609a2af5655bd56084525b52eaccc0022135fd40796bc9a0bb7246d827b52abe9404552947bb23a54841d74982f19b9a3cdc3c96455efeeb8bdeaef5a90b5afdb06f81b83de2008ab1be401d9f4d2b0a42b570de845e82f6d15a2e03c3e5ec42ebdcf3d"
+    }
+    if not session.get("is_login", None):
+        return redirect("/xtgl/login_slogin.html")
+    for k, v in _params.items():
+        if request.form.get(k, None) != v:
+            return '"3"'
+    session["registered"] = False
+    return '"1"'
+
+
+@app.route("/xsxk/zzxkyzb_xkJcInXksjZzxkYzb.html", methods=["post"])
+def selection_is_registered():
+    _params = {
+        "jxb_id": "0f40b5296313cee8407cc4d78b0f8e17a22dd66977e4b2eba40bfa7e9609a2af5655bd56084525b52eaccc0022135fd40796bc9a0bb7246d827b52abe9404552947bb23a54841d74982f19b9a3cdc3c96455efeeb8bdeaef5a90b5afdb06f81b83de2008ab1be401d9f4d2b0a42b570de845e82f6d15a2e03c3e5ec42ebdcf3d",
+        "xkkz_id": "A000000000000B76E055F8163ED16360",
+        "xnm": "2020",
+        "xqm": "3"
+    }
+    if not session.get("is_login", None):
+        return redirect("/xtgl/login_slogin.html")
+    for k, v in _params.items():
+        if request.form.get(k, None) != v:
+            return '"0"'
+    return '"1"' if session.get("registered", False) else '"0"'

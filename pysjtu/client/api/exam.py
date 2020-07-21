@@ -9,7 +9,7 @@ from pysjtu.client.base import BaseClient
 
 
 class ExamMixin(BaseClient):
-    def exam(self, year: int, term: int, timeout: Union[TimeoutTypes, UnsetType] = UNSET)\
+    def exam(self, year: int, term: int, timeout: Union[TimeoutTypes, UnsetType] = UNSET) \
             -> models.Results[models.Exam]:
         """
         Fetch your exams schedule of specific year & term.
