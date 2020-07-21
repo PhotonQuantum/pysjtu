@@ -1,20 +1,20 @@
 import typing
 
-from marshmallow import fields, ValidationError  # type: ignore
+from marshmallow import ValidationError, fields  # type: ignore
 
 from pysjtu.utils import parse_course_week
 
 
 class StrBool(fields.Field):
     def _deserialize(
-        self,
-        value: typing.Any,
-        attr: typing.Optional[str],
-        data: typing.Optional[typing.Mapping[str, typing.Any]],
-        **kwargs
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
     ):
         if not value:
-            return None     # pragma: no cover
+            return None  # pragma: no cover
         if value in ["0"]:
             return False
         if value in ["1"]:
@@ -23,7 +23,7 @@ class StrBool(fields.Field):
 
     def _serialize(self, value: typing.Any, attr: str, obj: typing.Any, **kwargs):
         if value is None:
-            return ""       # pragma: no cover
+            return ""  # pragma: no cover
         if value is False:
             return "0"
         if value is True:
