@@ -10,6 +10,11 @@ class GPACalculationException(Exception):
     """ A failure has been reported by the remote server when calculating GPA. """
 
 
+class SelectionNotAvailableException(Exception):
+    """ Course selection function is not available at this time. """
+    pass
+
+
 class SelectionClassFetchException(Exception):
     """ Unable to fetch selection class information. """
 
