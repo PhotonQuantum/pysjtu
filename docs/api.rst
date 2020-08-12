@@ -1,7 +1,7 @@
 Developer Interface
 ===================
 
-Session
+AsyncSession
 -------
 
 .. automodule:: pysjtu.session
@@ -14,7 +14,7 @@ Client
     :members:
 
 .. note::
-    Anything that has request-compatible `get`, `post` methods and a `_cache_store` dict can be accepted as a `Session`.
+    Anything that has request-compatible `get`, `post` methods and a `_cache_store` dict can be accepted as a `AsyncSession`.
 
 Models
 ------

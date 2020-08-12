@@ -27,7 +27,7 @@ class LegacyRecognizer(Recognizer):
     Usage::
 
         >>> import pysjtu
-        >>> s = pysjtu.Session(ocr=LegacyRecognizer("svm_model.onnx"))
+        >>> s = pysjtu.AsyncSession(ocr=LegacyRecognizer("svm_model.onnx"))
         >>> s.login('user@sjtu.edu.cn', 'something_secret')
 
     :param model_file: Pretrained ONNX model file.
@@ -150,7 +150,7 @@ class NNRecognizer(Recognizer):
     Usage::
 
         >>> import pysjtu
-        >>> s = pysjtu.Session(ocr=NNRecognizer("nn_model.onnx"))
+        >>> s = pysjtu.AsyncSession(ocr=NNRecognizer("nn_model.onnx"))
         >>> s.login('user@sjtu.edu.cn', 'something_secret')
 
     :param model_file: Pretrained ONNX model file.

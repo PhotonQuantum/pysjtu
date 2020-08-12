@@ -37,11 +37,11 @@ And, to persist your session...
 
 ```python
 >>> import pysjtu
->>> session = pysjtu.Session()
+>>> session = pysjtu.AsyncSession()
 >>> session.login("FeiLin", "WHISPERS")
 >>> session.dump("lin_fei.session")
 
->>> session = pysjtu.Session()
+>>> session = pysjtu.AsyncSession()
 >>> session.load("lin_fei.session")
 >>> pysjtu.Client(session).student_id
 519027910001

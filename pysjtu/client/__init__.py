@@ -1,10 +1,11 @@
 import re
 from datetime import date, datetime
+from async_property import async_property
 
 from pysjtu import consts
 from pysjtu.client.api import CourseLibMixin, ExamMixin, GPAMixin, ScheduleMixin, ScoreMixin, SelectionMixin
 from pysjtu.client.base import BaseClient
-from pysjtu.session import BaseSession, Session
+from pysjtu.session import BaseSession, AsyncSession
 
 
 class Client(SelectionMixin, ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin, BaseClient):
@@ -14,7 +15,7 @@ class Client(SelectionMixin, ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin,
     Usage::
 
         >>> import pysjtu
-        >>> s = pysjtu.Session(username="user@sjtu.edu.cn", password="something_secret")
+        >>> s = pysjtu.AsyncSession(username="user@sjtu.edu.cn", password="something_secret")
         >>> client = pysjtu.Client(session=s)
         >>> sched = client.schedule(2019, 0)
         >>> sched
@@ -37,34 +38,34 @@ class Client(SelectionMixin, ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin,
         # noinspection PyTypeChecker
         self._term_start = None  # type: ignore
 
-    @property
-    def term_start_date(self) -> date:
+    @async_property
+    async def term_start_date(self) -> date:
         """ Get the term start date for the current term. """
         if not self._term_start:
-            raw = self._session.get(consts.CALENDAR_URL + str(self.student_id))
-            self._term_start = datetime.strptime(min(re.findall(r"\d{4}-\d{2}-\d{2}", raw.text)), "%Y-%m-%d").date()
+            raw = await self._session.get(consts.CALENDAR_URL + str(self.student_id))
+            self._term_start = datetime.strptime(min(re.findall(r"\d{4}-\d{2}-\d{2}", await raw.text())), "%Y-%m-%d").date()
         return self._term_start
 
     # noinspection PyProtectedMember
-    @property
-    def student_id(self) -> int:
+    @async_property
+    async def student_id(self) -> int:
         """ Get the student id of the current session. """
         if "student_id" not in self._session._cache_store:
-            rtn = self._session.get(consts.HOME_URL)
+            rtn = await self._session.get(consts.HOME_URL)
             self._session._cache_store["student_id"] = int(
-                re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", rtn.text)[0])
+                re.findall(r"(?<=id=\"sessionUserKey\" value=\")\d*", await rtn.text())[0])
         return self._session._cache_store["student_id"]
 
 
 def create_client(username: str, password: str, _mocker_app=None) -> Client:
     """
     Create a new :class:`Client` with default options.
-    To change :class:`Session` settings or preserve your session, use :class:`Session` and :class:`Client` instead.
+    To change :class:`AsyncSession` settings or preserve your session, use :class:`AsyncSession` and :class:`Client` instead.
 
     :param username: JAccount username.
     :param password: JAccount password.
     :param _mocker_app: An WSGI application to send requests to (for debug or test purposes).
     :return: an authenticated :class:`Client`.
     """
-    sess = Session(username=username, password=password, _mocker_app=_mocker_app)
+    sess = AsyncSession(username=username, password=password, _mocker_app=_mocker_app)
     return Client(session=sess)

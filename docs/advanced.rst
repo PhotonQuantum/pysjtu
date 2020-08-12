@@ -1,14 +1,14 @@
 Advanced Usage
 ==============
 
-Session Object
+AsyncSession Object
 --------------
 
-The :class:`Session` object contains iSJTU session state, handles login operation, and persists certain parameters and
+The :class:`AsyncSession` object contains iSJTU session state, handles login operation, and persists certain parameters and
 some inner states across requests. And it has an HTTP request interface to help you send requests as a logged user.
 
 In the :ref:`QuickStart`, we use `create_client` function to acquire a :class:`Client`. Under the hood, `create_client`
-creates a :class:`Session` for you. But if you need features like session persistence, proxies and tuned timeout, you
+creates a :class:`AsyncSession` for you. But if you need features like session persistence, proxies and tuned timeout, you
 need to create the session manually.
 
 Login
@@ -20,27 +20,27 @@ First, let's login with username and password:
 
 .. sourcecode:: python
 
-    sess = pysjtu.Session(username="...", password="...")
+    sess = pysjtu.AsyncSession(username="...", password="...")
 
 A `login()` method is provided, in case you want to provide username and password later:
 
 .. sourcecode:: python
 
-    sess = pysjtu.Session()
+    sess = pysjtu.AsyncSession()
     sess.login("username", "password")
 
 And, if you have cookie contains session info, you may login with this cookie:
 
 .. sourcecode:: python
 
-    sess = pysjtu.Session(cookies=...)
+    sess = pysjtu.AsyncSession(cookies=...)
 
 The `cookies` parameter accepts any cookie type that HTTPX accepts (currently `HTTPX.Cookies`, `CookieJar`, and `dict`).
 Also, cookies can be set later:
 
 .. sourcecode:: python
 
-    sess = pysjtu.Session()
+    sess = pysjtu.AsyncSession()
     sess.cookies = ...
 
 Be aware that a session validation will be performed when setting cookies.
@@ -49,11 +49,11 @@ To skip this validation, set `_cookies`.
 
 .. sourcecode:: python
 
-    sess = pysjtu.Session()
+    sess = pysjtu.AsyncSession()
     sess.cookies = some_invalid_cookies  # This will fail.
     sess._cookies = some_invalid_cookies  # This won't.
 
-Session Persistence
+AsyncSession Persistence
 +++++++++++++++++++
 
 You may want to dump your login session to use it later.
@@ -80,14 +80,14 @@ Besides, saved session files can be loaded when initializing the object:
 
 .. sourcecode:: python
 
-    sess = pysjtu.Session(session_file="session.file")
+    sess = pysjtu.AsyncSession(session_file="session.file")
 
 Sessions can also be used as context managers. This will make sure the session file is updated when exiting the `with` block,
 even if unhandled exceptions occurred.
 
 .. sourcecode:: python
 
-    with pysjtu.Session(session_file="session.file") as sess:
+    with pysjtu.AsyncSession(session_file="session.file") as sess:
         sess.get(...)
 
 The passed file must exist, or a :class:`FileNotFound` exception will be raised. But passing in an empty file is allowed, emptying username, password and cookies.
@@ -100,12 +100,12 @@ done by passing parameters to the :class:`Client` constructor.
 
 .. sourcecode:: python
 
-    s = pysjtu.Session(cookies=..., proxies="http://127.0.0.1:8888", timeout=1.0)
+    s = pysjtu.AsyncSession(cookies=..., proxies="http://127.0.0.1:8888", timeout=1.0)
 
 HTTP Requests
 +++++++++++++
 
-You can use a :class:`Session` to send HTTP requests as a logged user:
+You can use a :class:`AsyncSession` to send HTTP requests as a logged user:
 
 .. sourcecode:: python
 
@@ -138,12 +138,12 @@ Client Object
 -------------
 
 The :class:`Client` object provides a developer-friendly interface to iSJTU APIs. It depends on an authenticated
-:class:`Session` object to send HTTP requests.
+:class:`AsyncSession` object to send HTTP requests.
 
 Initialization
 ++++++++++++++
 
-To initialize a :class:`Client` object, you pass in a :class:`Session` object described in the previous section.
+To initialize a :class:`Client` object, you pass in a :class:`AsyncSession` object described in the previous section.
 
 .. sourcecode:: python
 
@@ -153,7 +153,7 @@ Be aware that the new `client` object is bounded with the `session` passed in, w
 internal states (cookies, etc). You may change `session`'s settings at any time, and these changes will reflect on `client`
 behaviours immediately.
 
-If you haven't initialized any :class:`Session` yet and you want to login with a pair of username & password, the
+If you haven't initialized any :class:`AsyncSession` yet and you want to login with a pair of username & password, the
 `create_client` function will help you get one and initialize a :class:`Client`.
 
 .. sourcecode:: python
@@ -170,11 +170,11 @@ HTTP Proxying
 
 PySJTU supports HTTP proxies.
 
-To forward all traffic to `http://127.0.0.1:8888`, you may set the proxy information at :class:`Session` initialization.
+To forward all traffic to `http://127.0.0.1:8888`, you may set the proxy information at :class:`AsyncSession` initialization.
 
 .. sourcecode:: python
 
-    s = pysjtu.Session(proxies="http://127.0.0.1:8888")
+    s = pysjtu.AsyncSession(proxies="http://127.0.0.1:8888")
 
 For detailed usage, refer to `HTTPX: HTTP Proxying <https://www.python-httpx.org/advanced/#http-proxying>`_.
 
@@ -187,7 +187,7 @@ Timeouts can be enforced request-wise and session-wise.
 
 .. sourcecode:: python
 
-    s = pysjtu.Session(timeout=10)
+    s = pysjtu.AsyncSession(timeout=10)
     s.get("https://i.sjtu.edu.cn", timeout=10)
 
 For detailed usage, refer to `HTTPX: Fine tunning the configuration <https://www.python-httpx.org/advanced/#fine-tuning-the-configuration>`_.
@@ -198,8 +198,8 @@ OCR
 During login, captcha is solved automatically using built-in OCR engines. There are two OCR engines you may choose from:
 SVMRecognizer and NNRecognizer. For detailed comparison, see :ref:`Developer Interface`.
 
-You may pick a specific engine by passing it to the :class:`Session` constructor.
+You may pick a specific engine by passing it to the :class:`AsyncSession` constructor.
 
 .. sourcecode:: python
 
-    s = pysjtu.Session(ocr=pysjtu.LegacyRecognizer())
+    s = pysjtu.AsyncSession(ocr=pysjtu.LegacyRecognizer())
