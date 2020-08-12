@@ -1,6 +1,9 @@
+import asyncio
 import time
 from typing import Callable, Generic, List, Tuple, Type, TypeVar, Union
 
+from async_property import async_cached_property
+from defaultlist import defaultlist
 from marshmallow import Schema  # type: ignore
 
 from pysjtu.utils import overlap, parse_slice, range_in_set
@@ -52,91 +55,96 @@ class QueryResult(Generic[T_Result]):
     _ref: Callable
     _post_ref: Callable
     _query_params: dict
-    _length: int
     _cache: List[dict]
     _cached_items: set
     _page_size: int
+    _i: int
 
     def __init__(self, method_ref: Callable, post_ref: Callable, query_params: dict, page_size: int = 15):
         self._ref = method_ref  # type: ignore
         self._post_ref = post_ref  # type: ignore
         self._query_params = query_params
-        self._length = 0
         # noinspection PyTypeChecker
-        self._cache = [{}] * len(self)
+        self._cache = defaultlist(dict)
         self._cached_items = set()
         self._page_size = page_size
+        self._i = 0
 
-    def __getitem__(self, arg: Union[int, slice]) -> T_Result:
+    async def _async_getitem(self, future, arg: Union[int, slice]):
         if isinstance(arg, int):
-            data = self._handle_result_by_index(arg)  # type: ignore
+            data = await self._handle_result_by_index(arg)  # type: ignore
         elif isinstance(arg, slice):
-            data = self._handle_result_by_idx_slice(arg)  # type: ignore
+            data = await self._handle_result_by_idx_slice(arg)  # type: ignore
         else:
             raise TypeError("QueryResult indices must be integers or slices, not " + type(arg).__name__)
         data = self._post_ref(data)  # type: ignore
-        return data  # type: ignore
+        future.set_result(data)
 
-    def _handle_result_by_index(self, idx: int) -> dict:
-        idx = len(self) + idx if idx < 0 else idx
-        if idx >= len(self) or idx < 0:
+    def __getitem__(self, item: Union[int, slice]):
+        loop = asyncio.get_running_loop()
+        future = loop.create_future()
+        asyncio.create_task(self._async_getitem(future, item))
+        return future
+
+    async def _handle_result_by_index(self, idx: int) -> dict:
+        idx = await self.length + idx if idx < 0 else idx
+        if idx >= await self.length or idx < 0:
             raise IndexError("index out of range")
-        self._update_cache(idx, idx + 1)
+        await self._update_cache(idx, idx + 1)
         return self._cache[idx]
 
-    def _handle_result_by_idx_slice(self, idx: slice) -> list:
+    async def _handle_result_by_idx_slice(self, idx: slice) -> list:
         idx_start = parse_slice(idx.start)
         idx_stop = parse_slice(idx.stop)
 
         if idx_start is None:
             start = 0
         elif idx_start < 0:
-            start = len(self) + idx.start
+            start = await self.length + idx.start
         else:
             start = idx.start
 
         if idx_stop is None:
-            end = len(self) - 1
+            end = await self.length - 1
         elif idx_stop < 0:
-            end = len(self) + idx.stop - 1
+            end = await self.length + idx.stop - 1
         else:
             end = idx.stop
 
-        if end > len(self):
-            end = len(self)
+        if end > await self.length:
+            end = await self.length
         if start >= end:
             return []
-        self._update_cache(start, end)
+        await self._update_cache(start, end)
         return self._cache[idx]
 
-    def __len__(self) -> int:
-        if not self._length:
-            rtn = self._query(1, 1)
-            self._length = rtn["totalResult"]
-        return self._length
+    @async_cached_property
+    async def length(self) -> int:
+        rtn = await self._query(1, 1)
+        return rtn["totalResult"]
 
-    def flush_cache(self):
+    async def flush_cache(self):
         """ Flush caches. Local caches are dropped and data will be fetched from remote. """
         self._length = 0
         # noinspection PyTypeChecker
-        self._cache = [None] * len(self)
+        self._cache = [None] * (await self.length)
         self._cached_items = set()
 
-    def _update_cache(self, start: int, end: int):
+    async def _update_cache(self, start: int, end: int):
         fetch_set = set(set(range(start, end)) - self._cached_items)
         while len(fetch_set) != 0:
             fetch_range = next(range_in_set(fetch_set))
             page = int(fetch_range.start / self._page_size) + 1
-            self._cached_items.update(range(*self._fetch_range(page, self._page_size)))
+            self._cached_items.update(range(*(await self._fetch_range(page, self._page_size))))
             fetch_set = set(set(range(start, end)) - self._cached_items)
 
-    def _fetch_range(self, page: int, count: int) -> Tuple[int, int]:
-        rtn = self._query(page, count)["items"]
+    async def _fetch_range(self, page: int, count: int) -> Tuple[int, int]:
+        rtn = (await self._query(page, count))["items"]
         for item in zip(range(count * (page - 1), count * (page - 1) + len(rtn)), rtn):
             self._cache[item[0]] = item[1]
         return count * (page - 1), count * (page - 1) + len(rtn)
 
-    def _query(self, page: int, count: int) -> dict:
+    async def _query(self, page: int, count: int) -> dict:
         new_params = self._query_params
         new_params["queryModel.showCount"] = count
         new_params["queryModel.currentPage"] = page
@@ -144,11 +152,17 @@ class QueryResult(Generic[T_Result]):
         new_params["queryModel.sortOrder"] = "asc"
         new_params["nd"] = int(time.time() * 1000)
         new_params["_search"] = False
-        return self._ref(data=new_params).json()
+        return await (await self._ref(data=new_params)).json()
 
-    def __iter__(self):
-        for i in range(len(self)):
-            yield self[i]
+    def __aiter__(self):
+        return self
+
+    async def __anext__(self):
+        i = self._i
+        if i >= await self.length:
+            raise StopAsyncIteration
+        self._i += 1
+        return await self[i]
 
 
 class Results(List[T_Result]):

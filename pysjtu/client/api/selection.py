@@ -17,25 +17,25 @@ class SelectionMixin(BaseClient):
         self._fetch_selection_classes = lru_cache(maxsize=1024)(self._fetch_selection_classes)
         self._get_selection_classes = lru_cache(maxsize=16)(self._get_selection_classes)
 
-    def _class_is_registered(self, _class: SelectionClass, timeout=10) -> bool:
+    async def _class_is_registered(self, _class: SelectionClass, timeout=10) -> bool:
         payload = {
             "jxb_id": _class.register_id,
             "xkkz_id": _class.sector.xkkz_id,
             "xnm": _class.sector.shared_info.selection_year,
             "xqm": _class.sector.shared_info.selection_term
         }
-        is_registered = self._session.post(f"{consts.SELECTION_IS_REGISTERED}{self.student_id}", data=payload,
-                                           timeout=timeout).json()
+        is_registered = await (await self._session.post(f"{consts.SELECTION_IS_REGISTERED}{await self.student_id}", data=payload,
+                                           timeout=timeout)).json()
         return is_registered == "1"
 
-    def _class_register(self, _class: SelectionClass, timeout=10):
+    async def _class_register(self, _class: SelectionClass, timeout=10):
         payload = {
             "jxb_ids": _class.register_id,
             "kch_id": _class.internal_course_id,
             "qz": 0
         }
-        register = self._session.post(f"{consts.SELECTION_REGISTER}{self.student_id}", data=payload,
-                                      timeout=timeout).json()
+        register = await (await self._session.post(f"{consts.SELECTION_REGISTER}{await self.student_id}", data=payload,
+                                      timeout=timeout)).json()
         if not register or "flag" not in register:
             raise RegistrationException("Bad request.")  # pragma: no cover
         if register["flag"] == "0":
@@ -53,13 +53,13 @@ class SelectionMixin(BaseClient):
         else:
             raise RegistrationException(f"Unexpected response: {register}")  # pragma: no cover
 
-    def _class_deregister(self, _class: SelectionClass, timeout=10):
+    async def _class_deregister(self, _class: SelectionClass, timeout=10):
         payload = {
             "kch_id": _class.internal_course_id,
             "jxb_ids": _class.register_id
         }
-        deregister = self._session.post(f"{consts.SELECTION_DEREGISTER}{self.student_id}", data=payload,
-                                        timeout=timeout).json()
+        deregister = await (await self._session.post(f"{consts.SELECTION_DEREGISTER}{await self.student_id}", data=payload,
+                                        timeout=timeout)).json()
         if deregister == "1":
             return
         elif deregister == "2":  # pragma: no cover
@@ -73,30 +73,30 @@ class SelectionMixin(BaseClient):
         else:
             raise DeregistrationException(f"Unexpected response: {deregister}")  # pragma: no cover
 
-    def _fetch_selection_classes(self, sector: SelectionSector, internal_course_id: str) -> List[dict]:
+    async def _fetch_selection_classes(self, sector: SelectionSector, internal_course_id: str) -> List[dict]:
         payload = {
             **SelectionSectorSchema().dump(sector),
             **SelectionSharedInfoSchema().dump(sector.shared_info),
             "kch_id": internal_course_id
         }
-        classes_query = self._session.post(f"{consts.SELECTION_QUERY_CLASSES}{self.student_id}", data=payload).json()
+        classes_query = await (await self._session.post(f"{consts.SELECTION_QUERY_CLASSES}{await self.student_id}", data=payload)).json()
         return SelectionClassSchema(many=True).load(classes_query)
 
-    def _fetch_selection_class(self, selection_class: SelectionClass):
-        class_dicts = self._fetch_selection_classes(selection_class.sector, selection_class.internal_course_id)
+    async def _fetch_selection_class(self, selection_class: SelectionClass):
+        class_dicts = await self._fetch_selection_classes(selection_class.sector, selection_class.internal_course_id)
         for class_dict in class_dicts:
             if class_dict["class_id"] == selection_class.class_id:
                 return class_dict
         raise SelectionClassFetchException("Unable to fetch selection class information.")  # pragma: no cover
 
-    def _get_selection_classes(self, sector: SelectionSector) -> List[SelectionClass]:
+    async def _get_selection_classes(self, sector: SelectionSector) -> List[SelectionClass]:
         payload = {
             **SelectionSectorSchema().dump(sector),
             **SelectionSharedInfoSchema().dump(sector.shared_info),
             "kspage": 1,
             "jspage": 5000
         }
-        courses_query = self._session.post(f"{consts.SELECTION_QUERY_COURSES}{self.student_id}", data=payload).json()
+        courses_query = await (await self._session.post(f"{consts.SELECTION_QUERY_COURSES}{await self.student_id}", data=payload)).json()
         selection_classes: List[SelectionClass] = [SelectionClass(**item) for item in
                                                    SelectionCourseSchema(many=True).load(courses_query["tmpList"])]
         for _class in selection_classes:
@@ -108,12 +108,12 @@ class SelectionMixin(BaseClient):
         return selection_classes
 
     @property
-    def course_selection_sectors(self) -> List[SelectionSector]:
+    async def course_selection_sectors(self) -> List[SelectionSector]:
         """
         In iSJTU, courses are split into different sectors when selecting course.
         This property contains all available course sectors in this round of selection.
         """
-        sectors_query = self._session.get(f"{consts.SELECTION_ALL_SECTORS_PARAM_URL}{self.student_id}").text
+        sectors_query = await (await self._session.get(f"{consts.SELECTION_ALL_SECTORS_PARAM_URL}{await self.student_id}")).text()
         if "对不起，当前不属于选课阶段" in sectors_query:
             raise SelectionNotAvailableException
 
@@ -123,10 +123,10 @@ class SelectionMixin(BaseClient):
         raw_sectors = parse_sectors(sectors_query)
         sectors = []
         for kklxdm, xkkz_id, name in raw_sectors:
-            sector_query = self._session.post(f"{consts.SELECTION_SECTOR_PARAM_URL}{self.student_id}",
+            sector_query = await (await self._session.post(f"{consts.SELECTION_SECTOR_PARAM_URL}{await self.student_id}",
                                               data={"xkkz_id": xkkz_id,
                                                     "xszxzt": shared_info.self_selecting_status,
-                                                    "kspage": 0, "jspage": 0}).text
+                                                    "kspage": 0, "jspage": 0})).text()
             raw_sector = parse_sector(sector_query)
             sector: SelectionSector = SelectionSectorSchema().load(raw_sector)
             sector.name, sector.course_type_code, sector.xkkz_id, sector.shared_info = \

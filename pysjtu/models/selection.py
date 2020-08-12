@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from enum import IntEnum
 from typing import Callable, List, Optional, Tuple, Union
 
+from async_property import async_property
+
 from pysjtu.models.base import LazyResult, PARTIAL, Result
 from pysjtu.utils import elfhash
 
@@ -125,9 +127,9 @@ class SelectionSector(Result):
     def __repr__(self):
         return f"<SelectionSector {self.name}>"
 
-    @property
-    def classes(self) -> List[SelectionClass]:
-        return self._func_classes()
+    @async_property
+    async def classes(self) -> List[SelectionClass]:
+        return await self._func_classes()
 
 
 @dataclass
@@ -184,7 +186,7 @@ class SelectionClass(LazyResult):
     def __repr__(self):
         return f"<SelectionClass {self.class_name} {self.name}>"
 
-    def is_registered(self, timeout=10) -> bool:
+    async def is_registered(self, timeout=10) -> bool:
         """
         Check whether the student has registered for this class.
 
@@ -194,7 +196,7 @@ class SelectionClass(LazyResult):
         """
         raise NotImplementedError  # pragma: no cover
 
-    def register(self, timeout=10):
+    async def register(self, timeout=10):
         """
         Register for this class.
 
@@ -206,7 +208,7 @@ class SelectionClass(LazyResult):
         """
         raise NotImplementedError  # pragma: no cover
 
-    def deregister(self, timeout=10):
+    async def deregister(self, timeout=10):
         """
         Drop this class.
 

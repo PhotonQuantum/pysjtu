@@ -1,9 +1,10 @@
-from pysjtu.session import Session
+from async_property import async_property
+from pysjtu.session import BaseSession
 
 
 class BaseClient:
     """ Base class for ClientMixin """
-    _session: Session
+    _session: BaseSession
 
-    @property
-    def student_id(self) -> int: ...
+    @async_property
+    async def student_id(self) -> int: ...

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Callable, List, Optional
 
+from async_property import async_property
+
 from pysjtu.models.base import Result, Results
 
 
@@ -76,10 +78,10 @@ class Score(Result):
     def __repr__(self):
         return f"<Score {self.name} score={self.score} credit={self.credit} gp={self.gp}>"
 
-    @property
-    def detail(self) -> List[ScoreFactor]:
+    @async_property
+    async def detail(self) -> List[ScoreFactor]:
         if not self._detail:
-            self._detail = self._func_detail(self.year, self.term, self.class_id)
+            self._detail = await self._func_detail(self.year, self.term, self.class_id)
         return self._detail
 
 
