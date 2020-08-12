@@ -1,6 +1,8 @@
 alabaster
+async_property
 flask
-httpx==0.11.1
+aiohttp
+defaultlist
 marshmallow
 numpy
 onnxruntime

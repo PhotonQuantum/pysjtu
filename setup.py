@@ -48,11 +48,13 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'
     ),
     install_requires=[
-        'httpx==0.11.1',
+        'aiohttp',
         'marshmallow',
         'numpy',
         'Pillow>=7.0.0',
-        'onnxruntime'
+        'onnxruntime',
+        'defaultlist',
+        'async_property'
     ],
     tests_require=['pytest',
                    'pytest-cov',
