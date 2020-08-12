@@ -3,10 +3,12 @@ import pickle
 import re
 import time
 import warnings
+from collections import defaultdict
 from functools import partial
-from http.cookiejar import CookieJar
+import http.cookies
+from http.cookies import Morsel, SimpleCookie
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Callable, Mapping, Optional, cast
 from urllib.parse import parse_qs, urljoin, urlparse
 
 import httpx
@@ -22,11 +24,196 @@ from httpx.models import (
     Response,
     URLTypes,
 )
+from yarl import URL
+from aiohttp.cookiejar import CookieJar
+from aiohttp.helpers import is_ip_address
+from aiohttp.typedefs import LooseCookies
 
 from pysjtu.ocr import NNRecognizer, Recognizer
 from . import consts
 from .exceptions import DumpWarning, LoadWarning, LoginException, ServiceUnavailable, SessionException
 from .utils import FileTypes
+
+http.cookies._is_legal_key = lambda x: True
+
+class MyCookieJar(CookieJar):
+    def _do_expiration(self) -> None:
+        now = datetime.datetime.now(datetime.timezone.utc)
+        if self._next_expiration > now:
+            return
+        if not self._expirations:
+            return
+        next_expiration = self.MAX_TIME
+        to_del = []
+        cookies = self._cookies
+        expirations = self._expirations
+        for (domain, path, name), when in expirations.items():
+            if when <= now:
+                cookies[(domain, path)].pop(name, None)
+                to_del.append((domain, path, name))
+                self._host_only_cookies.discard((domain, path, name))
+            else:
+                next_expiration = min(next_expiration, when)
+        for key in to_del:
+            del expirations[key]
+
+        try:
+            self._next_expiration = (next_expiration.replace(microsecond=0) +
+                                     datetime.timedelta(seconds=1))
+        except OverflowError:
+            self._next_expiration = self.MAX_TIME
+
+    def _expire_cookie(self, when: datetime.datetime, domain: str, path: str, name: str) -> None:
+        self._next_expiration = min(self._next_expiration, when)
+        self._expirations[(domain, path, name)] = when
+
+    def update_cookies(self,
+                       cookies: LooseCookies,
+                       response_url: URL=URL()) -> None:
+        """Update cookies."""
+        hostname = response_url.raw_host
+
+        if not self._unsafe and is_ip_address(hostname):
+            # Don't accept cookies from IPs
+            return
+
+        if isinstance(cookies, Mapping):
+            cookies = cookies.items()  # type: ignore
+
+        for name, cookie in cookies:
+            if not isinstance(cookie, Morsel):
+                tmp = SimpleCookie()
+                tmp[name] = cookie  # type: ignore
+                cookie = tmp[name]
+
+            path = cookie["path"]
+            if not path or not path.startswith("/"):
+                # Set the cookie's path to the response path
+                path = response_url.path
+                if not path.startswith("/"):
+                    path = "/"
+                else:
+                    # Cut everything from the last slash to the end
+                    path = "/" + path[1:path.rfind("/")]
+                cookie["path"] = path
+
+            domain = cookie["domain"]
+
+            # ignore domains with trailing dots
+            if domain.endswith('.'):
+                domain = ""
+                del cookie["domain"]
+
+            if not domain and hostname is not None:
+                # Set the cookie's domain to the response hostname
+                # and set its host-only-flag
+                self._host_only_cookies.add((hostname, path, name))
+                domain = cookie["domain"] = hostname
+
+            if domain.startswith("."):
+                # Remove leading dot
+                domain = domain[1:]
+                cookie["domain"] = domain
+
+            if hostname and not self._is_domain_match(domain, hostname):
+                # Setting cookies for different domains is not allowed
+                continue
+
+            max_age = cookie["max-age"]
+            if max_age:
+                try:
+                    delta_seconds = int(max_age)
+                    try:
+                        max_age_expiration = (
+                                datetime.datetime.now(datetime.timezone.utc) +
+                                datetime.timedelta(seconds=delta_seconds))
+                    except OverflowError:
+                        max_age_expiration = self.MAX_TIME
+                    self._expire_cookie(max_age_expiration,
+                                        domain, path, name)
+                except ValueError:
+                    cookie["max-age"] = ""
+
+            else:
+                expires = cookie["expires"]
+                if expires:
+                    expire_time = self._parse_date(expires)
+                    if expire_time:
+                        self._expire_cookie(expire_time,
+                                            domain, path, name)
+                    else:
+                        cookie["expires"] = ""
+
+            self._cookies[(domain, path)][name] = cookie
+
+        self._do_expiration()
+    def filter_cookies(self, request_url: URL=URL()):
+        """Returns this jar's cookies filtered by their attributes."""
+        self._do_expiration()
+        request_url = URL(request_url)
+        filtered = SimpleCookie()
+        hostname = request_url.raw_host or ""
+        is_not_secure = request_url.scheme not in ("https", "wss")
+
+        for cookie in self:
+            name = cookie.key
+            domain = cookie["domain"]
+            path = cookie["path"]
+
+            # Send shared cookies
+            if not domain:
+                filtered[name] = cookie.value
+                continue
+
+            if not self._unsafe and is_ip_address(hostname):
+                continue
+
+            if (domain, path, name) in self._host_only_cookies:
+                if domain != hostname:
+                    continue
+            elif not self._is_domain_match(domain, hostname):
+                continue
+
+            if not self._is_path_match(request_url.path, path):
+                continue
+
+            if is_not_secure and cookie["secure"]:
+                continue
+
+            # It's critical we use the Morsel so the coded_value
+            # (based on cookie version) is preserved
+            mrsl_val = cast('Morsel[str]', cookie.get(cookie.key, Morsel()))
+            mrsl_val.set(cookie.key, cookie.value, cookie.coded_value)
+            filtered[name] = mrsl_val
+
+        return filtered
+
+    def save_dict(self) -> dict:
+        def serialize_morsel(morsel: Morsel) -> dict:
+            morsel_dict = {
+                "key": morsel.key,
+                "value": morsel.value,
+                "coded_value": morsel.coded_value
+            }
+            morsel_dict.update(dict(morsel))
+            return morsel_dict
+
+        return {host: {key: serialize_morsel(morsel) for key, morsel in cookies.items()} for host, cookies in
+                self._cookies.items()}
+
+    def load_dict(self, cookie_jar: dict):
+        def deserialize_morsel(morsel_dict: dict) -> Morsel:
+            _morsel_dict = morsel_dict.copy()
+            morsel = Morsel()
+            morsel.set(_morsel_dict.pop("key"), _morsel_dict.pop("value"), _morsel_dict.pop("coded_value"))
+            morsel.update(_morsel_dict)
+            return morsel
+
+        deserialize_cookie = lambda cookie_dict: SimpleCookie(cookie_dict)
+
+        _cookies = {host: deserialize_cookie({key: deserialize_morsel(morsel) for key, morsel in cookies.items()}) for
+                    host, cookies in cookie_jar.items()}
+        self._cookies = defaultdict(SimpleCookie, _cookies)
 
 
 class BaseSession:
