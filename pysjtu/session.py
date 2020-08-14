@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import inspect
 import io
 import pickle
 import re
@@ -545,6 +546,8 @@ class AsyncSession(BaseSession):
                                               params={"uuid": uuid, "t": int(time.time() * 1000)},
                                               validate_session=False)).content
                 captcha = self._ocr.recognize(await captcha_img.read())
+                if inspect.iscoroutine(captcha):
+                    captcha = await captcha
 
                 login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
                 result = await self._secure_req(
@@ -586,6 +589,7 @@ class AsyncSession(BaseSession):
         :param d: a dict contains a session.
         """
         self._renew_required = True
+        self._cache_store = d.get("cache_store", {})
 
         if d.get("cookies"):
             self._renew_required = False
@@ -631,7 +635,8 @@ class AsyncSession(BaseSession):
         if not self._username or not self._password:
             warnings.warn("Missing username or password field", DumpWarning)
         return {"username": self._username, "password": self._password,
-                "cookies": self._client.cookie_jar.save_dict()}  # type: ignore
+                "cookies": self._client.cookie_jar.save_dict(),
+                "cache_store": self._cache_store}  # type: ignore
 
     def dump(self, fp: FileTypes):
         """
@@ -665,3 +670,10 @@ class AsyncSession(BaseSession):
     def base_url(self) -> str:
         """ Base url of backend APIs. """
         return self._base_url
+
+    @property
+    def username(self) -> str:
+        return self._username
+
+    async def close(self):
+        await self._client.close()

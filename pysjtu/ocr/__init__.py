@@ -4,6 +4,7 @@ import numpy as np  # type: ignore
 import onnxruntime as rt  # type: ignore
 from PIL import Image  # type: ignore
 from pkg_resources import resource_filename
+from aiohttp import ClientSession
 
 from pysjtu.utils import range_in_set
 
@@ -13,6 +14,26 @@ class Recognizer:
 
     def recognize(self, img: bytes):
         raise NotImplementedError  # pragma: no cover
+
+
+class JCSSRecognizer(Recognizer):
+    def __init__(self, url: str):
+        self.url = url
+        self.client = ClientSession()
+
+    async def recognize(self, img: bytes):
+        r = await self.client.post(self.url, data={"image": img})
+        response = await r.json()
+        return response["data"]["prediction"]
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        await self.client.close()
+
+    async def close(self):
+        await self.client.close()
 
 
 class LegacyRecognizer(Recognizer):
