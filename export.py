@@ -25,7 +25,7 @@ def flatten(obj):
         else:
             yield el
 
-client = Client(Session(username="LightQuantum", password="4qi6FeAWg2NDtRoo", base_url="http://kbcx.sjtu.edu.cn"))
+client = Client(Session(username="LightQuantum", password="---"))
 schedule = client.schedule(2019, 1)
 term_start = client.term_start_date
 
@@ -33,7 +33,7 @@ c = Calendar()
 local_tz = datetime.now(timezone.utc).astimezone().tzinfo
 for lesson in schedule:
     if "暂不开课" not in lesson.remark:
-        for week in [0] + list(flatten(lesson.week)):
+        for week in list(flatten(lesson.week)):
             lesson_day = term_start + timedelta(days=lesson.day + (week - 1) * 7-1)
             begin_time = time(*lesson_time[lesson.time[0]-1][0])
             end_time = time(*lesson_time[lesson.time[-1]-1][1])
@@ -41,7 +41,7 @@ for lesson in schedule:
             e.name = lesson.name
             e.begin = arrow.get(datetime.combine(lesson_day, begin_time, local_tz))
             e.end = arrow.get(datetime.combine(lesson_day, end_time, local_tz))
-            e.location = lesson.remark
+            e.location = lesson.location
             c.events.add(e)
 
 fn = input("Output file[*.ics]:")
