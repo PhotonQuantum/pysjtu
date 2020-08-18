@@ -61,7 +61,7 @@ Main features of PySJTU:
 - Robust captcha recognition using ResNet.
 - 80% iSJTU APIs covered. (Course selection APIs included.)
 - Fully type annotated.
-- 100% test coverage.
+- 99% test coverage.
 
 ## Installation
 
