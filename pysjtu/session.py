@@ -553,7 +553,7 @@ class AsyncSession(BaseSession):
                 result = await self._secure_req(
                     partial(self.post, consts.LOGIN_POST_URL, params=login_params, headers=consts.HEADERS,
                             validate_session=False))
-                if result.url.query.get("err") != 1:  # type: ignore
+                if result.url.query.get("err") is None:  # type: ignore
                     self._username = username
                     self._password = password
                     self._renew_required = False
