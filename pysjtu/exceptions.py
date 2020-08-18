@@ -42,5 +42,9 @@ class LoginException(Exception):
     """ An error occurred when logging into the website """
 
 
+class OCRException(Exception):
+    """ An error occurred when solving captcha """
+
+
 class ServiceUnavailable(Exception):
     """ The website is down or under maintenance. """

@@ -4,8 +4,10 @@ import numpy as np  # type: ignore
 import onnxruntime as rt  # type: ignore
 from PIL import Image  # type: ignore
 from pkg_resources import resource_filename
+import httpx
 
 from pysjtu.utils import range_in_set
+from pysjtu.exceptions import OCRException
 
 
 class Recognizer:
@@ -13,6 +15,20 @@ class Recognizer:
 
     def recognize(self, img: bytes):
         raise NotImplementedError  # pragma: no cover
+
+
+class JCSSRecognizer(Recognizer):
+    def __init__(self, url: str = "https://jcss.lightquantum.me"):
+        self.url = url
+        self.client = httpx.Client()
+
+    def recognize(self, img: bytes):
+        try:
+            r = self.client.post(self.url, files={"image": BytesIO(img)})
+            resp = r.json()
+            return resp["data"]["prediction"]
+        except Exception as e:
+            raise OCRException from e
 
 
 class LegacyRecognizer(Recognizer):
