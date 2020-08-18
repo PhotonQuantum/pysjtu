@@ -49,11 +49,11 @@ setup(
     ),
     install_requires=[
         'httpx==0.11.1',
-        'marshmallow',
-        'numpy',
-        'Pillow>=7.0.0',
-        'onnxruntime'
+        'marshmallow'
     ],
+    extras_require={
+        "ocr": ["onnxruntime", "numpy", "Pillow"]
+    },
     tests_require=['pytest',
                    'pytest-cov',
                    'pytest-mock',

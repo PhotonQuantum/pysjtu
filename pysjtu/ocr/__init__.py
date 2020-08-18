@@ -1,8 +1,5 @@
 from io import BytesIO
 
-import numpy as np  # type: ignore
-import onnxruntime as rt  # type: ignore
-from PIL import Image  # type: ignore
 from pkg_resources import resource_filename
 import httpx
 
@@ -50,6 +47,7 @@ class LegacyRecognizer(Recognizer):
     """
 
     def __init__(self, model_file: str = None):
+        import onnxruntime as rt
         if not model_file:
             model_file = resource_filename("pysjtu.ocr", "svm_model.onnx")
         self._clr = rt.InferenceSession(model_file)
@@ -128,6 +126,8 @@ class LegacyRecognizer(Recognizer):
 
         :return normalized image.
         """
+        from PIL import Image
+
         rtn = Image.new("1", (20, 20), color=1)
 
         rtn.paste(img, (int((20 - img.width) / 2), int((20 - img.height) / 2)))
@@ -140,6 +140,9 @@ class LegacyRecognizer(Recognizer):
         :param img: A bytes array containing the captcha image.
         :return: captcha in plain text.
         """
+        import numpy as np
+        from PIL import Image
+
         img_rec = Image.open(BytesIO(img))
         img_rec = img_rec.convert("L")
         img_rec = img_rec.point(self._table, "1")
@@ -173,6 +176,8 @@ class NNRecognizer(Recognizer):
     """
 
     def __init__(self, model_file: str = None):
+        import onnxruntime as rt
+
         if not model_file:
             model_file = resource_filename("pysjtu.ocr", "nn_model.onnx")
         self._table = [0] * 156 + [1] * 100
@@ -180,6 +185,8 @@ class NNRecognizer(Recognizer):
 
     @staticmethod
     def _tensor_to_captcha(tensors):
+        import numpy as np
+
         captcha = ""
         for tensor in tensors:
             asc = int(np.argmax(tensor, 1))
@@ -194,6 +201,9 @@ class NNRecognizer(Recognizer):
         :param img: A bytes array containing the captcha image.
         :return: captcha in plain text.
         """
+        import numpy as np
+        from PIL import Image
+
         img_rec = Image.open(BytesIO(img))
         img_rec = img_rec.convert("L")
         img_rec = img_rec.point(self._table, "1")
