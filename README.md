@@ -68,8 +68,12 @@ Main features of PySJTU:
 Install with pip:
 
 ```shell script
-$ pip install pysjtu
+$ pip install pysjtu[ocr]
 ```
+
+> You may omit 'ocr' extra dependencies if you don't need the builtin captcha recognizers.
+>
+> (You may still use the JCSSRecognizer which depends on a remote service called [JCSS](https://github.com/PhotonQuantum/jcss).)
 
 PySJTU requires Python 3.7+.
 
