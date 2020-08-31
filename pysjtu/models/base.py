@@ -1,9 +1,15 @@
 import time
+from enum import IntEnum
 from typing import Callable, Generic, List, Tuple, Type, TypeVar, Union
 
 from marshmallow import Schema  # type: ignore
 
 from pysjtu.utils import overlap, parse_slice, range_in_set
+
+
+class Gender(IntEnum):
+    male = 1
+    female = 2
 
 
 class Result:

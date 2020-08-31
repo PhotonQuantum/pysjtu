@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import IntEnum
 from typing import Callable, List, Optional, Tuple, Union
 
-from pysjtu.models.base import LazyResult, PARTIAL, Result
+from pysjtu.models.base import Gender, LazyResult, PARTIAL, Result
 from pysjtu.utils import elfhash
 
 
@@ -13,11 +12,6 @@ class LessonTime:
     weekday: int
     week: List[Union[range, int]]
     time: List[range]
-
-
-class Gender(IntEnum):
-    male = 1
-    female = 2
 
 
 # noinspection PyAbstractClass
