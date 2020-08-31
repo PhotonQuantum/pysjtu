@@ -49,7 +49,8 @@ setup(
     ),
     install_requires=[
         'httpx==0.11.1',
-        'marshmallow'
+        'marshmallow',
+        'lxml'
     ],
     extras_require={
         "ocr": ["onnxruntime", "numpy", "Pillow"]
