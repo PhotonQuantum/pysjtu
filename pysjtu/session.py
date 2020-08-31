@@ -600,7 +600,7 @@ class Session(BaseSession):
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
             result = self._secure_req(
                 partial(self.post, consts.LOGIN_POST_URL, params=login_params, headers=consts.HEADERS))
-            if "err=1" not in result.url.query:  # type: ignore
+            if "err=" not in result.url.query:  # type: ignore
                 self._username = username
                 self._password = password
                 return
