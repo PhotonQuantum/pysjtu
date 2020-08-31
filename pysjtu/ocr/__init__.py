@@ -24,8 +24,8 @@ class JCSSRecognizer(Recognizer):
             r = self.client.post(self.url, files={"image": BytesIO(img)})
             resp = r.json()
             return resp["data"]["prediction"]
-        except Exception as e:
-            raise OCRException from e
+        except Exception as e:  # pragma: no cover
+            raise OCRException from e   # pragma: no cover
 
 
 class LegacyRecognizer(Recognizer):
