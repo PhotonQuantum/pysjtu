@@ -2,12 +2,12 @@ import re
 from datetime import date, datetime
 
 from pysjtu import consts
-from pysjtu.client.api import CourseLibMixin, ExamMixin, GPAMixin, ScheduleMixin, ScoreMixin, SelectionMixin
+from pysjtu.client.api import CourseLibMixin, ExamMixin, GPAMixin, ScheduleMixin, ScoreMixin, SelectionMixin, ProfileMixin
 from pysjtu.client.base import BaseClient
 from pysjtu.session import BaseSession, Session
 
 
-class Client(SelectionMixin, ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin, BaseClient):
+class Client(ProfileMixin, SelectionMixin, ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin, BaseClient):
     """
     A pysjtu client with schedule query, score query, exam query, etc.
 

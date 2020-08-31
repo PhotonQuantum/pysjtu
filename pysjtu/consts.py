@@ -16,6 +16,7 @@ COURSELIB_URL = "/design/funcData_cxFuncDataList.html?func_widget_guid=DA1B5BB30
 GPA_PARAMS_URL = "/cjgl/common_cxGnzdxxList.html?gnmkdm=N309130"
 GPA_CALC_URL = "/cjpmtj/gpapmtj_tjGpapmtj.html?gnmkdm=N309131&su="
 GPA_QUERY_URL = "/cjpmtj/gpapmtj_cxGpaxjfcxIndex.html?doType=query&gnmkdm=N309131&su="
+PROFILE_URL = "/xsxxxggl/xsgrxxwh_cxXsgrxx.html?gnmkdm=N100801&layout=default&su="
 SELECTION_ALL_SECTORS_PARAM_URL = "/xsxk/zzxkyzb_cxZzxkYzbIndex.html?gnmkdm=N253512&layout=default&su="
 SELECTION_SECTOR_PARAM_URL = "/xsxk/zzxkyzb_cxZzxkYzbDisplay.html?gnmkdm=N253512&su="
 SELECTION_QUERY_COURSES = "/xsxk/zzxkyzb_cxZzxkYzbPartDisplay.html?gnmkdm=N253512&su="

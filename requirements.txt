@@ -13,4 +13,5 @@ setuptools
 Sphinx
 sphinx-rtd-theme
 typing
+lxml
 git+https://github.com/PhotonQuantum/sphinx-autodoc-typehints.git
