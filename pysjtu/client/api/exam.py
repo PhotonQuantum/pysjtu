@@ -9,6 +9,9 @@ from pysjtu.client.base import BaseClient
 
 
 class ExamMixin(BaseClient):
+    def __init__(self):
+        super().__init__()
+
     def exam(self, year: int, term: int, timeout: Union[TimeoutTypes, UnsetType] = UNSET) \
             -> models.Results[models.Exam]:
         """

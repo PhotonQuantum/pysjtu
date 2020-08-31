@@ -8,6 +8,9 @@ from pysjtu.client.base import BaseClient
 
 
 class ScheduleMixin(BaseClient):
+    def __init__(self):
+        super().__init__()
+
     def schedule(self, year: int, term: int, timeout: Union[TimeoutTypes, UnsetType] = UNSET) \
             -> models.Results[models.ScheduleCourse]:
         """

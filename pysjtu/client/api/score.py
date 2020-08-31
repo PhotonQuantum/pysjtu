@@ -11,6 +11,9 @@ from pysjtu.client.base import BaseClient
 
 
 class ScoreMixin(BaseClient):
+    def __init__(self):
+        super().__init__()
+
     def _get_score_detail(self, year: int, term: int, class_id: str, timeout: Union[TimeoutTypes, UnsetType] = UNSET) \
             -> List[models.ScoreFactor]:
         raw = self._session.post(consts.SCORE_DETAIL_URL + str(self.student_id),
