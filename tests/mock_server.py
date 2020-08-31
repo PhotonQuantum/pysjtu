@@ -46,6 +46,8 @@ def login_post():
     captcha = request.args.get("captcha")
     if uuid == UUID and v == "" and username == "FeiLin" and password == "WHISPERS" and captcha == "ipsum":
         return redirect("https://i.sjtu.edu.cn/login_patch")
+    if password == "1145141919810":
+        return redirect("/jaccount/jalogin?err=0")
     return redirect("/jaccount/jalogin?err=1")
 
 
@@ -170,7 +172,6 @@ def course_lib():
         return ""
     page = request.form.get("queryModel.currentPage")
     count = request.form.get("queryModel.showCount")
-    print(count)
     if count == '1':
         return app.send_static_file("funcData_cxFuncDataList_initial.html")
     if count == '40':
@@ -355,3 +356,18 @@ def selection_is_registered():
         if request.form.get(k, None) != v:
             return '"0"'
     return '"1"' if session.get("registered", False) else '"0"'
+
+@app.route("/xsxxxggl/xsgrxxwh_cxXsgrxx.html", methods=["get"])
+def profile():
+    if not session.get("is_login", None):
+        return redirect("/xtgl/login_slogin.html")
+    _args = {
+        "gnmkdm": "N100801"
+    }
+    if request.args.get("su", None) != SU:
+        return ""
+    for k, v in _args.items():
+        if request.args.get(k, None) != v:
+            return ""
+    session["query_profile"] = session.get("query_profile", 0) + 1
+    return app.send_static_file("xsgrxxwh_cxXsgrxx.html")

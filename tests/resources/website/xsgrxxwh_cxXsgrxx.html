@@ -1,0 +1,1175 @@
+
+
+
+
+
+
+
+
+
+
+<!doctype html>
+<html lang="zh-CN">
+
+
+
+<head>
+	<title>&nbsp;</title>
+
+
+
+
+
+
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="Copyright" content="zfsoft" />
+<link rel="icon" href="/logo/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="/logo/favicon.ico" type="image/x-icon" />
+<style type="text/css">
+	.active{font-weight: bolder;}
+	#navbar-tabs li{ margin-top: 2px;}
+	#navbar-tabs li a{ border-top: 2px solid transparent;}
+	#navbar-tabs li.active a{border-top: 2px solid #0770cd;}
+</style>
+
+
+
+<!--jQuery核心框架库 -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/other_jquery/jquery.min.js?ver=20200701"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/jquery-migrate.min.js?ver=20200701"></script>
+<!--jQuery浏览器检测 -->
+<script type="text/javascript" src="/js/browse/browse-judge.js?ver=20200701"></script>
+<script type="text/javascript">
+	//浏览器版本验证
+	var broswer = broswer();
+	if(broswer.msie==true||broswer.safari==true||broswer.mozilla==true||broswer.chrome==true){
+		if(broswer.msie==true&&broswer.version<9){
+		   window.location.href = _path+"/xtgl/init_cxBrowser.html";
+		}
+	}else{
+		 window.location.href = _path+"/xtgl/init_cxBrowser.html";
+	}
+</script>
+<script type="text/javascript">
+var _path 				= "";
+var _systemPath 		= "";
+var _stylePath 			= "/zftal-ui-v5-1.0.2";
+var _reportPath 		= "http://10.119.2.52:80/WebReport";
+var _refreshInterval	= "10";
+var _localeKey 			= "zh_CN";
+</script>
+<!--
+jquery.ui 需要在bootstrap之前加载，解决冲突问题
+http://blog.csdn.net/remote_roamer/article/details/14105999
+-->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/jquery-ui-custom.contact-1.0.0.js?ver=20200701"></script>
+<!--Bootstrap布局框架-->
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/bootstrap/css/bootstrap.min.css?ver=20200701" />
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/css/error.css?ver=20200701" />
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/css/zftal-ui.css?ver=20200701" />
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/bootstrap/js/bootstrap.min.js?ver=20200701" charset="utf-8"></script>
+<!--jQuery常用工具扩展库：基础工具,资源加载工具,元素尺寸相关工具 -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/jquery.utils.contact-min.js?ver=20200701" charset="utf-8"></script>
+<!--jQuery基础工具库：$.browser,$.cookie,$.actual等 -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/jquery.plugins.contact-min.js?ver=20200701" charset="utf-8"></script>
+<!--jQuery自定义event事件库 -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/jquery.events.contact-min.js?ver=20200701" charset="utf-8"></script>
+<!--JavaScript对象扩展库：Array,Date,Number,String -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/jquery.extends.contact-min.js?ver=20200701" charset="utf-8"></script>
+<!--Bootbox弹窗插件-->
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/bootbox/css/bootbox.css?ver=20200701" />
+<script src="/zftal-ui-v5-1.0.2/assets/plugins/bootbox/bootbox.concat-min.js?ver=20200701" type="text/javascript" charset="utf-8"></script>
+<script src="/zftal-ui-v5-1.0.2/assets/plugins/bootbox/lang/zh_CN.js?ver=20200701" type="text/javascript" charset="utf-8"></script>
+
+<!--jQuery模拟滚动条库-->
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/customscrollbar/css/jquery.mCustomScrollbar.min.css?ver=20200701" />
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/customscrollbar/js/jquery.mCustomScrollbar.min.js?ver=20200701" charset="utf-8"></script>
+<!--jQuery.chosen美化插件-->
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/chosen/css/chosen-min.css?ver=20200701" />
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/chosen/jquery.choosen.concat-min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/chosen/lang/zh_CN-min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/utils/jquery.utils.pinyin.min.js?ver=20200701" charset="utf-8"></script>
+<!--[if lt IE 9]>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/html5shiv.min.js?ver=20200701" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/respond.min.js?ver=20200701" charset="utf-8"></script>
+<![endif]-->
+<!--业务框架jQuery全局设置和通用函数库-->
+<script type="text/javascript" src="/js/jquery.zftal.contact-min.js?ver=20200701"></script>
+<!--国际化js库 -->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/i18n/jquery.i18n-min.js?ver=20200701" charset="utf-8"></script>
+<!--全局国际化js. -->
+<script type="text/javascript" src="/js/globalweb/i18n-global_zh_CN.js?ver=20200701" charset="utf-8"></script>
+<!--业务框架前端脚本国际化库-->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/zftal/lang/jquery.zftal_zh_CN-min.js?ver=20200701"></script>
+<!--密码强弱判断-->
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/js/utils/jquery.utils.strength.min.js?ver=20200701"></script>
+
+
+
+
+
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script type="text/javascript">
+var _path = "";
+var _systemPath = "";
+var _stylePath = "/zftal-ui-v5-1.0.2";
+jQuery(function($){
+	$('[data-toggle*="validation"]').trigger("validation");
+	$('[data-toggle*="fixed"]').trigger("fixed");
+	if($.fn.tooltip){
+		$('[data-toggle*="tooltip"]').tooltip({container:'body'});
+	}
+	//\u5168\u5c40\u542f\u7528\u7f13\u5b58\uff1a\u8fd9\u4e2a\u5730\u65b9\u5fc5\u987b\u4f7f\u7528true\uff0c\u5426\u5219\u5728\u4f7f\u7528load\u52a0\u8f7d\u7684html\u4e2d\u7684script\u6807\u7b7e\u4f1a\u81ea\u52a8\u52a0\u4e0a\u968f\u673a\u6570\u5bfc\u81f4\u65e0\u6cd5\u6709\u6548\u5229\u7528\u6d4f\u89c8\u5668\u7f13\u5b58
+	jQuery.ajaxSetup({cache	: true });
+});
+</script>
+<style type="text/css">
+	.ui-jqgrid tr.jqgrow td {
+		white-space: normal;
+		vertical-align: top;
+	}
+	</style>
+
+</head>
+<body>
+<input type="hidden" id="pkey" name="pkey" value="" />
+<input type="hidden" id="localeKey" name="localeKey" value="zh_CN" />
+<input type="hidden" id="csrftoken" name="csrftoken" value="ddf81004-daff-4ecd-8efd-987082103fe0,ddf81004daff4ecd8efd987082103fe0"/>
+	<!-- 头部 开始 -->
+	<header class="navbar-inverse top2">
+		<div class="container" id="navbar_container">
+					<div class="container">
+			<div class="navbar-header">
+				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".bs-navbar-collapse">
+					<span class="sr-only"> 查询个人信息</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a href="#" id="topButton" class="navbar-brand" onclick="onClickMenu('/xsxxxggl/xsgrxxwh_cxXsgrxx.html','N100801')">
+					查询个人信息
+				</a>
+				<script type="text/javascript">
+					document.title="查询个人信息";
+				</script>
+			</div>
+		</div>
+<!-- navbar-end  -->
+		</div>
+	</header>
+
+	<!--头部 结束 -->
+	<div style="width: 100%; padding: 0px; margin: 0px;" id="bodyContainer">
+		<!-- requestMap中的参数为系统级别控制参数，请勿删除 -->
+		<form id="requestMap">
+			 <input type="hidden" id="sessionUserKey" value="519027910001" />
+
+			 	<input type="hidden" id="gnmkdmKey" value="N100801" />
+
+
+		</form>
+		<div class="container container-func sl_all_bg" id="yhgnPage">
+			<div id="innerContainer">
+				<!-- 放置页面显示内容 -->
+
+
+
+
+
+<!doctype html>
+
+
+<input type="hidden" name="" value="1" id="jlSfkc"/>
+<input type="hidden" name="" value="1" id="cySfkc"/>
+<input type="hidden" name="" value="0" id="sfsxjs"/>
+<form id="ajaxForm" name="ajaxForm" method="post" class="form-horizontal ">
+	<input type="hidden" id="curXh_id" name="curXh_id" value="519027910001"/>
+	<input type="hidden" id="pyfaxx_id" name="pyfaxx_id" value=""/>
+
+	<div id="viewxnxq" class="row" style="display:none;">
+		<div class="row">
+		  <div class="col-md-4 col-sm-6">
+		    <div class="form-group">
+		      <label for="" class="col-sm-4 control-label">学年</label>
+		      <div class="col-sm-8">
+		        <select name="xnm" id="xnm" class="form-control chosen-select">
+    <option value="2020" selected="selected">2020-2021</option>
+    <option value="2019">2019-2020</option>
+    <option value="2018">2018-2019</option>
+    <option value="2017">2017-2018</option>
+    <option value="2016">2016-2017</option>
+    <option value="2015">2015-2016</option>
+    <option value="2014">2014-2015</option>
+    <option value="2013">2013-2014</option>
+    <option value="2010">2010-2011</option>
+    <option value="2009">2009-2010</option>
+    <option value="2006">2006-2007</option>
+
+
+</select>
+
+
+		      </div>
+		    </div>
+		  </div>
+
+		 <div class="col-md-4 col-sm-6">
+		    <div class="form-group">
+		      <label for="" class="col-sm-4 control-label">学期</label>
+		      <div class="col-sm-8">
+		        <select name="xqm" id="xqm" class="form-control chosen-select">
+    <option value="3" selected="selected">1</option>
+
+
+</select>
+
+
+		      </div>
+		    </div>
+		  </div>
+		  </div>
+	</div>
+
+
+
+
+			<div id="rxqzpHidDiv" style="display:none;">
+				<div class="add_user_logo">
+					<input type="hidden" name="path" id="xszpPath"/>
+
+					<img style="float:right;" src="" width="129" height="163" id="xsrxqZp" title="入学前"/>
+				</div>
+				<div style = "float:right;width:75%;text-align:center">入学前</div>
+			</div>
+
+
+			<div id="rxhzpHidDiv" style="display:none;">
+				<div class="add_user_logo">
+					<input type="hidden" name="path" id="xszpPath"/>
+
+					<img style="float:left;" src="" width="129" height="163" id="xsrxhZp" title="入学后"/>
+				</div>
+				<div style = "width:75%;text-align:center">入学后</div>
+			</div>
+
+
+
+	<div id="jtcyHidDiv" style="display: none;">
+		<!--家庭成员栏 -->
+		<table id="ckTabGrid"></table>
+	</div>
+
+	<div id="jcxxHidDiv" style="display: none;">
+		<!--奖惩栏 -->
+		<table id="ckJlxxTabGrid"></table>
+		<div id="jlxxPager"></div>
+		<table id="ckCfxxTabGrid"></table>
+		<div id="cfxxPager"></div>
+	</div>
+
+	<div id="cjxxHidDiv" style="display: none;">
+		<div class="row">
+		  <div class="col-md-4 col-sm-6">
+		    <div class="form-group">
+		      <label for="" class="col-sm-4 control-label">学年</label>
+		      <div class="col-sm-8">
+		        <select name="cjxnm" id="cjxnm" class="form-control chosen-select">
+    <option value=""
+    >全部</option>
+    <option value="2020">2020-2021</option>
+    <option value="2019">2019-2020</option>
+    <option value="2018">2018-2019</option>
+    <option value="2017">2017-2018</option>
+    <option value="2016">2016-2017</option>
+    <option value="2015">2015-2016</option>
+    <option value="2014">2014-2015</option>
+    <option value="2013">2013-2014</option>
+    <option value="2010">2010-2011</option>
+    <option value="2009">2009-2010</option>
+    <option value="2006">2006-2007</option>
+
+
+</select>
+
+
+		      </div>
+		    </div>
+		  </div>
+
+		 <div class="col-md-4 col-sm-6">
+		    <div class="form-group">
+		      <label for="" class="col-sm-4 control-label">学期</label>
+		      <div class="col-sm-8">
+		        <select name="cjxqm" id="cjxqm" class="form-control chosen-select">
+    <option value=""
+    >全部</option>
+    <option value="3">1</option>
+
+
+</select>
+
+
+		      </div>
+		    </div>
+		  </div>
+
+		</div>
+		<!--成绩信息 -->
+		<table id="ckCjTabGrid"></table>
+		<div id="cjPager"></div>
+	</div>
+
+	<div id="xkxxHidDiv" style="display: none;">
+		<div class="row">
+		  <div class="col-md-4 col-sm-6">
+		    <div class="form-group">
+		      <label for="" class="col-sm-4 control-label">学年</label>
+		      <div class="col-sm-8">
+		        <select name="xkxnm" id="xkxnm" class="form-control chosen-select">
+    <option value=""
+    >全部</option>
+    <option value="2020">2020-2021</option>
+    <option value="2019">2019-2020</option>
+    <option value="2018">2018-2019</option>
+    <option value="2017">2017-2018</option>
+    <option value="2016">2016-2017</option>
+    <option value="2015">2015-2016</option>
+    <option value="2014">2014-2015</option>
+    <option value="2013">2013-2014</option>
+    <option value="2010">2010-2011</option>
+    <option value="2009">2009-2010</option>
+    <option value="2006">2006-2007</option>
+
+
+</select>
+
+
+		      </div>
+		    </div>
+		  </div>
+
+		 <div class="col-md-4 col-sm-6">
+		    <div class="form-group">
+		      <label for="" class="col-sm-4 control-label">学期</label>
+		      <div class="col-sm-8">
+		        <select name="xkxqm" id="xkxqm" class="form-control chosen-select">
+    <option value=""
+    >全部</option>
+    <option value="3">1</option>
+    <option value="12">2</option>
+    <option value="16">3</option>
+
+
+</select>
+
+
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<!--选课信息 -->
+		<table id="ckXkTabGrid"></table>
+		<div id="xkPager"></div>
+	</div>
+
+	<div id="pyfaHidDiv" style="display: none;">
+		<!--培养方案信息 -->
+		<iframe id="pyfaFrame" src="" marginwidth="0"
+									marginheight="0" frameborder="0" width="100%" height="600px"
+									style="overflow-x: hidden; overflow-y: auto;">
+		</iframe>
+	</div>
+
+	<div id="xjydHidDiv" style="display: none;">
+		<!--学籍异动信息 -->
+		<table id="xjydTabGrid"></table>
+		<div id="xjydPager"></div>
+	</div>
+
+	<div id="xxjlHidDiv" style="display: none;">
+		<!--学习简历信息 -->
+		<table id="xxjlTabGrid"></table>
+	</div>
+	<div class="panel " style="margin-bottom:0px;">
+	  	<div class="panel-heading"  style="padding: 0px;">
+	  		<div class="row" style="margin-bottom: 0px;">
+				<div class="col-md-4 col-sm-6">
+					<div class="form-group sl_bmsz_tb1_h1">
+					    <label for="" class="col-sm-4 control-label">学号：</label>
+					    <div class="col-sm-8">
+				      	    <p class="form-control-static">519027910001</p>
+					    </div>
+					 </div>
+				</div>
+				<div class="col-md-4 col-sm-6">
+					<div class="form-group sl_bmsz_tb1_h1">
+					    <label for="" class="col-sm-4 control-label">姓名：</label>
+					    <div class="col-sm-8">
+					      	<p class="form-control-static">林芳</p>
+					    </div>
+					 </div>
+				</div>
+			</div>
+	  	</div>
+	  	<div class="panel-body" style="padding: 10px 0px 0px; ">
+
+			<style type="text/css">
+.form-control-static{ height: 34px;padding-top: 7px;}
+</style>
+<div id="func_fields"
+
+
+
+ ><div class="row ">
+		<!--Tab 导航栏 -->
+		<div class="col-md-12 col-sm-12">
+			<ul class='nav nav-tabs' role='tablist' id='tab_xsxxgl' style="margin-bottom: 10px;padding-left:15px;">
+			<li class="active" >
+				<a href="#content_xsxxgl_xsjbxx" data-flszid="xsxxgl_xsjbxx" role='tab' data-toggle='tab'> 基本信息 </a>
+			</li>
+			<li>
+				<a href="#content_xsxxgl_xsxjxx" data-flszid="xsxxgl_xsxjxx" role='tab' data-toggle='tab'> 学籍信息 </a>
+			</li>
+			<li>
+				<a href="#content_xsxxgl_xsqtxx" data-flszid="xsxxgl_xsqtxx" role='tab' data-toggle='tab'> 其他信息 </a>
+			</li>
+			<li>
+				<a href="#content_xsxxgl_xslxxx" data-flszid="xsxxgl_xslxxx" role='tab' data-toggle='tab'> 联系方式 </a>
+			</li>
+			<li>
+				<a href="#content_xsxxgl_jtcyxx" data-flszid="xsxxgl_jtcyxx" role='tab' data-toggle='tab'> 家庭成员 </a>
+			</li>
+			<li>
+				<a href="#content_xsxxgl_xsjcxx" data-flszid="xsxxgl_xsjcxx" role='tab' data-toggle='tab'> 奖惩信息 </a>
+			</li>
+			<li>
+				<a href="#content_xsxxgl_xscjxx" data-flszid="xsxxgl_xscjxx" role='tab' data-toggle='tab'> 成绩信息 </a>
+			</li>
+			<li>
+				<a href="#content_xsxxgl_xsxkxx" data-flszid="xsxxgl_xsxkxx" role='tab' data-toggle='tab'> 选课信息 </a>
+			</li>
+			<li>
+				<a href="#content_xsxxgl_pyfaxx" data-flszid="xsxxgl_pyfaxx" role='tab' data-toggle='tab'> 培养方案 </a>
+			</li>
+			<li>
+				<a href="#content_xsxxgl_xjydxx" data-flszid="xsxxgl_xjydxx" role='tab' data-toggle='tab'> 学籍异动 </a>
+			</li>
+			<li>
+				<a href="#content_xsxxgl_xxjlxx" data-flszid="xsxxgl_xxjlxx" role='tab' data-toggle='tab'> 学习简历 </a>
+			</li>
+			<li>
+				<a href="#content_xsxxgl_xnjdxx" data-flszid="xsxxgl_xnjdxx" role='tab' data-toggle='tab'> 学年鉴定 </a>
+			</li>
+			</ul>
+			<!-- Tab 内容面板 -->
+			<div class="tab-content ">
+				<div id="content_xsxxgl_xsjbxx"  class="tab-pane fade in active"  >		<div class="row">
+				<div class="col-md-8 col-sm-8">
+						<div class="row">
+							<div class="col-md-6 col-sm-6">
+								<div class="form-group" >
+									<label class="col-sm-4 control-label" for="" >
+										学号：
+									</label>
+									<div class="col-sm-8" id="col_xh">
+
+			<p class="form-control-static">519027910001</p>
+ 									</div>
+								</div>
+							</div>
+							<div class="col-md-6 col-sm-6">
+								<div class="form-group" >
+									<label class="col-sm-4 control-label" for="" >
+										姓名：
+									</label>
+									<div class="col-sm-8" id="col_xm">
+
+			<p class="form-control-static">林芳</p>
+ 									</div>
+								</div>
+							</div>
+							<div class="col-md-6 col-sm-6">
+								<div class="form-group" >
+									<label class="col-sm-4 control-label" for="" >
+										姓名拼音：
+									</label>
+									<div class="col-sm-8" id="col_xmpy">
+
+			<p class="form-control-static"></p>
+ 									</div>
+								</div>
+							</div>
+							<div class="col-md-6 col-sm-6">
+								<div class="form-group" >
+									<label class="col-sm-4 control-label" for="" >
+										曾用名：
+									</label>
+									<div class="col-sm-8" id="col_cym">
+
+			<p class="form-control-static"></p>
+ 									</div>
+								</div>
+							</div>
+							<div class="col-md-6 col-sm-6">
+								<div class="form-group" >
+									<label class="col-sm-4 control-label" for="" >
+										性别：
+									</label>
+									<div class="col-sm-8" id="col_xbm">
+			<p class="form-control-static">
+					女
+			</p>
+
+ 									</div>
+								</div>
+							</div>
+							<div class="col-md-6 col-sm-6">
+								<div class="form-group" >
+									<label class="col-sm-4 control-label" for="" >
+										证件类型：
+									</label>
+									<div class="col-sm-8" id="col_zjlxm">
+			<p class="form-control-static">
+						居民身份证
+			</p>
+
+ 									</div>
+								</div>
+							</div>
+							<div class="col-md-6 col-sm-6">
+								<div class="form-group" >
+									<label class="col-sm-4 control-label" for="" >
+										证件号码：
+									</label>
+									<div class="col-sm-8" id="col_zjhm">
+
+			<p class="form-control-static">300000000000000000</p>
+ 									</div>
+								</div>
+							</div>
+						</div>
+				</div>
+				<div class="col-md-2 col-sm-2">
+					<div class="form-group" id="col_rxqzp">
+						<script type="text/javascript">
+							jQuery("#rxqzpHidDiv").find("*").attr("data-editable",false);
+					    	jQuery("#col_rxqzp").append(jQuery("#rxqzpHidDiv").html());
+							jQuery("#rxqzpHidDiv").remove();
+					    </script>
+					</div>
+				</div>
+				<div class="col-md-2 col-sm-2">
+					<div class="form-group" id="col_rxhzp">
+						<script type="text/javascript">
+							jQuery("#rxhzpHidDiv").find("*").attr("data-editable",false);
+					    	jQuery("#col_rxhzp").append(jQuery("#rxhzpHidDiv").html());
+							jQuery("#rxhzpHidDiv").remove();
+					    </script>
+					</div>
+				</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									出生日期：
+							</label>
+							<div class="col-sm-8" id="col_csrq">
+			<p class="form-control-static">2000-11-01</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									民族：
+							</label>
+							<div class="col-sm-8" id="col_mzm">
+			<p class="form-control-static">
+						人族
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									政治面貌加入时间：
+							</label>
+							<div class="col-sm-8" id="col_zzmmjrsj">
+			<p class="form-control-static"></p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									政治面貌：
+							</label>
+							<div class="col-sm-8" id="col_zzmmm">
+			<p class="form-control-static">
+						地球教女巫
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									入学日期：
+							</label>
+							<div class="col-sm-8" id="col_rxrq">
+			<p class="form-control-static">2019-09-07</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									籍贯：
+							</label>
+							<div class="col-sm-8" id="col_jg">
+			<p class="form-control-static">OPUS_H</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									户口所在地：
+							</label>
+							<div class="col-sm-8" id="col_hkszd">
+			<p class="form-control-static"></p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									生源地：
+							</label>
+							<div class="col-sm-8" id="col_syd">
+			<p class="form-control-static">OPUS_O</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									出生地：
+							</label>
+							<div class="col-sm-8" id="col_csd">
+			<p class="form-control-static"></p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									港澳台侨外：
+							</label>
+							<div class="col-sm-8" id="col_gatqwm">
+			<p class="form-control-static">
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-6">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									国籍/地区：
+							</label>
+							<div class="col-sm-8" id="col_gj">
+			<p class="form-control-static">
+						OPUS_N
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<input type='hidden' name="xh_id" id="xh_id" value="519021910103"/>
+ 		</div>
+
+
+				</div>
+				<div id="content_xsxxgl_xsxjxx"  class="tab-pane fade">		<div class="row">
+
+					<input type='hidden' name="xnm" id="xnm" value="2020"/>
+
+					<input type='hidden' name="xqm" id="xqm" value="3"/>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									年级：
+							</label>
+							<div class="col-sm-8" id="col_njdm_id">
+			<p class="form-control-static">
+						2019
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									学院名称：
+							</label>
+							<div class="col-sm-8" id="col_jg_id">
+			<p class="form-control-static">
+						电子信息与电气工程学院
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									专业名称：
+							</label>
+							<div class="col-sm-8" id="col_zyh_id">
+			<p class="form-control-static">
+						计算机科学与技术(080605)
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									班级名称：
+							</label>
+							<div class="col-sm-8" id="col_bh_id">
+			<p class="form-control-static">
+						F1900001
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									学制：
+							</label>
+							<div class="col-sm-8" id="col_xz">
+			<p class="form-control-static">4</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									学籍状态：
+							</label>
+							<div class="col-sm-8" id="col_xjztdm">
+			<p class="form-control-static">
+						正常在校
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									是否在校：
+							</label>
+							<div class="col-sm-8" id="col_sfzx">
+			<p class="form-control-static">
+						是
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									报到注册状态：
+							</label>
+							<div class="col-sm-8" id="col_bdzcbj">
+			<p class="form-control-static">
+						未报到未注册
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									报到时间：
+							</label>
+							<div class="col-sm-8" id="col_bdsj">
+			<p class="form-control-static">2019/9/7 0:00</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									注册时间：
+							</label>
+							<div class="col-sm-8" id="col_zcsj">
+			<p class="form-control-static"></p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									培养方式：
+							</label>
+							<div class="col-sm-8" id="col_pyfsdm">
+			<p class="form-control-static">
+						非定向
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									所属学院：
+							</label>
+							<div class="col-sm-8" id="col_zsjg_id">
+			<p class="form-control-static">
+						电子信息与电气工程学院
+			</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									招生年度：
+							</label>
+							<div class="col-sm-8" id="col_zsnddm">
+			<p class="form-control-static"></p>
+ 							</div>
+						</div>
+					</div>
+ 		</div>
+
+
+				</div>
+				<div id="content_xsxxgl_xsqtxx"  class="tab-pane fade">		<div class="row">
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									考生号：
+							</label>
+							<div class="col-sm-8" id="col_ksh">
+			<p class="form-control-static">19300000000000</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									毕业中学：
+							</label>
+							<div class="col-sm-8" id="col_byzx">
+			<p class="form-control-static">地球教教会学校</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									监护人1姓名：
+							</label>
+							<div class="col-sm-8" id="col_jhr1xm">
+			<p class="form-control-static"></p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									火车票区间站：
+							</label>
+							<div class="col-sm-8" id="col_hcpqjz">
+			<p class="form-control-static"></p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									信仰宗教：
+							</label>
+							<div class="col-sm-8" id="col_xyzj">
+			<p class="form-control-static"></p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									来源省：
+							</label>
+							<div class="col-sm-8" id="col_lys">
+			<p class="form-control-static">
+			</p>
+ 							</div>
+						</div>
+					</div>
+ 		</div>
+
+
+				</div>
+				<div id="content_xsxxgl_xslxxx"  class="tab-pane fade">		<div class="row">
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									电子邮箱：
+							</label>
+							<div class="col-sm-8" id="col_dzyx">
+			<p class="form-control-static">linfei@sjtu.edu.cn</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									手机号码：
+							</label>
+							<div class="col-sm-8" id="col_sjhm">
+			<p class="form-control-static">17000000000</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									家庭地址：
+							</label>
+							<div class="col-sm-8" id="col_jtdz">
+			<p class="form-control-static">奥伯斯火箭工厂_H</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									通讯地址：
+							</label>
+							<div class="col-sm-8" id="col_txdz">
+			<p class="form-control-static">奥伯斯火箭工厂_M</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									家庭电话：
+							</label>
+							<div class="col-sm-8" id="col_jtdh">
+			<p class="form-control-static">10000000</p>
+ 							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-4">
+						<div class="form-group" >
+							<label class="col-sm-4 control-label" for="" >
+									邮政编码：
+							</label>
+							<div class="col-sm-8" id="col_yzbm">
+			<p class="form-control-static">200000</p>
+ 							</div>
+						</div>
+					</div>
+ 		</div>
+
+
+				</div>
+				<div id="content_xsxxgl_jtcyxx"  class="tab-pane fade">	<script type="text/javascript">
+    	jQuery("#content_xsxxgl_jtcyxx").append(jQuery("#jtcyHidDiv").html());
+		jQuery("#jtcyHidDiv").remove();
+    </script>
+
+
+				</div>
+				<div id="content_xsxxgl_xsjcxx"  class="tab-pane fade">	<script type="text/javascript">
+    	jQuery("#content_xsxxgl_xsjcxx").append(jQuery("#jcxxHidDiv").html());
+		jQuery("#jcxxHidDiv").remove();
+    </script>
+
+
+				</div>
+				<div id="content_xsxxgl_xscjxx"  class="tab-pane fade">	<script type="text/javascript">
+    	jQuery("#content_xsxxgl_xscjxx").append(jQuery("#cjxxHidDiv").html());
+		jQuery("#cjxxHidDiv").remove();
+    </script>
+
+
+				</div>
+				<div id="content_xsxxgl_xsxkxx"  class="tab-pane fade">	<script type="text/javascript">
+    	jQuery("#content_xsxxgl_xsxkxx").append(jQuery("#xkxxHidDiv").html());
+		jQuery("#xkxxHidDiv").remove();
+    </script>
+
+
+				</div>
+				<div id="content_xsxxgl_pyfaxx"  class="tab-pane fade">	<script type="text/javascript">
+    	jQuery("#content_xsxxgl_pyfaxx").append(jQuery("#pyfaHidDiv").html());
+		jQuery("#pyfaHidDiv").remove();
+    </script>
+
+
+				</div>
+				<div id="content_xsxxgl_xjydxx"  class="tab-pane fade">	<script type="text/javascript">
+    	jQuery("#content_xsxxgl_xjydxx").append(jQuery("#xjydHidDiv").html());
+		jQuery("#xjydHidDiv").remove();
+    </script>
+
+
+				</div>
+				<div id="content_xsxxgl_xxjlxx"  class="tab-pane fade">	<script type="text/javascript">
+    	jQuery("#content_xsxxgl_xxjlxx").append(jQuery("#xxjlHidDiv").html());
+		jQuery("#xxjlHidDiv").remove();
+    </script>
+
+
+				</div>
+				<div id="content_xsxxgl_xnjdxx"  class="tab-pane fade">	<script type="text/javascript">
+    	jQuery("#content_xsxxgl_xnjdxx").append(jQuery("#xnjdHidDiv").html());
+		jQuery("#xnjdHidDiv").remove();
+    </script>
+
+
+				</div>
+			</div>
+		</div>
+</div>
+
+	  	</div>
+	</div>
+
+</form>
+
+
+
+</div>
+<!--jQuery.jqGrid -->
+<link rel="stylesheet" type="text/css" href="/zftal-ui-v5-1.0.2/assets/plugins/jqGrid/css/jquery.jqgrid.css?ver=20200827" />
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/jqGrid/jquery.jqgrid.src-min.js?ver=20200827" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/jqGrid/jquery.jqgrid.contact-min.js?ver=20200827" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/jqGrid/lang/zh_CN.js?ver=20200827" charset="utf-8"></script>
+<script type="text/javascript" src="/js/plugins/jqGrid4.6/jquery.jqgrid.settings.js?ver=20200827" charset="utf-8"></script>
+<script type="text/javascript" src="/js/plugins/jqGrid4.6/jquery.jqGrid-min.js?ver=20200827" charset="utf-8"></script>
+<script type="text/javascript" src="/zftal-ui-v5-1.0.2/assets/plugins/My97DatePicker/WdatePicker.js?ver=20200827"></script>
+<script type="text/javascript" src="/js/comp/jwglxt/xjgl/xsxxgl/ckXsxx.js?ver=20200827"></script>
+
+			</div>
+		</div>
+	</div>
+	<!-- footer -->
+
+
+<!-- footer -->
+<div id="footerID" class="footer">
+	<p>沪交ICP备20180167</p>
+</div>
+<script type="text/javascript">
+	//系统中页面底部的时间随系统时间来定
+	var date=new Date;
+	var year=date.getFullYear();
+	var s = $("#footerID").text().indexOf('-');
+	var textNr =$("#footerID").text().substr(0,s+1)+year+$("#footerID").text().substr(s+5);
+	$("#footerID").text("");
+	$("#footerID").text(textNr);
+</script>
+<!-- footer-end -->
+	<!-- footer-end -->
+</body>
+<script type="text/javascript">
+	jQuery(function($) {
+		if ($("#navbar-tabs").length > 0) {
+			$("#navbar-tabs li:eq(0) a").tab('show');
+		}
+
+		setMinheight();
+
+		$('#yhgnPage').resize(function(){
+			var minHeight  = $(this).data('min-height');
+			var innerHeight =  $('#innerContainer').outerHeight(true);
+			$(this).css('min-height', Math.max(minHeight,innerHeight));
+		});
+
+		function setMinheight(){
+			//计算grid页面高度
+			var docuemntHeight = $(document).height();
+			var topHeight = $('header').height();
+			var footerHeight = $('.footer').height();
+			var containerHeight = docuemntHeight-topHeight-footerHeight-60;
+			$('#yhgnPage').css('min-height',containerHeight).data('min-height',containerHeight);
+		}
+
+		//加载title名称，根据系统内置表设置，取菜单名称或者系统名称
+		$(document).attr("title",'查询个人信息');
+
+	});
+</script>
+<!-- 设置元素固定位置显示插件  scrolltofixed 相应ini文件引用-->
+<!-- è®¾ç½®åç´ åºå®ä½ç½®æ¾ç¤ºæä»¶  scrolltofixed -->
+<script type="text/javascript" src="/js/plugins/scrolltofixed/jquery-scrolltofixed-min.js?ver=20200701"></script>
+<script>
+	$(document).ready(function() {
+		$("div.sl_add_btn .btn-toolbar").scrollToFixed({
+			marginTop:35,
+			zIndex:1050,
+			fixed:function(){
+				$(this).css("width","auto");
+			}
+		});
+		$("div.ui-state-default").scrollToFixed({
+				//marginTop:3,
+			    spacerClass:'hide-div',
+		});
+	});
+</script>
+<style>
+	.hide-div{
+		display:none;
+	}
+</style>
+<!-- 软件评价 相应ini文件引用-->
+
+
+
+</html>

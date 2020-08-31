@@ -10,10 +10,11 @@ import respx
 from pysjtu.client import Client, create_client
 from pysjtu.exceptions import DumpWarning, GPACalculationException, LoadWarning, LoginException, ServiceUnavailable, \
     SessionException, SelectionNotAvailableException, TimeConflictException, FullCapacityException
-from pysjtu.models import CourseRange, Exams, GPA, GPAQueryParams, LogicEnum, QueryResult, Schedule, Scores
+from pysjtu.models import CourseRange, Exams, GPA, GPAQueryParams, LogicEnum, QueryResult, Schedule, Scores, Profile
 from pysjtu.ocr import NNRecognizer
 from pysjtu.session import BaseSession, Session
 from .mock_server import app
+from dataclasses import asdict
 
 
 @pytest.fixture
@@ -128,6 +129,7 @@ class TestSession:
 
         with pytest.raises(LoginException):
             logged_session.login("Cookie☆", "1145141919810")
+            logged_session.login("Cookie☆", "buriburiburi")
 
     def test_logout(self, logged_session, check_login):
         logged_session.logout(purge_session=False)
@@ -345,3 +347,12 @@ class TestClient:
         logged_client.flush_selection_class_cache()
         _ = logged_client.course_selection_sectors[0].classes[0].register_id
         assert logged_client._session.get("get_session?key=query_classes").text == "2"
+
+    def test_profile(self, logged_client):
+        profile_1 = logged_client.profile
+        assert isinstance(profile_1, Profile)
+        assert logged_client._session.get("get_session?key=query_profile").text == "1"
+
+        profile_2 = logged_client.profile
+        assert profile_1 == profile_2
+        assert logged_client._session.get("get_session?key=query_profile").text == "1"
