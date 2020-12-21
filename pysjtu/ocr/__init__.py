@@ -6,6 +6,11 @@ import httpx
 from pysjtu.utils import range_in_set
 from pysjtu.exceptions import OCRException
 
+try:
+    import onnxruntime as rt  # type: ignore
+    has_onnx = True
+except ModuleNotFoundError:
+    has_onnx = False
 
 class Recognizer:
     """ Base class for Recognizers """
@@ -47,7 +52,8 @@ class LegacyRecognizer(Recognizer):
     """
 
     def __init__(self, model_file: str = None):
-        import onnxruntime as rt
+        if not has_onnx:
+            raise RuntimeError("Missing dependency: ONNXRuntime")
         if not model_file:
             model_file = resource_filename("pysjtu.ocr", "svm_model.onnx")
         self._clr = rt.InferenceSession(model_file)
@@ -176,8 +182,8 @@ class NNRecognizer(Recognizer):
     """
 
     def __init__(self, model_file: str = None):
-        import onnxruntime as rt
-
+        if not has_onnx:
+            raise RuntimeError("Missing dependency: ONNXRuntime")
         if not model_file:
             model_file = resource_filename("pysjtu.ocr", "nn_model.onnx")
         self._table = [0] * 156 + [1] * 100

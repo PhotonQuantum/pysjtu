@@ -1,6 +1,6 @@
 import os
 
-from pysjtu import Session, Client, CourseRange, NNRecognizer
+from pysjtu import Session, Client, CourseRange, JCSSRecognizer, create_client
 
 # from datetime import datetime, timezone
 # import arrow
@@ -25,11 +25,15 @@ try:
     sess_file = open("session", mode="r+b")
 except FileNotFoundError:
     sess_file = None    # type: ignore
-sess = Session(ocr=NNRecognizer())
 
-with Session(session_file=sess_file) if sess_file else Session(username=os.environ["SJTU_USER"],
-                                                               password=os.environ["SJTU_PASS"]) as sess:
+client = create_client(os.environ["SJTU_USER"], os.environ["SJTU_PASS"])
+
+with Session(session_file=sess_file, ocr=JCSSRecognizer()) if sess_file else Session(username=os.environ["SJTU_USER"],
+                                                               password=os.environ["SJTU_PASS"], ocr=JCSSRecognizer()) as sess:
     client = Client(session=sess)
+
+    sectors = client.course_selection_sectors
+    classes = sectors[0].classes
 
     print(client.student_id)
     schedule = client.schedule(2019, 1)
