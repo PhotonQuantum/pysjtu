@@ -23,7 +23,7 @@ from httpx.models import (
     URLTypes,
 )
 
-from pysjtu.ocr import NNRecognizer, Recognizer
+from pysjtu.ocr import JCSSRecognizer, Recognizer
 from . import consts
 from .exceptions import DumpWarning, LoadWarning, LoginException, ServiceUnavailable, SessionException
 from .utils import FileTypes
@@ -114,7 +114,7 @@ class Session(BaseSession):
                  session_file: FileTypes = None, retry: list = None, proxies: ProxiesTypes = None,
                  timeout: TimeoutTypes = None, base_url: str = "https://i.sjtu.edu.cn", _mocker_app=None):
         self._client = httpx.Client(app=_mocker_app, proxies=proxies)
-        self._ocr = ocr if ocr else NNRecognizer()
+        self._ocr = ocr if ocr else JCSSRecognizer()
         self._username = ""
         self._password = ""
         self._cache_store = {}
