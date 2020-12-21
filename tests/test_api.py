@@ -11,7 +11,7 @@ from pysjtu.client import Client, create_client
 from pysjtu.exceptions import DumpWarning, GPACalculationException, LoadWarning, LoginException, ServiceUnavailable, \
     SessionException, SelectionNotAvailableException, TimeConflictException, FullCapacityException
 from pysjtu.models import CourseRange, Exams, GPA, GPAQueryParams, LogicEnum, QueryResult, Schedule, Scores, Profile
-from pysjtu.ocr import NNRecognizer
+from pysjtu.ocr import JCSSRecognizer
 from pysjtu.session import BaseSession, Session
 from .mock_server import app
 from dataclasses import asdict
@@ -19,7 +19,7 @@ from dataclasses import asdict
 
 @pytest.fixture
 def logged_session(mocker):
-    mocker.patch.object(NNRecognizer, "recognize", return_value="ipsum")
+    mocker.patch.object(JCSSRecognizer, "recognize", return_value="ipsum")
     sess = Session(_mocker_app=app, retry=[0], timeout=1)
     sess.login("FeiLin", "WHISPERS")
     return sess
@@ -67,7 +67,7 @@ class TestSession:
         pickle.dump({"username": "FeiLin", "password": "WHISPERS"}, tmpfile)
         tmpfile.seek(0)
 
-        mocker.patch.object(NNRecognizer, "recognize", return_value="ipsum")
+        mocker.patch.object(JCSSRecognizer, "recognize", return_value="ipsum")
         with Session(_mocker_app=app, session_file=tmpfile.file):
             pass
         tmpfile.seek(0)
@@ -76,7 +76,7 @@ class TestSession:
 
     def test_init(self, mocker, check_login):
         tmpfile = NamedTemporaryFile()
-        mocker.patch.object(NNRecognizer, "recognize", return_value="ipsum")
+        mocker.patch.object(JCSSRecognizer, "recognize", return_value="ipsum")
         sess = Session(_mocker_app=app, username="FeiLin", password="WHISPERS")
         assert check_login(sess)
         cookie = sess.cookies
