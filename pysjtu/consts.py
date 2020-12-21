@@ -26,6 +26,7 @@ SELECTION_IS_REGISTERED = "/xsxk/zzxkyzb_xkJcInXksjZzxkYzb.html?gnmkdm=N253512&s
 SELECTION_DEREGISTER = "/xsxk/zzxkyzb_tuikBcZzxkYzb.html?gnmkdm=N253512&su="
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0",
-           "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
+           "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+           "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6"}
 TERMS = [3, 12, 16]
 CHINESE_WEEK = {"日": 0, "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6}
