@@ -1,3 +1,4 @@
+import sys
 from os import path
 
 import pytest
@@ -11,12 +12,14 @@ NN_MODEL_FILE = path.join(path.abspath("."), 'nn_model.onnx')
 
 
 @pytest.mark.xfail(reason="SVM-based and ResNet-based recognizer doesn't recognize captcha correctly sometime.")
-@pytest.mark.parametrize("predictor", [LegacyRecognizer(), NNRecognizer()])
+@pytest.mark.skipif(sys.version_info > (3, 8), reason="Python 3.9 doesn't have ONNXRuntime, yet.")
 @pytest.mark.parametrize("captcha", [
     "mwgi", "qkxvx", "qrdxb", "rysv", "zwtco"
 ])
-def test_recognizer(predictor, captcha):
-    assert predictor.recognize(open(path.join(CAPTCHA_DIR, captcha + ".jpg"), mode="rb").read()) == captcha
+def test_recognizer(captcha):
+    predictors = [LegacyRecognizer(), NNRecognizer()]
+    for predictor in predictors:
+        assert predictor.recognize(open(path.join(CAPTCHA_DIR, captcha + ".jpg"), mode="rb").read()) == captcha
 
 @respx.mock
 def test_jcss_recognizer():
