@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python: [3.7, 3.8]
+        python: [3.7, 3.8, 3.9]
 
     runs-on: ${{ matrix.os }}
 
@@ -41,10 +41,22 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
+    - name: Mac dependencies
+      if: startsWith(runner.os, 'macOS')
+      uses: mstksg/get-package@v1
+      with:
+        brew: libomp
+
     - name: Install dependencies
+      if: matrix.python != '3.9'
       run: |
         python -m pip install --upgrade pip
         pip install -e .[ocr]
+    - name: Install dependencies
+      if: matrix.python == '3.9'
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
 
     - name: Test if no syntax error
       run: |
@@ -58,7 +70,7 @@ jobs:
 
     - name: Setup Java JDK
       if: matrix.os == 'ubuntu-latest' && matrix.python == '3.7' && github.repository == 'PhotonQuantum/pysjtu'
-      uses: actions/setup-java@v1.3.0
+      uses: actions/setup-java@v1
       with:
         # The Java version to make available on the path. Takes a whole or semver Java version, or 1.x syntax (e.g. 1.8 => Java 8.x)
         java-version: 1.8
