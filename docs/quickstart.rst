@@ -120,14 +120,3 @@ And it can completely be disabled:
     >>> c.schedule(2019, 0, timeout=None)
 
 For advanced timeout management, see :ref:`Timeout Configuration`.
-
-Exceptions
-----------
-
-.. autoexception:: pysjtu.exceptions.SessionException
-
-.. autoexception:: pysjtu.exceptions.LoginException
-
-.. autoexception:: pysjtu.exceptions.GPACalculationException
-
-.. autoexception:: pysjtu.exceptions.ServiceUnavailable

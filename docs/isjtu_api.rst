@@ -35,7 +35,7 @@ Schedule Query
 .. automodule:: pysjtu.client.api.schedule
     :members:
 
-.. automodule:: pysjtu.model.schedule
+.. automodule:: pysjtu.models.schedule
     :members:
 
 **Example:**
@@ -60,7 +60,7 @@ Exam Query
 .. automodule:: pysjtu.client.api.exam
     :members:
 
-.. automodule:: pysjtu.model.exam
+.. automodule:: pysjtu.models.exam
     :members:
 
 **Example:**
@@ -79,7 +79,7 @@ To get your exams of the first term in 2019, filter by criteria, and dig into de
 Score Query
 -----------
 
-.. automodule:: pysjtu.model.score
+.. automodule:: pysjtu.models.score
     :members:
 
 .. automodule:: pysjtu.client.api.score
@@ -107,7 +107,7 @@ To get your exams of the first term in 2019, filter by criteria, and dig into de
 GPA Query
 ---------
 
-.. automodule:: pysjtu.model.gpa
+.. automodule:: pysjtu.models.gpa
     :members:
 
 .. automodule:: pysjtu.client.api.gpa
@@ -130,7 +130,7 @@ To fetch default GPA query parameters, change statistics scope and query GPA sta
 College-Wide Course Search
 --------------------------
 
-.. automodule:: pysjtu.model.course
+.. automodule:: pysjtu.models.course
     :members:
 
 .. automodule:: pysjtu.client.api.course
@@ -154,3 +154,12 @@ To perform a college-wide course search:
     # [<LibCourse 高等数学A1 class_name=(2019-2020-1)-VV156-1>, <LibCourse 高等数学B1 class_name=(2019-2020-1)-VV186-1>, ...]
     courses[0].credit
     # 4.0
+
+Course Selection
+----------------
+
+.. automodule:: pysjtu.models.selection
+    :members:
+
+.. automodule:: pysjtu.client.api.selection
+    :members:
