@@ -121,6 +121,9 @@ class SelectionSector(Result):
 
     @property
     def classes(self) -> List[SelectionClass]:
+        """
+        Selectable classes in this course sector.
+        """
         return self._func_classes()
 
 
@@ -194,9 +197,10 @@ class SelectionClass(LazyResult):
 
         :param timeout: (optional) How long to wait for the server to send data before giving up.
         :return: None
-        :raises RegistrationException
-        :raises FullCapacityException
-        :raises TimeConflictException
+        :raises: :exc:`pysjtu.exceptions.RegistrationException`
+        :raises: :exc:`pysjtu.exceptions.FullCapacityException`
+        :raises: :exc:`pysjtu.exceptions.TimeConflictException`
+        :raises: :exc:`pysjtu.exceptions.SelectionNotAvailableException`
         """
         raise NotImplementedError  # pragma: no cover
 
@@ -206,6 +210,7 @@ class SelectionClass(LazyResult):
 
         :param timeout: (optional) How long to wait for the server to send data before giving up.
         :return: None
-        :raises DeregistrationException
+        :raises: :exc:`pysjtu.exceptions.DeregistrationException`
+        :raises: :exc:`pysjtu.exceptions.SelectionNotAvailableException`
         """
         raise NotImplementedError  # pragma: no cover
