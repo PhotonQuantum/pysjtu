@@ -738,7 +738,7 @@ class Session(BaseSession):
         bak_cookie = self._client.cookies
         # noinspection PyTypeHints
         self._client.cookies = new_cookie  # type: ignore
-        self._secure_req(partial(self.get, consts.LOGIN_URL, validate_session=False))  # refresh JSESSION token
+        self._secure_req(partial(self.get, consts.LOGIN_URL, validate_session=False, headers=consts.HEADERS))  # refresh JSESSION token
         if self.get(consts.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
             self._client.cookies = bak_cookie
             raise SessionException("Invalid cookies. You may skip this validation by setting _cookies")
