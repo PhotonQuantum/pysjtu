@@ -48,7 +48,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'
     ),
     install_requires=[
-        'httpx==0.11.1',
+        'httpx==0.23.0',
         'marshmallow',
         'lxml'
     ],
