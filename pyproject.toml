@@ -1,0 +1,56 @@
+[tool.poetry]
+name = "pysjtu"
+version = "0.3.5"
+description = "The Python iSJTU client for Humans."
+authors = ["LightQuantum <self@lightquantum.me>"]
+license = "GPL-3.0-or-later"
+readme = "README.md"
+homepage = "https://github.com/PhotonQuantum/pysjtu"
+repository = "https://github.com/PhotonQuantum/pysjtu"
+documentation = "https://pysjtu.readthedocs.io/en/latest"
+classifiers = [
+    "Operating System :: OS Independent",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+include = ["ocr/*.onnx"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+httpx = "0.11.1"
+marshmallow = "^3.16.0"
+lxml = "^4.9.0"
+Pillow = { version = "^9.1.1", optional = true }
+numpy = { version = "^1.22.4", optional = true }
+onnxruntime = { version = "^1.11.1", optional = true }
+onnxruntime-silicon = { version = "^1.11.1", optional = true }
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+Sphinx = "^5.0.2"
+sphinx-rtd-theme = "^1.0.0"
+sphinx-autodoc-typehints = "^1.18.3"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.1.2"
+pytest-cov = "^3.0.0"
+pytest-mock = "^3.7.0"
+respx = "0.9.0"
+Flask = "^2.1.2"
+flake8 = "^4.0.1"
+
+[tool.poetry.dev-dependencies]
+loguru = "^0.6.0"
+
+[tool.poetry.extras]
+ocr = ["onnxruntime", "numpy", "Pillow"]
+ocr-m1 = ["onnxruntime-silicon", "numpy", "Pillow"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
