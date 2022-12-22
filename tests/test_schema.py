@@ -128,8 +128,8 @@ def test_str_bool_field():
         field.serialize("test", {"test": -1})
 
 
-def test_schedule_course_schema(resp_loader):
-    raw_resp = resp_loader("schedule_course")
+def test_schedule_course_schema_1(resp_loader):
+    raw_resp = resp_loader("schedule_course_1")
     schema = ScheduleCourseSchema()
     schedule_course = schema.load(raw_resp)
 
@@ -148,7 +148,30 @@ def test_schedule_course_schema(resp_loader):
     assert schedule_course.class_id == "90BEF7AA5D657072E0530200A8C06959"
     assert schedule_course.hour_total == 16 and isinstance(schedule_course.hour_total, int)
     assert schedule_course.hour_remark == {"理论": 24, "其他": 24}
-    assert schedule_course.hour_week == 1 and isinstance(schedule_course.hour_week, int)
+    assert schedule_course.hour_week == 1 and isinstance(schedule_course.hour_week, float)
+    assert schedule_course.field == "无方向"
+
+def test_schedule_course_schema_2(resp_loader):
+    raw_resp = resp_loader("schedule_course_2")
+    schema = ScheduleCourseSchema()
+    schedule_course = schema.load(raw_resp)
+
+    assert schedule_course.name == "形势与政策"
+    assert schedule_course.day == 3 and isinstance(schedule_course.day, int)
+    assert schedule_course.week == [5, 9, range(13, 16, 2)]
+    assert schedule_course.time == range(9, 11)
+    assert schedule_course.location == "中院411"
+    assert schedule_course.credit == 0.5 and isinstance(schedule_course.credit, float)
+    assert schedule_course.assessment == "考试"
+    assert schedule_course.remark == "腾讯会议号：000000000，密码：0000"
+    assert schedule_course.teacher_name == ["吴晓玲"]
+    assert schedule_course.teacher_title == ["助理研究员(高教管理)"]
+    assert schedule_course.course_id == "MARX1205"
+    assert schedule_course.class_name == "(2022-2023-1)-MARX1205-42"
+    assert schedule_course.class_id == "E59F21516125D00CE055F8163EE1DCCC"
+    assert schedule_course.hour_total == 8 and isinstance(schedule_course.hour_total, int)
+    assert schedule_course.hour_remark == {"理论": 8.0}
+    assert schedule_course.hour_week == 0.5 and isinstance(schedule_course.hour_week, float)
     assert schedule_course.field == "无方向"
 
 
