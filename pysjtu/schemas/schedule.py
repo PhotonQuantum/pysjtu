@@ -45,7 +45,7 @@ class ScheduleCourseSchema(Schema):
     class_id = fields.Str(required=True, data_key="jxb_id")
     hour_total = fields.Int(data_key="zxs")
     hour_remark = CreditHourDetail(data_key="kcxszc")
-    hour_week = fields.Int(data_key="zhxs")
+    hour_week = fields.Float(data_key="zhxs")
     field = fields.Str(data_key="zyfxmc")
 
     # noinspection PyUnusedLocal
