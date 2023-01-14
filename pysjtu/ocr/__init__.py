@@ -1,16 +1,19 @@
+from contextlib import ExitStack
+from importlib import resources
 from io import BytesIO
 
-from pkg_resources import resource_filename
 import httpx
 
-from pysjtu.utils import range_in_set
 from pysjtu.exceptions import OCRException
+from pysjtu.utils import range_in_set
 
 try:
     import onnxruntime as rt  # type: ignore
+
     has_onnx = True
 except ModuleNotFoundError:
     has_onnx = False
+
 
 class Recognizer:
     """ Base class for Recognizers """
@@ -30,7 +33,7 @@ class JCSSRecognizer(Recognizer):
             resp = r.json()
             return resp["data"]["prediction"]
         except Exception as e:  # pragma: no cover
-            raise OCRException from e   # pragma: no cover
+            raise OCRException from e  # pragma: no cover
 
 
 class LegacyRecognizer(Recognizer):
@@ -55,9 +58,15 @@ class LegacyRecognizer(Recognizer):
         if not has_onnx:
             raise RuntimeError("Missing dependency: ONNXRuntime")
         if not model_file:
-            model_file = resource_filename("pysjtu.ocr", "svm_model.onnx")
+            self._model_ctx = ExitStack()
+            res_ref = resources.files("pysjtu.ocr") / "svm_model.onnx"
+            model_file = str(self._model_ctx.enter_context(resources.as_file(res_ref)))
         self._clr = rt.InferenceSession(model_file)
         self._table = [0] * 156 + [1] * 100
+
+    def __del__(self):
+        if hasattr(self, "_model_ctx"):
+            self._model_ctx.close()
 
     @staticmethod
     def row_not_empty(img, row):
@@ -185,9 +194,15 @@ class NNRecognizer(Recognizer):
         if not has_onnx:
             raise RuntimeError("Missing dependency: ONNXRuntime")
         if not model_file:
-            model_file = resource_filename("pysjtu.ocr", "nn_model.onnx")
+            self._model_ctx = ExitStack()
+            res_ref = resources.files("pysjtu.ocr") / "nn_model.onnx"
+            model_file = str(self._model_ctx.enter_context(resources.as_file(res_ref)))
         self._table = [0] * 156 + [1] * 100
         self._sess = rt.InferenceSession(model_file)
+
+    def __del__(self):
+        if hasattr(self, "_model_ctx"):
+            self._model_ctx.close()
 
     @staticmethod
     def _tensor_to_captcha(tensors):

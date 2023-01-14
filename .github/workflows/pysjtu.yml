@@ -7,30 +7,20 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ["3.8", "3.9", "3.10" ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        python: [ "3.8", "3.9", "3.10", "3.11" ]
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v4
+      - uses: pdm-project/setup-pdm@v3
+        name: Setup PDM and Python ${{ matrix.python }}
         with:
           python-version: ${{ matrix.python }}
-
-      - name: Install and configure Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.2.0b2
-          virtualenvs-in-project: true
-
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+          cache: true
+          version: 2.4.0
 
       - name: Mac dependencies
         if: startsWith(runner.os, 'macOS')
@@ -39,22 +29,24 @@ jobs:
           brew: libomp
 
       - name: Install dependencies
-        run: poetry install
+        if: ${{ matrix.python != '3.11' }}
+        run: pdm sync -G tests -G ocr
+
+      - name: Install dependencies
+        if: ${{ matrix.python == '3.11' }}
+        run: pdm sync -G tests
 
       - name: Test if no syntax error
-        if: matrix.os != 'macos-latest' # flake8 is extremely slow on macOS due to multiprocessing disabled
-        run: poetry run flake8 . --exclude .venv --count --select=E9,F63,F7,F82 --show-source --statistics
+        run: pdm run flake8 . --exclude .venv --count --select=E9,F63,F7,F82 --show-source --statistics
 
       - name: Test with pytest
-        run: poetry run pytest --cov-report xml --cov=pysjtu
+        run: pdm run pytest --cov-report xml --cov=pysjtu
 
       - name: Setup Java JDK
         if: matrix.os == 'ubuntu-latest' && matrix.python == '3.7' && github.repository == 'PhotonQuantum/pysjtu'
         uses: actions/setup-java@v2
         with:
-          # The Java version to make available on the path. Takes a whole or semver Java version, or 1.x syntax (e.g. 1.8 => Java 8.x)
           java-version: 8
-          # The package type (jre, jdk, jdk+fx)
           java-package: jre
           distribution: 'liberica'
 

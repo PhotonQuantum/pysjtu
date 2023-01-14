@@ -17,11 +17,17 @@ sphinx:
 formats: all
 
 build:
-  os: ubuntu-20.04
+  os: ubuntu-22.04
   tools:
     python: '3.10'
   jobs:
-    post_install:
-      - pip install poetry==1.2.0b2
-      - poetry config virtualenvs.create false
-      - poetry install --with docs
+    post_create_environment:
+      - pip install pdm==2.4.0
+      - pdm sync -G docs
+
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - docs
