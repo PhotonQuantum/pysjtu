@@ -1,3 +1,4 @@
+import os
 import sys
 from os import path
 
@@ -7,19 +8,35 @@ import respx
 from pysjtu.ocr import LegacyRecognizer, NNRecognizer, JCSSRecognizer
 
 CAPTCHA_DIR = path.join(path.dirname(path.abspath(__file__)), 'resources/captcha')
-MODEL_FILE = path.join(path.abspath("."), 'svm_model.onnx')
-NN_MODEL_FILE = path.join(path.abspath("."), 'nn_model.onnx')
 
 
-@pytest.mark.xfail(reason="SVM-based and ResNet-based recognizer doesn't recognize captcha correctly sometime.")
-@pytest.mark.skipif(sys.version_info > (3, 8), reason="Python 3.9 doesn't have ONNXRuntime, yet.")
-@pytest.mark.parametrize("captcha", [
-    "mwgi", "qkxvx", "qrdxb", "rysv", "zwtco"
-])
-def test_recognizer(captcha):
-    predictors = [LegacyRecognizer(), NNRecognizer()]
-    for predictor in predictors:
-        assert predictor.recognize(open(path.join(CAPTCHA_DIR, captcha + ".jpg"), mode="rb").read()) == captcha
+@pytest.fixture(params=[
+    pytest.param(LegacyRecognizer,
+                 marks=pytest.mark.xfail(reason="SVM-based recognizer doesn't recognize captcha correctly sometime.")),
+    NNRecognizer])
+def recognizer(request):
+    return request.param()
+
+
+def captcha_files():
+    def f_read(f):
+        return open(path.join(CAPTCHA_DIR, f), mode="rb").read()
+
+    def f_expected(f):
+        return path.splitext(path.basename(f))[0]
+
+    return [
+        (f_expected(f), f_read(f))
+        for f in os.listdir(CAPTCHA_DIR)
+    ]
+
+
+@pytest.mark.skipif(sys.version_info > (3, 10), reason="Python 3.11 doesn't have ONNXRuntime, yet.")
+@pytest.mark.parametrize("captcha", captcha_files())
+def test_recognizer(captcha, recognizer):
+    expected, file = captcha
+    assert recognizer.recognize(file) == expected
+
 
 @respx.mock
 def test_jcss_recognizer():
