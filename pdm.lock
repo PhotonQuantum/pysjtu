@@ -195,6 +195,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "importlib-resources"
+version = "3.0.0"
+requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+summary = "Read resources from Python packages"
+
+[[package]]
 name = "iniconfig"
 version = "2.0.0"
 requires_python = ">=3.7"
@@ -564,7 +570,7 @@ summary = "Backport of pathlib-compatible object wrapper for zip files"
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:36faba0c2b1896c967fa71ff9918874858e34e3d7d52960c52e64ca36401667d"
+content_hash = "sha256:44868e2e01fa4033b5ed2920e489af3dd0c75334de680816ba360919d2e90bb5"
 
 [metadata.files]
 "alabaster 0.7.13" = [
@@ -793,6 +799,10 @@ content_hash = "sha256:36faba0c2b1896c967fa71ff9918874858e34e3d7d52960c52e64ca36
 "importlib-metadata 6.0.0" = [
     {url = "https://files.pythonhosted.org/packages/26/a7/9da7d5b23fc98ab3d424ac2c65613d63c1f401efb84ad50f2fa27b2caab4/importlib_metadata-6.0.0-py3-none-any.whl", hash = "sha256:7efb448ec9a5e313a57655d35aa54cd3e01b7e1fbcf72dce1bf06119420f5bad"},
     {url = "https://files.pythonhosted.org/packages/90/07/6397ad02d31bddf1841c9ad3ec30a693a3ff208e09c2ef45c9a8a5f85156/importlib_metadata-6.0.0.tar.gz", hash = "sha256:e354bedeb60efa6affdcc8ae121b73544a7aa74156d047311948f6d711cd378d"},
+]
+"importlib-resources 3.0.0" = [
+    {url = "https://files.pythonhosted.org/packages/46/0b/7973c432eae095b60db1a37d6bf2c693cb4290b4d38d92f1bafe503c853d/importlib_resources-3.0.0.tar.gz", hash = "sha256:19f745a6eca188b490b1428c8d1d4a0d2368759f32370ea8fb89cad2ab1106c3"},
+    {url = "https://files.pythonhosted.org/packages/ba/03/0f9595c0c2ef12590877f3c47e5f579759ce5caf817f8256d5dcbd8a1177/importlib_resources-3.0.0-py2.py3-none-any.whl", hash = "sha256:d028f66b66c0d5732dae86ba4276999855e162a749c92620a38c1d779ed138a7"},
 ]
 "iniconfig 2.0.0" = [
     {url = "https://files.pythonhosted.org/packages/d7/4b/cbd8e699e64a6f16ca3a8220661b5f83792b3017d0f79807cb8708d33913/iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
