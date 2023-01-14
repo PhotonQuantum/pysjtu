@@ -9,6 +9,7 @@ dependencies = [
     "marshmallow>=3.19.0",
     "lxml>=4.9.2",
     "httpx>=0.23.3",
+    "importlib-resources==3.0.0; python_version < \"3.9\"",
 ]
 requires-python = ">=3.8"
 readme = "README.md"
