@@ -2,8 +2,8 @@ import datetime
 import json
 from os import path
 
-from marshmallow import ValidationError
 import pytest
+from marshmallow import ValidationError
 
 from pysjtu.models import CourseRange, LogicEnum, Ranking
 from pysjtu.models.selection import Gender, LessonTime
@@ -151,6 +151,7 @@ def test_schedule_course_schema_1(resp_loader):
     assert schedule_course.hour_week == 1 and isinstance(schedule_course.hour_week, float)
     assert schedule_course.field == "无方向"
 
+
 def test_schedule_course_schema_2(resp_loader):
     raw_resp = resp_loader("schedule_course_2")
     schema = ScheduleCourseSchema()
@@ -234,12 +235,16 @@ def test_gpa_query_params_schema_load(resp_loader):
 
     assert gpa_query_params.gp_round == 9
     assert gpa_query_params.gpa_round == 9
-    assert gpa_query_params.exclude_gp == "缓考"
-    assert gpa_query_params.exclude_gpa == "缓考"
-    assert gpa_query_params.course_whole == ["TH020", "TH009"]
+    assert gpa_query_params.exclude_gp == ['缓考', '缓考(重考)', '尚未修读', '暂不记录', '中期退课', '重考报名']
+    assert gpa_query_params.exclude_gpa == ['缓考', '缓考(重考)', '尚未修读', '暂不记录', '中期退课', '重考报名']
+    assert gpa_query_params.excluded_courses == ""
+    assert gpa_query_params.excluded_course_groups == ""
+    assert gpa_query_params.included_course_groups == ""
+    assert gpa_query_params.statistics_method == "zhyccj"
+    assert gpa_query_params.course_whole == ['MARX1205', 'TH009', 'TH020']
     assert gpa_query_params.has_roll and isinstance(gpa_query_params.has_roll, bool)
     assert gpa_query_params.registered is None
-    assert gpa_query_params.attending and isinstance(gpa_query_params.attending, bool)
+    assert gpa_query_params.attending is None
 
 
 def test_gpa_query_params_schema_dump(resp_loader):
@@ -273,9 +278,11 @@ def test_gpa_query_params_schema_dump(resp_loader):
 
     dump_dict = schema.dump(gpa_query_params)
 
-    assert dump_dict == {'zczt': 1, 'bjjd': '缓考', 'xjzt': 0, 'bjpjf': '缓考', 'qsXnxq': '', 'tjfw': 'njzy',
-                         'kch_ids': 'TH020,TH009', 'sspjfblws': 9, 'tjgx': 0, 'pjjdblws': 9, 'zzXnxq': 2019,
-                         'kcfw': 'qbkc', 'alsfj': 'bkcx'}
+    assert dump_dict == {'zczt': 1, 'xjzt': 0, 'qsXnxq': '', 'tjfw': 'njzy', 'sspjfblws': 9, 'tjgx': 0, 'pjjdblws': 9,
+                         'zzXnxq': 2019, 'kcfw': 'qbkc', 'alsfj': 'bkcx', 'bcjkc_id': '', 'bcjkz_id': '',
+                         'bjjd': '缓考,缓考(重考),尚未修读,暂不记录,中期退课,重考报名',
+                         'bjpjf': '缓考,缓考(重考),尚未修读,暂不记录,中期退课,重考报名', 'cjkz_id': '',
+                         'cjxzm': 'zhyccj', 'kch_ids': 'MARX1205,TH009,TH020', }
 
 
 def test_gpa_schema(resp_loader):
