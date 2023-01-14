@@ -2,10 +2,11 @@ import re
 from datetime import date, datetime
 
 from pysjtu import consts
-from pysjtu.client.api import CourseLibMixin, ExamMixin, GPAMixin, ScheduleMixin, ScoreMixin, SelectionMixin, ProfileMixin
+from pysjtu.client.api import CourseLibMixin, ExamMixin, GPAMixin, ScheduleMixin, ScoreMixin, SelectionMixin, \
+    ProfileMixin
 from pysjtu.client.base import BaseClient
-from pysjtu.session import BaseSession, Session
 from pysjtu.ocr import JCSSRecognizer
+from pysjtu.session import BaseSession, Session, ProxiesTypes
 
 
 class Client(ProfileMixin, SelectionMixin, ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin, BaseClient):
@@ -57,7 +58,8 @@ class Client(ProfileMixin, SelectionMixin, ScheduleMixin, CourseLibMixin, ExamMi
         return self._session._cache_store["student_id"]
 
 
-def create_client(username: str, password: str, use_jcss: bool = True, _mocker_app=None) -> Client:
+def create_client(username: str, password: str, use_jcss: bool = True, proxies: ProxiesTypes = None,
+                  _mocker_app=None) -> Client:
     """
     Create a new :class:`Client` with default options.
     To change :class:`Session` settings or preserve your session, use :class:`Session` and :class:`Client` instead.
@@ -65,8 +67,10 @@ def create_client(username: str, password: str, use_jcss: bool = True, _mocker_a
     :param username: JAccount username.
     :param password: JAccount password.
     :param use_jcss: Use JAccount Captcha Solver Service to recognize captcha instead of built-in ONNX based recognizer.
+    :param proxies: The proxy to be used on each request.
     :param _mocker_app: An WSGI application to send requests to (for debug or test purposes).
     :return: an authenticated :class:`Client`.
     """
-    sess = Session(username=username, password=password, _mocker_app=_mocker_app, ocr=JCSSRecognizer() if use_jcss else None)
+    sess = Session(username=username, password=password, proxies=proxies, _mocker_app=_mocker_app,
+                   ocr=JCSSRecognizer() if use_jcss else None)
     return Client(session=sess)

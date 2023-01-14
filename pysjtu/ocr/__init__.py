@@ -3,6 +3,7 @@ from importlib import resources
 from io import BytesIO
 
 import httpx
+from httpx.config import ProxiesTypes
 
 from pysjtu.exceptions import OCRException
 from pysjtu.utils import range_in_set
@@ -23,9 +24,9 @@ class Recognizer:
 
 
 class JCSSRecognizer(Recognizer):
-    def __init__(self, url: str = "https://jcss.lightquantum.me"):
+    def __init__(self, url: str = "https://jcss.lightquantum.me", proxies: ProxiesTypes = None):
         self.url = url
-        self.client = httpx.Client()
+        self.client = httpx.Client(proxies=proxies)
 
     def recognize(self, img: bytes):
         try:
