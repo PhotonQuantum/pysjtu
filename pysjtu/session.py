@@ -6,27 +6,19 @@ import warnings
 from functools import partial
 from http.cookiejar import CookieJar
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Callable, Optional, Union
 from urllib.parse import parse_qs, urljoin, urlparse
 
 import httpx
-from httpx.auth import AuthTypes
-from httpx.config import (ProxiesTypes, TimeoutTypes, UNSET, UnsetType)
-from httpx.dispatch.base import SyncDispatcher
-from httpx.models import (
-    CookieTypes,
-    HeaderTypes,
-    QueryParamTypes,
-    RequestData,
-    RequestFiles,
-    Response,
-    URLTypes,
-)
+from httpx import Response
 
 from pysjtu.ocr import JCSSRecognizer, Recognizer
 from . import consts
 from .exceptions import DumpWarning, LoadWarning, LoginException, ServiceUnavailable, SessionException
 from .utils import FileTypes
+
+CookieTypes = Union[httpx.Cookies, CookieJar]
+URLTypes = Union[httpx.URL, str]
 
 
 class BaseSession:
@@ -70,8 +62,6 @@ class Session(BaseSession):
     :param ocr: The captcha :class:`Recognizer`.
     :param session_file: The file which a session is loaded from & saved to.
     :param retry: A list contains retry delays. If it's exhausted, an exception will be raised.
-    :param proxies: The proxy to be used on each request.
-    :param timeout: The timeout to be used on each request.
     :param base_url: Base url of backend APIs.
     :param _mocker_app: An WSGI application to send requests to (for debug or test purposes).
     """
@@ -92,9 +82,9 @@ class Session(BaseSession):
         """
         try:
             return ref()
-        except httpx.exceptions.NetworkError as e:
+        except httpx.NetworkError as e:
             req = e.request
-            if not req.url.is_ssl:
+            if not req.url.scheme == "https":
                 req.url = req.url.copy_with(scheme="https", port=None)
             else:
                 raise e
@@ -111,10 +101,10 @@ class Session(BaseSession):
             self.dump(self._session_file)
 
     def __init__(self, username: str = "", password: str = "", cookies: CookieTypes = None, ocr: Recognizer = None,
-                 session_file: FileTypes = None, retry: list = None, proxies: ProxiesTypes = None,
-                 timeout: TimeoutTypes = None, base_url: str = "https://i.sjtu.edu.cn", _mocker_app=None):
-        self._client = httpx.Client(app=_mocker_app, proxies=proxies)
-        self._ocr = ocr if ocr else JCSSRecognizer(proxies=proxies)
+                 session_file: FileTypes = None, retry: list = None, base_url: str = "https://i.sjtu.edu.cn",
+                 _mocker_app=None, *args, **kwargs):
+        self._client = httpx.Client(app=_mocker_app, follow_redirects=True, *args, **kwargs)
+        self._ocr = ocr if ocr else JCSSRecognizer(*args, **kwargs)
         self._username = ""
         self._password = ""
         self._cache_store = {}
@@ -123,8 +113,6 @@ class Session(BaseSession):
         self._session_file = None
         if retry:
             self._retry = retry
-        if timeout:
-            self.timeout = timeout
 
         if session_file:
             self.load(session_file)
@@ -140,17 +128,9 @@ class Session(BaseSession):
             method: str,
             url: URLTypes,
             *,
-            data: RequestData = None,
-            files: RequestFiles = None,
-            json: Any = None,
-            params: QueryParamTypes = None,
-            headers: HeaderTypes = None,
-            cookies: CookieTypes = None,
-            auth: AuthTypes = None,
-            allow_redirects: bool = True,
-            timeout: Union[TimeoutTypes, UnsetType] = UNSET,
             validate_session: bool = True,
-            auto_renew: bool = True
+            auto_renew: bool = True,
+            **kwargs
     ) -> Response:
         """
         Send a request. If asked, validate the current session and renew it when necessary.
@@ -158,23 +138,6 @@ class Session(BaseSession):
         :param method: HTTP method for the new `Request` object: `GET`, `OPTIONS`,
             `HEAD`, `POST`, `PUT`, `PATCH`, or `DELETE`.
         :param url: URL for the new `Request` object.
-        :param params: (optional) Query parameters to include in the URL, as a
-            string, dictionary, or list of two-tuples.
-        :param data: (optional) Data to include in the body of the request, as a
-            dictionary.
-        :param files: (optional) A dictionary of upload files to include in the
-            body of the request.
-        :param json: (optional) A JSON serializable object to include in the body
-            of the request.
-        :param headers: (optional) Dictionary of HTTP headers to include in the
-            request.
-        :param cookies: (optional) Dictionary of Cookie items to include in the
-            request.
-        :param auth: (optional) An authentication class to use when sending the
-            request.
-        :param timeout: (optional) The timeout configuration to use when sending
-            the request.
-        :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
         :return: an :class:`Response` object.
@@ -183,48 +146,29 @@ class Session(BaseSession):
         url_parsed = urlparse(url)
         url = url if all([getattr(url_parsed, attr) for attr in ["scheme", "netloc", "path"]]) \
             else urljoin(self._base_url, url)
-        rtn = self._client.request(method=method,
-                                   url=url,
-                                   data=data,
-                                   files=files,
-                                   json=json,
-                                   params=params,
-                                   headers=headers,
-                                   cookies=cookies,
-                                   auth=auth,
-                                   allow_redirects=allow_redirects,
-                                   timeout=timeout)
+        rtn = self._client.request(method, url=url, **kwargs)
         try:
             rtn.raise_for_status()
-        except httpx.exceptions.HTTPError as e:
+        except httpx.HTTPError as e:
             if rtn.status_code == httpx.codes.SERVICE_UNAVAILABLE:
                 raise ServiceUnavailable
             raise e
-        if validate_session and rtn.url.full_path == "/xtgl/login_slogin.html":  # type: ignore
+        if validate_session and rtn.url.raw_path == b"/xtgl/login_slogin.html":  # type: ignore
             if not auto_renew:
                 raise SessionException("Session expired.")
             self._secure_req(partial(self.get, consts.LOGIN_URL, validate_session=False))  # refresh token
             # Sometimes JAccount OAuth token isn't expired
             if self.get(consts.HOME_URL,
-                        validate_session=False).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
+                        validate_session=False).url.raw_path == b"/xtgl/login_slogin.html":  # type: ignore
                 if self._username and self._password:
                     self.login(self._username, self._password)
                 else:
                     raise SessionException("Session expired. Unable to renew session due to missing username or "
                                            "password")
-            return self.request(method=method,
-                                url=url,
-                                data=data,
-                                files=files,
-                                json=json,
-                                params=params,
-                                headers=headers,
-                                cookies=cookies,
-                                auth=auth,
-                                allow_redirects=allow_redirects,
-                                timeout=timeout,
+            return self.request(method, url,
                                 validate_session=validate_session,
-                                auto_renew=False)  # disable auto_renew to avoid infinite recursion
+                                auto_renew=False,  # disable auto_renew to avoid infinite recursion
+                                **kwargs)
         else:
             return rtn
 
@@ -232,30 +176,14 @@ class Session(BaseSession):
             self,
             url: URLTypes,
             *,
-            params: QueryParamTypes = None,
-            headers: HeaderTypes = None,
-            cookies: CookieTypes = None,
-            auth: AuthTypes = None,
-            allow_redirects: bool = True,
-            timeout: Union[TimeoutTypes, UnsetType] = UNSET,
             validate_session: bool = True,
-            auto_renew: bool = True
+            auto_renew: bool = True,
+            **kwargs
     ) -> Response:
         """
         Send a GET request. If asked, validate the current session and renew it when necessary.
 
         :param url: URL for the new `Request` object.
-        :param params: (optional) Query parameters to include in the URL, as a
-            string, dictionary, or list of two-tuples.
-        :param headers: (optional) Dictionary of HTTP headers to include in the
-            request.
-        :param cookies: (optional) Dictionary of Cookie items to include in the
-            request.
-        :param auth: (optional) An authentication class to use when sending the
-            request.
-        :param timeout: (optional) The timeout configuration to use when sending
-            the request.
-        :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
         :return: an :class:`Response` object.
@@ -263,44 +191,23 @@ class Session(BaseSession):
         return self.request(
             "GET",
             url,
-            params=params,
-            headers=headers,
-            cookies=cookies,
-            auth=auth,
-            allow_redirects=allow_redirects,
-            timeout=timeout,
             validate_session=validate_session,
-            auto_renew=auto_renew
+            auto_renew=auto_renew,
+            **kwargs
         )
 
     def options(
             self,
             url: URLTypes,
             *,
-            params: QueryParamTypes = None,
-            headers: HeaderTypes = None,
-            cookies: CookieTypes = None,
-            auth: AuthTypes = None,
-            allow_redirects: bool = True,
-            timeout: Union[TimeoutTypes, UnsetType] = UNSET,
             validate_session: bool = True,
-            auto_renew: bool = True
+            auto_renew: bool = True,
+            **kwargs
     ) -> Response:
         """
         Send a OPTIONS request. If asked, validate the current session and renew it when necessary.
 
         :param url: URL for the new `Request` object.
-        :param params: (optional) Query parameters to include in the URL, as a
-            string, dictionary, or list of two-tuples.
-        :param headers: (optional) Dictionary of HTTP headers to include in the
-            request.
-        :param cookies: (optional) Dictionary of Cookie items to include in the
-            request.
-        :param auth: (optional) An authentication class to use when sending the
-            request.
-        :param timeout: (optional) The timeout configuration to use when sending
-            the request.
-        :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
         :return: an :class:`Response` object.
@@ -308,44 +215,23 @@ class Session(BaseSession):
         return self.request(
             "OPTIONS",
             url,
-            params=params,
-            headers=headers,
-            cookies=cookies,
-            auth=auth,
-            allow_redirects=allow_redirects,
-            timeout=timeout,
             validate_session=validate_session,
-            auto_renew=auto_renew
+            auto_renew=auto_renew,
+            **kwargs
         )
 
     def head(
             self,
             url: URLTypes,
             *,
-            params: QueryParamTypes = None,
-            headers: HeaderTypes = None,
-            cookies: CookieTypes = None,
-            auth: AuthTypes = None,
-            allow_redirects: bool = False,  # NOTE: Differs to usual default.
-            timeout: Union[TimeoutTypes, UnsetType] = UNSET,
             validate_session: bool = True,
-            auto_renew: bool = True
+            auto_renew: bool = True,
+            **kwargs
     ) -> Response:
         """
         Send a HEAD request. If asked, validate the current session and renew it when necessary.
 
         :param url: URL for the new `Request` object.
-        :param params: (optional) Query parameters to include in the URL, as a
-            string, dictionary, or list of two-tuples.
-        :param headers: (optional) Dictionary of HTTP headers to include in the
-            request.
-        :param cookies: (optional) Dictionary of Cookie items to include in the
-            request.
-        :param auth: (optional) An authentication class to use when sending the
-            request.
-        :param timeout: (optional) The timeout configuration to use when sending
-            the request.
-        :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
         :return: an :class:`Response` object.
@@ -353,53 +239,23 @@ class Session(BaseSession):
         return self.request(
             "HEAD",
             url,
-            params=params,
-            headers=headers,
-            cookies=cookies,
-            auth=auth,
-            allow_redirects=allow_redirects,
-            timeout=timeout,
             validate_session=validate_session,
-            auto_renew=auto_renew
+            auto_renew=auto_renew,
+            **kwargs
         )
 
     def post(
             self,
             url: URLTypes,
             *,
-            data: RequestData = None,
-            files: RequestFiles = None,
-            json: Any = None,
-            params: QueryParamTypes = None,
-            headers: HeaderTypes = None,
-            cookies: CookieTypes = None,
-            auth: AuthTypes = None,
-            allow_redirects: bool = True,
-            timeout: Union[TimeoutTypes, UnsetType] = UNSET,
             validate_session: bool = True,
-            auto_renew: bool = True
+            auto_renew: bool = True,
+            **kwargs
     ) -> Response:
         """
         Send a POST request. If asked, validate the current session and renew it when necessary.
 
         :param url: URL for the new `Request` object.
-        :param params: (optional) Query parameters to include in the URL, as a
-            string, dictionary, or list of two-tuples.
-        :param data: (optional) Data to include in the body of the request, as a
-            dictionary.
-        :param files: (optional) A dictionary of upload files to include in the
-            body of the request.
-        :param json: (optional) A JSON serializable object to include in the body
-            of the request.
-        :param headers: (optional) Dictionary of HTTP headers to include in the
-            request.
-        :param cookies: (optional) Dictionary of Cookie items to include in the
-            request.
-        :param auth: (optional) An authentication class to use when sending the
-            request.
-        :param timeout: (optional) The timeout configuration to use when sending
-            the request.
-        :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
         :return: an :class:`Response` object.
@@ -407,56 +263,23 @@ class Session(BaseSession):
         return self.request(
             "POST",
             url,
-            data=data,
-            files=files,
-            json=json,
-            params=params,
-            headers=headers,
-            cookies=cookies,
-            auth=auth,
-            allow_redirects=allow_redirects,
-            timeout=timeout,
             validate_session=validate_session,
-            auto_renew=auto_renew
+            auto_renew=auto_renew,
+            **kwargs
         )
 
     def put(
             self,
             url: URLTypes,
             *,
-            data: RequestData = None,
-            files: RequestFiles = None,
-            json: Any = None,
-            params: QueryParamTypes = None,
-            headers: HeaderTypes = None,
-            cookies: CookieTypes = None,
-            auth: AuthTypes = None,
-            allow_redirects: bool = True,
-            timeout: Union[TimeoutTypes, UnsetType] = UNSET,
             validate_session: bool = True,
-            auto_renew: bool = True
+            auto_renew: bool = True,
+            **kwargs
     ) -> Response:
         """
         Send a PUT request. If asked, validate the current session and renew it when necessary.
 
         :param url: URL for the new `Request` object.
-        :param params: (optional) Query parameters to include in the URL, as a
-            string, dictionary, or list of two-tuples.
-        :param data: (optional) Data to include in the body of the request, as a
-            dictionary.
-        :param files: (optional) A dictionary of upload files to include in the
-            body of the request.
-        :param json: (optional) A JSON serializable object to include in the body
-            of the request.
-        :param headers: (optional) Dictionary of HTTP headers to include in the
-            request.
-        :param cookies: (optional) Dictionary of Cookie items to include in the
-            request.
-        :param auth: (optional) An authentication class to use when sending the
-            request.
-        :param timeout: (optional) The timeout configuration to use when sending
-            the request.
-        :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
         :return: an :class:`Response` object.
@@ -464,56 +287,23 @@ class Session(BaseSession):
         return self.request(
             "PUT",
             url,
-            data=data,
-            files=files,
-            json=json,
-            params=params,
-            headers=headers,
-            cookies=cookies,
-            auth=auth,
-            allow_redirects=allow_redirects,
-            timeout=timeout,
             validate_session=validate_session,
-            auto_renew=auto_renew
+            auto_renew=auto_renew,
+            **kwargs
         )
 
     def patch(
             self,
             url: URLTypes,
             *,
-            data: RequestData = None,
-            files: RequestFiles = None,
-            json: Any = None,
-            params: QueryParamTypes = None,
-            headers: HeaderTypes = None,
-            cookies: CookieTypes = None,
-            auth: AuthTypes = None,
-            allow_redirects: bool = True,
-            timeout: Union[TimeoutTypes, UnsetType] = UNSET,
             validate_session: bool = True,
-            auto_renew: bool = True
+            auto_renew: bool = True,
+            **kwargs
     ) -> Response:
         """
         Sends a PATCH request. If asked, validates the current session and renews it when necessary.
 
         :param url: URL for the new `Request` object.
-        :param params: (optional) Query parameters to include in the URL, as a
-            string, dictionary, or list of two-tuples.
-        :param data: (optional) Data to include in the body of the request, as a
-            dictionary.
-        :param files: (optional) A dictionary of upload files to include in the
-            body of the request.
-        :param json: (optional) A JSON serializable object to include in the body
-            of the request.
-        :param headers: (optional) Dictionary of HTTP headers to include in the
-            request.
-        :param cookies: (optional) Dictionary of Cookie items to include in the
-            request.
-        :param auth: (optional) An authentication class to use when sending the
-            request.
-        :param timeout: (optional) The timeout configuration to use when sending
-            the request.
-        :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
         :return: an :class:`Response` object.
@@ -521,47 +311,23 @@ class Session(BaseSession):
         return self.request(
             "PATCH",
             url,
-            data=data,
-            files=files,
-            json=json,
-            params=params,
-            headers=headers,
-            cookies=cookies,
-            auth=auth,
-            allow_redirects=allow_redirects,
-            timeout=timeout,
             validate_session=validate_session,
-            auto_renew=auto_renew
+            auto_renew=auto_renew,
+            **kwargs
         )
 
     def delete(
             self,
             url: URLTypes,
             *,
-            params: QueryParamTypes = None,
-            headers: HeaderTypes = None,
-            cookies: CookieTypes = None,
-            auth: AuthTypes = None,
-            allow_redirects: bool = True,
-            timeout: Union[TimeoutTypes, UnsetType] = UNSET,
             validate_session: bool = True,
-            auto_renew: bool = True
+            auto_renew: bool = True,
+            **kwargs
     ) -> Response:
         """
         Sends a DELETE request. If asked, validates the current session and renews it when necessary.
 
         :param url: URL for the new `Request` object.
-        :param params: (optional) Query parameters to include in the URL, as a
-            string, dictionary, or list of two-tuples.
-        :param headers: (optional) Dictionary of HTTP headers to include in the
-            request.
-        :param cookies: (optional) Dictionary of Cookie items to include in the
-            request.
-        :param auth: (optional) An authentication class to use when sending the
-            request.
-        :param timeout: (optional) The timeout configuration to use when sending
-            the request.
-        :param allow_redirects: (optional) Enables or disables HTTP redirects.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
         :return: an :class:`Response` object.
@@ -569,14 +335,9 @@ class Session(BaseSession):
         return self.request(
             "DELETE",
             url,
-            params=params,
-            headers=headers,
-            cookies=cookies,
-            auth=auth,
-            allow_redirects=allow_redirects,
-            timeout=timeout,
             validate_session=validate_session,
-            auto_renew=auto_renew
+            auto_renew=auto_renew,
+            **kwargs
         )
 
     def login(self, username: str, password: str):
@@ -585,11 +346,12 @@ class Session(BaseSession):
 
         :param username: JAccount username.
         :param password: JAccount password.
-        :raises LoginException: Failed to login after several attempts.
+        :raises LoginException: Failed to log in after several attempts.
         """
         self._cache_store = {}
         for i in self._retry:
-            login_page_req = self._secure_req(partial(self.get, consts.LOGIN_URL, validate_session=False, headers=consts.HEADERS))
+            login_page_req = self._secure_req(
+                partial(self.get, consts.LOGIN_URL, validate_session=False, headers=consts.HEADERS))
             uuid = re.findall(r"(?<=uuid\": ').*(?=')", login_page_req.text)[0]
             login_params = {k: v[0] for k, v in parse_qs(urlparse(str(login_page_req.url)).query).items()}
 
@@ -600,7 +362,7 @@ class Session(BaseSession):
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
             result = self._secure_req(
                 partial(self.post, consts.LOGIN_POST_URL, params=login_params, headers=consts.HEADERS))
-            if "err=" not in result.url.query:  # type: ignore
+            if b"err=" not in result.url.query:  # type: ignore
                 self._username = username
                 self._password = password
                 return
@@ -633,7 +395,7 @@ class Session(BaseSession):
         renew_required = True
 
         if "cookies" in d.keys() and d["cookies"]:
-            if isinstance(d["cookies"], httpx.models.Cookies):
+            if isinstance(d["cookies"], httpx.Cookies):
                 cj = d["cookies"]  # type: ignore
             elif isinstance(d["cookies"], dict):
                 cj = CookieJar()  # type: ignore
@@ -709,11 +471,6 @@ class Session(BaseSession):
             raise TypeError
 
     @property
-    def proxies(self) -> Dict[str, SyncDispatcher]:
-        """ Get or set the proxy to be used on each request. """
-        return self._client.proxies
-
-    @property
     def _cookies(self) -> CookieTypes:
         """ Get or set the cookie to be used on each request. This protected property skips session validation. """
         return self._client.cookies
@@ -738,23 +495,21 @@ class Session(BaseSession):
         bak_cookie = self._client.cookies
         # noinspection PyTypeHints
         self._client.cookies = new_cookie  # type: ignore
-        self._secure_req(partial(self.get, consts.LOGIN_URL, validate_session=False, headers=consts.HEADERS))  # refresh JSESSION token
-        if self.get(consts.HOME_URL, validate_session=False).url.full_path == "/xtgl/login_slogin.html":  # type: ignore
+        self._secure_req(partial(self.get, consts.LOGIN_URL, validate_session=False,
+                                 headers=consts.HEADERS))  # refresh JSESSION token
+        if self.get(consts.HOME_URL, validate_session=False).url.raw_path == b"/xtgl/login_slogin.html":  # type: ignore
             self._client.cookies = bak_cookie
             raise SessionException("Invalid cookies. You may skip this validation by setting _cookies")
         self._cache_store = {}
 
     @property
-    def timeout(self) -> TimeoutTypes:
+    def timeout(self) -> httpx.Timeout:
         """ Get or set the timeout to be used on each request. """
         return self._client.timeout
 
     @timeout.setter
-    def timeout(self, new_timeout: TimeoutTypes):
-        if isinstance(new_timeout, (tuple, float, int, httpx.Timeout)) or new_timeout is None:
-            self._client.timeout = httpx.Timeout(new_timeout)
-        else:
-            raise TypeError
+    def timeout(self, new_timeout: httpx.Timeout):
+        self._client.timeout = new_timeout
 
     @property
     def base_url(self) -> str:

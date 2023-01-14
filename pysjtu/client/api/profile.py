@@ -9,6 +9,7 @@ class ProfileMixin(BaseClient):
     def __init__(self):
         super().__init__()
 
+    # noinspection PyProtectedMember
     @property
     def profile(self) -> Profile:
         """ Get the user profile of the current session. """

@@ -129,7 +129,7 @@ class SelectionClassSchema(Schema):
     locations = SplitField(required=True, data_key="jxdd", sep="<br/>")
     time = TimeField(required=True, data_key="sksj")
     course_type = SplitField(required=True, data_key="kcxzmc", sep=",")
-    remark = fields.Str(data_key="xkbz", missing=None)
+    remark = fields.Str(data_key="xkbz", load_default=None)
     students_planned = fields.Int(required=True, data_key="jxbrl")
 
 

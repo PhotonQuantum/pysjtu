@@ -1,4 +1,5 @@
 import time
+from abc import ABC
 from enum import IntEnum
 from typing import Callable, Generic, List, Tuple, Type, TypeVar, Union
 
@@ -23,7 +24,7 @@ class PARTIAL:
     pass
 
 
-class LazyResult(Result):
+class LazyResult(Result, ABC):
     """ Base class for LazyResult """
     _load_func: Callable = None
 
