@@ -40,8 +40,8 @@ def check_login():
 class TestSession:
     @respx.mock
     def test_base_url(self):
-        respx.get("https://i.sjtu.edu.cn/test", content="1")
-        respx.get("https://kbcx.sjtu.edu.cn/test", content="2")
+        respx.get("https://i.sjtu.edu.cn/test").respond(content="1")
+        respx.get("https://kbcx.sjtu.edu.cn/test").respond(content="2")
         sess = Session()
         assert sess.base_url == "https://i.sjtu.edu.cn"
         assert sess.get("/test").text == "1"
@@ -51,10 +51,10 @@ class TestSession:
 
     @respx.mock
     def test_secure_req(self):
-        respx.get("http://secure.page.edu.cn", content=httpx.ConnectionClosed())
-        respx.get("http://secure.page.edu.cn:8889", content=httpx.ConnectionClosed())
-        respx.get("https://fail.page.edu.cn", content=httpx.ConnectionClosed())
-        respx.get("https://secure.page.edu.cn")
+        respx.get("http://secure.page.edu.cn").mock(side_effect=httpx.ConnectError)
+        respx.get("http://secure.page.edu.cn:8889").mock(side_effect=httpx.ConnectError)
+        respx.get("https://fail.page.edu.cn").mock(side_effect=httpx.ConnectError)
+        respx.get("https://secure.page.edu.cn").respond(200)
         sess = Session()
 
         resp = sess._secure_req(partial(httpx.get, "http://secure.page.edu.cn"))
@@ -63,7 +63,7 @@ class TestSession:
         resp = sess._secure_req(partial(httpx.get, "http://secure.page.edu.cn:8889"))
         assert resp.status_code == 200
 
-        with pytest.raises(httpx.exceptions.NetworkError):
+        with pytest.raises(httpx.NetworkError):
             sess._secure_req(partial(httpx.get, "https://fail.page.edu.cn"))
 
     def test_context(self, mocker):
@@ -100,7 +100,7 @@ class TestSession:
 
         logged_session.get("https://i.sjtu.edu.cn/expire_me")
         assert logged_session.get("https://i.sjtu.edu.cn/xtgl/index_initMenu.html",
-                                  validate_session=False).url.full_path == "/xtgl/login_slogin.html"
+                                  validate_session=False).url.raw_path == b"/xtgl/login_slogin.html"
         with pytest.raises(SessionException):
             logged_session.get("https://i.sjtu.edu.cn/xtgl/index_initMenu.html", auto_renew=False)
         assert check_login(logged_session)
@@ -110,13 +110,13 @@ class TestSession:
         with pytest.raises(SessionException):
             logged_session.get("https://i.sjtu.edu.cn/xtgl/index_initMenu.html")
 
-        with pytest.raises(httpx.exceptions.HTTPError):
+        with pytest.raises(httpx.HTTPError):
             logged_session.get("https://i.sjtu.edu.cn/404")
 
     def test_req_methods(self, logged_session):
         assert logged_session.get("https://i.sjtu.edu.cn/ping").text == "pong"
         logged_session.head("https://i.sjtu.edu.cn/ping")
-        assert logged_session.post("https://i.sjtu.edu.cn/ping", data="lorem ipsum").text == "lorem ipsum"
+        assert logged_session.post("https://i.sjtu.edu.cn/ping", content="lorem ipsum").text == "lorem ipsum"
         assert logged_session.patch("https://i.sjtu.edu.cn/ping").text == "pong"
         assert logged_session.put("https://i.sjtu.edu.cn/ping").text == "pong"
         assert logged_session.delete("https://i.sjtu.edu.cn/ping").text == "pong"
@@ -125,7 +125,7 @@ class TestSession:
 
     @respx.mock
     def test_req_partial_url(self):
-        respx.get("http://dummy.url/test_path", content="pass")
+        respx.get("http://dummy.url/test_path").respond(content="pass")
         assert Session(base_url="http://dummy.url").get("/test_path").text == "pass"
 
     def test_login(self, logged_session, check_login):
@@ -224,14 +224,11 @@ class TestSession:
         cookie = logged_session.cookies
 
         sess = Session(_mocker_app=app)
-        assert sess.proxies == {}
 
         assert isinstance(sess.timeout, httpx.Timeout)
         sess.timeout = httpx.Timeout(1.0)
         sess.timeout = 1
         sess.timeout = (1, 5)
-        with pytest.raises(TypeError):
-            sess.timeout = "1"
 
         assert isinstance(sess.cookies, httpx.Cookies)
         with pytest.raises(SessionException):

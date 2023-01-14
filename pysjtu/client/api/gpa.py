@@ -1,7 +1,4 @@
 import time
-from typing import Union
-
-from httpx.config import (TimeoutTypes, UNSET, UnsetType)
 
 from pysjtu import consts
 from pysjtu import models
@@ -28,18 +25,19 @@ class GPAMixin(BaseClient):
 
         return self._default_gpa_query_params
 
-    def gpa(self, query_params: models.GPAQueryParams, timeout: Union[TimeoutTypes, UnsetType] = UNSET) -> models.GPA:
+    def gpa(self, query_params: models.GPAQueryParams, **kwargs) -> models.GPA:
         """
         Query your GP & GPA and their rankings of specific year & term.
 
+        Note that you may want to set a higher timeout for this method.
+
         :param query_params: parameters for this query.
             A default one can be fetched by reading property `default_gpa_query_params`.
-        :param timeout: (optional) How long to wait for the server to send data before giving up.
         :return: A new :class:`GPA` object.
         """
         compiled_params = schemas.GPAQueryParamsSchema().dump(query_params)
         calc_rtn = self._session.post(consts.GPA_CALC_URL + str(self.student_id),
-                                      data=compiled_params, timeout=timeout)
+                                      data=compiled_params, **kwargs)
         if calc_rtn.text != "\"统计成功！\"":
             if calc_rtn.text == "\"统计失败！\"":
                 raise GPACalculationException("Calculation failure.")
@@ -50,5 +48,5 @@ class GPAMixin(BaseClient):
                                 "queryModel.currentPage": 1, "queryModel.sortName": "",
                                 "queryModel.sortOrder": "asc", "time": 0})
         raw = self._session.post(consts.GPA_QUERY_URL + str(self.student_id),
-                                 data=compiled_params, timeout=timeout)
+                                 data=compiled_params, **kwargs)
         return schemas.GPASchema().load(raw.json()["items"][0])  # type: ignore

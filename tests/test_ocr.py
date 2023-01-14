@@ -40,7 +40,7 @@ def test_recognizer(captcha, recognizer):
 
 @respx.mock
 def test_jcss_recognizer():
-    respx.post("https://jcss.lightquantum.me",
-               content='{"status":"success","data":{"prediction":"gbmke","elapsed_time":2}}')
+    respx.post("https://jcss.lightquantum.me").respond(
+        content='{"status":"success","data":{"prediction":"gbmke","elapsed_time":2}}')
     predictor = JCSSRecognizer(proxies={"all://": None})
     assert predictor.recognize(b'fbkfbkfbk') == "gbmke"

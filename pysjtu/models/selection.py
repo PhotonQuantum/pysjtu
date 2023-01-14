@@ -144,13 +144,13 @@ class SelectionClass(LazyResult):
     :type class_name: str
     :param class_id: class id (variable between years).
     :type class_id: str
-    :param students_elected: number of students registered for this course.
-    :type students_elected: int
+    :param students_registered: number of students registered for this course.
+    :type students_registered: int
     :param students_planned: number of students planned when setting this course.
     :type students_planned: int
     :param register_id: dynamic id used when (de)registering for this class.
-    :param teacher: the teachers who offer this course.
-    :type teacher: List[Tuple[str]]
+    :param teachers: the teachers who offer this course.
+    :type teachers: List[Tuple[str]]
     :param locations: the places where classes are given.
     :type locations: List[str]
     :param time: the time when the class is given.

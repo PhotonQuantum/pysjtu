@@ -3,7 +3,6 @@ from importlib import resources
 from io import BytesIO
 
 import httpx
-from httpx.config import ProxiesTypes
 
 from pysjtu.exceptions import OCRException
 from pysjtu.utils import range_in_set
@@ -24,9 +23,21 @@ class Recognizer:
 
 
 class JCSSRecognizer(Recognizer):
-    def __init__(self, url: str = "https://jcss.lightquantum.me", proxies: ProxiesTypes = None):
+    """
+    An online recognizer using JCSS (JAccount Captcha Solver Service).
+    This is the default recognizer for :class:`pysjtu.Session`. You don't need to install any extra packages to use it.
+
+    It shares the same backend implementation with :class:`NNRecognizer`, but is deployed on a remote server.
+
+    By default, it uses the public instance of JCSS, but you can also deploy your own instance.
+
+    :param url: The URL of the JCSS instance.
+    :param kwargs: The kwargs to be passed to :class:`httpx.Client`.
+    """
+
+    def __init__(self, url: str = "https://jcss.lightquantum.me", *args, **kwargs):
         self.url = url
-        self.client = httpx.Client(proxies=proxies)
+        self.client = httpx.Client(*args, **kwargs)
 
     def recognize(self, img: bytes):
         try:
@@ -39,7 +50,7 @@ class JCSSRecognizer(Recognizer):
 
 class LegacyRecognizer(Recognizer):
     """
-    An legacy captcha recognizer.
+    A legacy captcha recognizer.
 
     It first applies projection-based algorithm to the input image, then use a pre-trained shallow model
     to predict the answer.

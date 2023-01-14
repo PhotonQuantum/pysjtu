@@ -17,7 +17,7 @@ class SelectionMixin(BaseClient):
         self._fetch_selection_classes = lru_cache(maxsize=1024)(self._fetch_selection_classes)
         self._get_selection_classes = lru_cache(maxsize=16)(self._get_selection_classes)
 
-    def _class_is_registered(self, _class: SelectionClass, timeout=10) -> bool:
+    def _class_is_registered(self, _class: SelectionClass, **kwargs) -> bool:
         payload = {
             "jxb_id": _class.register_id,
             "xkkz_id": _class.sector.xkkz_id,
@@ -25,17 +25,16 @@ class SelectionMixin(BaseClient):
             "xqm": _class.sector.shared_info.selection_term
         }
         is_registered = self._session.post(f"{consts.SELECTION_IS_REGISTERED}{self.student_id}", data=payload,
-                                           timeout=timeout).json()
+                                           **kwargs).json()
         return is_registered == "1"
 
-    def _class_register(self, _class: SelectionClass, timeout=10):
+    def _class_register(self, _class: SelectionClass, **kwargs):
         payload = {
             "jxb_ids": _class.register_id,
             "kch_id": _class.internal_course_id,
             "qz": 0
         }
-        register = self._session.post(f"{consts.SELECTION_REGISTER}{self.student_id}", data=payload,
-                                      timeout=timeout).json()
+        register = self._session.post(f"{consts.SELECTION_REGISTER}{self.student_id}", data=payload, **kwargs).json()
         if not register or "flag" not in register:
             raise RegistrationException("Bad request.")  # pragma: no cover
         if register["flag"] == "0":
@@ -53,13 +52,13 @@ class SelectionMixin(BaseClient):
         else:
             raise RegistrationException(f"Unexpected response: {register}")  # pragma: no cover
 
-    def _class_deregister(self, _class: SelectionClass, timeout=10):
+    def _class_deregister(self, _class: SelectionClass, **kwargs):
         payload = {
             "kch_id": _class.internal_course_id,
             "jxb_ids": _class.register_id
         }
         deregister = self._session.post(f"{consts.SELECTION_DEREGISTER}{self.student_id}", data=payload,
-                                        timeout=timeout).json()
+                                        **kwargs).json()
         if deregister == "1":
             return
         elif deregister == "2":  # pragma: no cover
