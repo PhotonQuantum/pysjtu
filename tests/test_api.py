@@ -12,9 +12,13 @@ from pysjtu.exceptions import DumpWarning, GPACalculationException, LoadWarning,
     SessionException, SelectionNotAvailableException, TimeConflictException, FullCapacityException
 from pysjtu.models import CourseRange, Exams, GPA, GPAQueryParams, LogicEnum, QueryResult, Schedule, Scores, Profile
 from pysjtu.ocr import JCSSRecognizer
-from pysjtu.session import BaseSession, Session
+from pysjtu.session import BaseSession, Session as _Session
 from .mock_server import app
-from dataclasses import asdict
+
+
+# noinspection PyPep8Naming
+def Session(*args, **kwargs):
+    return _Session(*args, **kwargs, proxies={"all://": None})
 
 
 @pytest.fixture
@@ -265,7 +269,7 @@ class TestClient:
             Client(0)
         with pytest.raises(TypeError):
             Client(self.DummySession2())
-        client = create_client("FeiLin", "WHISPERS", _mocker_app=app)
+        client = create_client("FeiLin", "WHISPERS", _mocker_app=app, proxies={"all://": None})
         assert client.student_id == 519027910001
 
     def test_student_id(self, logged_client):
