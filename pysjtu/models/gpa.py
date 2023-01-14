@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List
+from typing import List, Optional
 
 from pysjtu.models.base import Result
 
@@ -29,9 +29,9 @@ class GPAQueryParams(Result):
     You may leave fields empty if you don't want to filter by them.
 
     :param start_term: begin term of the query.
-    :type start_term: int
+    :type start_term: Optional[int]
     :param end_term: end term of the query.
-    :type end_term: int
+    :type end_term: Optional[int]
     :param condition_logic: logic applied between `has_roll`, `registered` and `attending`.
     :type condition_logic: :class:`LogicEnum`
     :param makeup_as_60: treat makeup scores (P) as 60.
@@ -46,10 +46,14 @@ class GPAQueryParams(Result):
     :type exclude_gp: str
     :param exclude_gpa: exclude courses matching given criteria when calculating gpa.
     :type exclude_gpa: str
-    :param course_whole: unknown parameter.
+    :param course_whole: unknown parameter. (统计全程的课程)
     :type course_whole: List[str]
     :param course_range: courses taken into account when ranking
     :type course_range: :class:`CourseRange`
+    :param excluded_courses: ids of courses excluded from statistics.
+    :param excluded_course_groups: ids of course groups excluded from statistics.
+    :param included_course_groups: ids of course groups included in statistics.
+    :param statistics_method: unknown parameter. (统计方法: zhyccj 最后一次成绩)
     :param ranking: student range upon which to rank
     :type ranking: :class:`Ranking`
     :param has_roll: only include students who are enrolled in school.
@@ -59,8 +63,8 @@ class GPAQueryParams(Result):
     :param attending: only include students who are attending school now.
     :type attending: bool
     """
-    start_term: int
-    end_term: int
+    start_term: Optional[int]
+    end_term: Optional[int]
     condition_logic: LogicEnum
     makeup_as_60: bool
     rebuild_as_60: bool
@@ -70,6 +74,10 @@ class GPAQueryParams(Result):
     exclude_gpa: str
     course_whole: List[str]
     course_range: CourseRange
+    excluded_courses: str
+    excluded_course_groups: str
+    included_course_groups: str
+    statistics_method: str
     ranking: Ranking
     has_roll: bool
     registered: bool

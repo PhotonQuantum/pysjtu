@@ -176,10 +176,14 @@ class GPAQueryParamsSchema(Schema):
     rebuild_as_60 = RebuildAsPass(required=True, dump_only=True)
     gp_round = fields.Int(required=True, load_key="cjblws", dump_key="sspjfblws")
     gpa_round = fields.Int(required=True, load_key="jdblws", dump_key="pjjdblws")
-    exclude_gp = fields.Str(required=True, data_key="bjjd")
-    exclude_gpa = fields.Str(required=True, data_key="bjpjf")
+    exclude_gp = SplitField(required=True, data_key="bjjd", sep=",")
+    exclude_gpa = SplitField(required=True, data_key="bjpjf", sep=",")
     course_whole = SplitField(required=True, load_key="tjqckc", dump_key="kch_ids", sep=",")
     course_range = CourseRangeField(required=True, dump_key="kcfw", dump_only=True)
+    excluded_courses = fields.Str(load_key="bcjkc", dump_key="bcjkc_id", load_default="")
+    excluded_course_groups = fields.Str(load_key="bcjkz", dump_key="bcjkz_id", load_default="")
+    included_course_groups = fields.Str(load_key="cjkz", dump_key="cjkz_id", load_default="")
+    statistics_method = fields.Str(required=True, data_key="cjxzm")
     ranking = RankingField(required=True, dump_key="tjfw", dump_only=True)
     has_roll = HasRoll(required=True, data_key="atjc", load_only=True)
     registered = Registered(required=True, data_key="atjc", load_only=True)
@@ -240,7 +244,7 @@ class GPASchema(Schema):
     class Meta:
         unknown = EXCLUDE
 
-    total_score = fields.Int(required=True, data_key="zf")
+    total_score = fields.Float(required=True, data_key="zf")
     course_count = fields.Int(required=True, data_key="ms")
     fail_count = fields.Int(required=True, data_key="bjgms")
     total_credit = fields.Float(required=True, data_key="zxf")

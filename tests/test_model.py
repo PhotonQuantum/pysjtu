@@ -123,17 +123,19 @@ def test_lazy_model(mocker):
 
     (GPAQueryParams,
      ["start_term", "end_term", "condition_logic", "makeup_as_60", "rebuild_as_60", "gp_round", "gpa_round",
-      "exclude_gp", "exclude_gpa", "course_whole", "course_range", "ranking", "has_roll", "registered", "attending"],
+      "exclude_gp", "exclude_gpa", "course_whole", "course_range", "excluded_courses", "excluded_course_groups",
+      "included_course_groups", "statistics_method", "ranking", "has_roll", "registered", "attending"],
      ({"start_term": 0},
-      "<GPAQueryParams {'start_term': 0, 'end_term': None, 'condition_logic': None, 'makeup_as_60': None, "
-      "'rebuild_as_60': None, 'gp_round': None, 'gpa_round': None, 'exclude_gp': None, 'exclude_gpa': None, "
-      "'course_whole': None, 'course_range': None, 'ranking': None, 'has_roll': None, 'registered': None, "
-      "'attending': None}>")),
+      "<GPAQueryParams {'start_term': 0, 'end_term': None, 'condition_logic': None, "
+      "'makeup_as_60': None, 'rebuild_as_60': None, 'gp_round': None, 'gpa_round': "
+      "None, 'exclude_gp': None, 'exclude_gpa': None, 'course_whole': None, "
+      "'course_range': None, 'excluded_courses': None, 'excluded_course_groups': "
+      "None, 'included_course_groups': None, 'statistics_method': None, 'ranking': "
+      "None, 'has_roll': None, 'registered': None, 'attending': None}>")),
 
     (GPA,
      ["total_score", "course_count", "fail_count", "total_credit", "acquired_credit", "failed_credit", "pass_rate",
-      "gp",
-      "gp_ranking", "gpa", "gpa_ranking", "total_students"],
+      "gp", "gp_ranking", "gpa", "gpa_ranking", "total_students"],
      ({"gp": 80, "gp_ranking": 50, "gpa": 3.8, "gpa_ranking": 40, "total_students": 200},
       "<GPA gp=80 50/200 gpa=3.8 40/200>")),
 
