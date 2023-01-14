@@ -1,11 +1,15 @@
 from contextlib import ExitStack
-from importlib import resources
 from io import BytesIO
 
 import httpx
 
 from pysjtu.exceptions import OCRException
 from pysjtu.utils import range_in_set
+
+try:
+    import importlib_resources as resources
+except ImportError:
+    from importlib import resources
 
 try:
     import onnxruntime as rt  # type: ignore
