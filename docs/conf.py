@@ -37,7 +37,6 @@ extensions = [
     'sphinx_autodoc_typehints',
     'sphinx.ext.coverage',
     'sphinx.ext.autosectionlabel',
-    'sphinx_rtd_theme'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -57,7 +56,7 @@ master_doc = 'index'
 # a list of builtin themes.
 #
 # html_theme = 'alabaster'
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'sphinx_book_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
