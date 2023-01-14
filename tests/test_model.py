@@ -88,6 +88,9 @@ def test_query_result(dummy_req):
 
 def test_lazy_model(mocker):
     class DummyModel(LazyResult):
+        def __repr__(self):
+            return "DummyModel"
+
         normal_field: int = 0
         lazy_field_1: int = PARTIAL
         lazy_field_2: str = PARTIAL
