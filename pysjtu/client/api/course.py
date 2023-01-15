@@ -17,6 +17,8 @@ class CourseLibMixin(BaseClient):
         """
         Query courses matching given criteria from the whole course lib of SJTU.
 
+        See :meth:`pysjtu.session.Session.post` for more information about the keyword arguments.
+
         :param year: year in which target courses are given.
         :param term: term in which target courses are given.
         :param page_size: page size for result iteration.
@@ -25,7 +27,6 @@ class CourseLibMixin(BaseClient):
         :param day_of_week: (optional) Day of week of target courses.
         :param week: (optional) Week of target courses.
         :param time_of_day: (optional) Time of day of target courses.
-        :return: A new :class:`QueryResult` object.
         """
         _args = {"year": "xnm", "term": "xqm", "name": "kch_id", "teacher": "jqh_id", "day_of_week": "xqj",
                  "week": "qsjsz", "time_of_day": "skjc"}

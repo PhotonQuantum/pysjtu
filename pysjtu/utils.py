@@ -1,5 +1,6 @@
 import base64
 import collections
+import inspect
 from math import inf
 from pathlib import Path
 from typing import BinaryIO, Union
@@ -98,3 +99,16 @@ def flatten(obj):
             yield from flatten(el)
         else:
             yield el
+
+
+def forward_method_args(template):
+    """Decorator to copy the static signature between functions"""
+
+    def apply_signature(target):
+        template_sig = inspect.signature(template)
+
+        target.__signature__ = template_sig.replace(parameters=list(template_sig.parameters.values())[1:])
+
+        return target
+
+    return apply_signature

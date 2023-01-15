@@ -29,11 +29,17 @@ class GPAMixin(BaseClient):
         """
         Query your GP & GPA and their rankings of specific year & term.
 
-        Note that you may want to set a higher timeout for this method.
+        .. warning::
+            GPA calculation is done by the website, and this process often takes a long time.
+
+            It's recommended to increase ``timeout`` to a larger value (e.g. 20s).
+
+            See :ref:`Timeout Configuration` for more details.
+
+        See :meth:`pysjtu.session.Session.post` for more information about the keyword arguments.
 
         :param query_params: parameters for this query.
-            A default one can be fetched by reading property `default_gpa_query_params`.
-        :return: A new :class:`GPA` object.
+            A default one can be fetched by reading property :attr:`default_gpa_query_params`.
         """
         compiled_params = schemas.GPAQueryParamsSchema().dump(query_params)
         calc_rtn = self._session.post(consts.GPA_CALC_URL + str(self.student_id),

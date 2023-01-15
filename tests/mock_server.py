@@ -328,7 +328,7 @@ def selection_register():
 
 
 @app.route("/xsxk/zzxkyzb_tuikBcZzxkYzb.html", methods=["post"])
-def selection_deregister():
+def selection_drop():
     _params = {
         "kch_id": "CS241",
         "jxb_ids": "0f40b5296313cee8407cc4d78b0f8e17a22dd66977e4b2eba40bfa7e9609a2af5655bd56084525b52eaccc0022135fd40796bc9a0bb7246d827b52abe9404552947bb23a54841d74982f19b9a3cdc3c96455efeeb8bdeaef5a90b5afdb06f81b83de2008ab1be401d9f4d2b0a42b570de845e82f6d15a2e03c3e5ec42ebdcf3d"

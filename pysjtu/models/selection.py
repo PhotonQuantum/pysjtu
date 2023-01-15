@@ -85,7 +85,7 @@ class SelectionSector(Result):
     :type sfznkx: str
     :param zdkxms: unknown parameter.
     :type zdkxms: int
-    :param txbsfrl: unknown parameter. (used when deregistering courses.)
+    :param txbsfrl: unknown parameter. (used when dropping courses.)
     :type txbsfrl: int
     :param kkbk: unknown parameter.
     :type kkbk: int
@@ -131,6 +131,8 @@ class SelectionSector(Result):
 class SelectionClass(LazyResult):
     """
     A model which describes a selectable class in this round of selection.
+
+    The data is not fetched until it is accessed for the first time.
 
     :param name: literal name of the course.
     :type name: str
@@ -187,7 +189,6 @@ class SelectionClass(LazyResult):
 
         :param timeout: (optional) How long to wait for the server to send data before giving up.
         :return: A boolean value indicates the registration status.
-        :rtype: bool
         """
         raise NotImplementedError  # pragma: no cover
 
@@ -196,7 +197,6 @@ class SelectionClass(LazyResult):
         Register for this class.
 
         :param timeout: (optional) How long to wait for the server to send data before giving up.
-        :return: None
         :raises: :exc:`pysjtu.exceptions.RegistrationException`
         :raises: :exc:`pysjtu.exceptions.FullCapacityException`
         :raises: :exc:`pysjtu.exceptions.TimeConflictException`
@@ -204,13 +204,12 @@ class SelectionClass(LazyResult):
         """
         raise NotImplementedError  # pragma: no cover
 
-    def deregister(self, timeout=10):
+    def drop(self, timeout=10):
         """
         Drop this class.
 
         :param timeout: (optional) How long to wait for the server to send data before giving up.
-        :return: None
-        :raises: :exc:`pysjtu.exceptions.DeregistrationException`
+        :raises: :exc:`pysjtu.exceptions.DropException`
         :raises: :exc:`pysjtu.exceptions.SelectionNotAvailableException`
         """
         raise NotImplementedError  # pragma: no cover

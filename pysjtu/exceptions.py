@@ -22,8 +22,8 @@ class RegistrationException(Exception):
     """ Base exception for class registration failures. """
 
 
-class DeregistrationException(Exception):
-    """ Base exception for class deregistration failures. """
+class DropException(Exception):
+    """ Base exception for class drop failures. """
 
 
 class FullCapacityException(RegistrationException):

@@ -24,7 +24,7 @@ def Session(*args, **kwargs):
 @pytest.fixture
 def logged_session(mocker):
     mocker.patch.object(JCSSRecognizer, "recognize", return_value="ipsum")
-    sess = Session(_mocker_app=app, retry=[0], timeout=1)
+    sess = Session(app=app, retry=[0], timeout=1)
     sess.login("FeiLin", "WHISPERS")
     return sess
 
@@ -72,7 +72,7 @@ class TestSession:
         tmpfile.seek(0)
 
         mocker.patch.object(JCSSRecognizer, "recognize", return_value="ipsum")
-        with Session(_mocker_app=app, session_file=tmpfile.file):
+        with Session(app=app, session_file=tmpfile.file):
             pass
         tmpfile.seek(0)
 
@@ -81,17 +81,17 @@ class TestSession:
     def test_init(self, mocker, check_login):
         tmpfile = NamedTemporaryFile()
         mocker.patch.object(JCSSRecognizer, "recognize", return_value="ipsum")
-        sess = Session(_mocker_app=app, username="FeiLin", password="WHISPERS")
+        sess = Session(app=app, username="FeiLin", password="WHISPERS")
         assert check_login(sess)
         cookie = sess.cookies
         sess.dump(tmpfile.file)
         tmpfile.seek(0)
 
         with pytest.warns(LoadWarning):
-            sess = Session(_mocker_app=app, cookies=cookie)
+            sess = Session(app=app, cookies=cookie)
             assert check_login(sess)
 
-        sess = Session(_mocker_app=app, session_file=tmpfile.file)
+        sess = Session(app=app, session_file=tmpfile.file)
         assert check_login(sess)
 
     def test_req(self, logged_session, check_login):
@@ -148,7 +148,7 @@ class TestSession:
         cookie = logged_session.cookies
         dumps = logged_session.dumps()
 
-        sess = Session(_mocker_app=app)
+        sess = Session(app=app)
         sess.loads({"username": "FeiLin", "password": "WHISPERS"})
         assert check_login(sess)
 
@@ -158,7 +158,7 @@ class TestSession:
         assert not sess._username
         assert not sess._password
 
-        sess = Session(_mocker_app=app)
+        sess = Session(app=app)
         with pytest.raises(TypeError):
             sess.loads({"cookies": "Cookie☆"})
         with pytest.warns(LoadWarning):
@@ -168,13 +168,13 @@ class TestSession:
         with pytest.warns(DumpWarning):
             sess.dumps()
 
-        sess = Session(_mocker_app=app)
+        sess = Session(app=app)
         sess.loads(dumps)
         assert check_login(sess)
 
         # test auto renew mechanism
         logged_session.logout()
-        sess = Session(_mocker_app=app)
+        sess = Session(app=app)
         sess.loads(dumps)
         assert check_login(sess)
 
@@ -182,7 +182,7 @@ class TestSession:
         tmp_file = NamedTemporaryFile()
         logged_session.dump(tmp_file.file)
         tmp_file.seek(0)
-        sess = Session(_mocker_app=app)
+        sess = Session(app=app)
         sess.load(tmp_file.file)
         assert check_login(sess)
 
@@ -190,14 +190,14 @@ class TestSession:
         # noinspection PyTypeChecker
         open(tmp_file, mode="a").close()
         logged_session.dump(tmp_file)
-        sess = Session(_mocker_app=app)
+        sess = Session(app=app)
         sess.load(tmp_file)
         assert check_login(sess)
 
         tmp_file = str(tmp_path / "tmpfile_2")
         open(tmp_file, mode="a").close()
         logged_session.dump(tmp_file)
-        sess = Session(_mocker_app=app)
+        sess = Session(app=app)
         sess.load(tmp_file)
         assert check_login(sess)
 
@@ -209,21 +209,21 @@ class TestSession:
             sess.dump(0)
 
         empty_file = NamedTemporaryFile()
-        sess = Session(_mocker_app=app)
+        sess = Session(app=app)
         with pytest.warns(LoadWarning):
             sess.load(empty_file.file)
 
         empty_file = tmp_path / "empty_file"
         # noinspection PyTypeChecker
         open(empty_file, mode="a").close()
-        sess = Session(_mocker_app=app)
+        sess = Session(app=app)
         with pytest.warns(LoadWarning):
             sess.load(empty_file)
 
     def test_properties(self, logged_session):
         cookie = logged_session.cookies
 
-        sess = Session(_mocker_app=app)
+        sess = Session(app=app)
 
         assert isinstance(sess.timeout, httpx.Timeout)
         sess.timeout = httpx.Timeout(1.0)
@@ -266,7 +266,7 @@ class TestClient:
             Client(0)
         with pytest.raises(TypeError):
             Client(self.DummySession2())
-        client = create_client("FeiLin", "WHISPERS", _mocker_app=app, proxies={"all://": None})
+        client = create_client("FeiLin", "WHISPERS", app=app, proxies={"all://": None})
         assert client.student_id == 519027910001
 
     def test_student_id(self, logged_client):
@@ -340,7 +340,7 @@ class TestClient:
         logged_client._session.get("test_no_full")
         _class.register()
         assert _class.is_registered() is True
-        _class.deregister()
+        _class.drop()
         assert _class.is_registered() is False
 
         _ = _class.register_id

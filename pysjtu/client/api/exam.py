@@ -13,10 +13,10 @@ class ExamMixin(BaseClient):
         """
         Fetch your exams schedule of specific year & term.
 
-        :param year: year for the new :class:`Exams` object.
-        :param term: term for the new :class:`Exams` object.
-        :return: A new :class:`Exams` object.
-        :rtype: :class:`Exams`
+        See :meth:`pysjtu.session.Session.post` for more information about the keyword arguments.
+
+        :param year: query year
+        :param term: query term
         """
         raw = self._session.post(consts.EXAM_URL + str(self.student_id),
                                  data={"xnm": year, "xqm": consts.TERMS[term], "_search": False, "ksmcdmb_id": '',

@@ -4,11 +4,11 @@ Advanced Usage
 Session Object
 --------------
 
-The :class:`Session` object contains iSJTU session state, handles login operation, and persists certain parameters and
+The :class:`pysjtu.session.Session` object contains iSJTU session state, handles login operation, and persists certain parameters and
 some inner states across requests. And it has an HTTP request interface to help you send requests as a logged user.
 
-In the :ref:`QuickStart`, we use `create_client` function to acquire a :class:`Client`. Under the hood, `create_client`
-creates a :class:`Session` for you. But if you need features like session persistence, proxies and tuned timeout, you
+In :ref:`QuickStart`, we used `create_client` function to acquire a :class:`pysjtu.client.Client`. Under the hood, `create_client`
+creates a :class:`pysjtu.session.Session` for you. But if you need features like session persistence, proxies and tuned timeout, you
 need to create the session manually.
 
 Login
@@ -22,7 +22,7 @@ First, let's login with username and password:
 
     sess = pysjtu.Session(username="...", password="...")
 
-A `login()` method is provided, in case you want to provide username and password later:
+A :meth:`pysjtu.session.Session.login` method is provided, in case you want to provide username and password later:
 
 .. sourcecode:: python
 
@@ -43,23 +43,25 @@ Also, cookies can be set later:
     sess = pysjtu.Session()
     sess.cookies = ...
 
-Be aware that a session validation will be performed when setting cookies.
-If your cookie doesn't contain valid user information, a :class:`SessionException` will be raised.
-To skip this validation, set `_cookies`.
+.. warning::
 
-.. sourcecode:: python
+    A session validation is performed when setting cookies.
+    If your cookie doesn't contain valid user information, a :class:`pysjtu.exceptions.SessionException` will be raised.
+    To skip this validation, set `_cookies`.
 
-    sess = pysjtu.Session()
-    sess.cookies = some_invalid_cookies  # This will fail.
-    sess._cookies = some_invalid_cookies  # This won't.
+    .. sourcecode:: python
+
+        sess = pysjtu.Session()
+        sess.cookies = some_invalid_cookies  # This will fail.
+        sess._cookies = some_invalid_cookies  # This won't.
 
 Session Persistence
 +++++++++++++++++++
 
 You may want to dump your login session to use it later.
 
-To persist your session, you simply call the `dump(s)` function. The `dump()` function will return a dict containing session info.
-And the `dumps(...)` function will save session info to your specified file.
+To persist your session, you simply call the :meth:`pysjtu.session.Session.dump` function, which returns a dict containing session info.
+And the :meth:`pysjtu.session.Session.dumps` function will save session info to your specified file.
 
 .. sourcecode:: python
 
@@ -68,7 +70,7 @@ And the `dumps(...)` function will save session info to your specified file.
     logged_sess.dumps("session.file")  # session saved to ./session.file
     logged_sess.dumps(f)  # session saved to 'f' file-like object
 
-Similarly, to load your saved session, you call the `load(s)` function.
+Similarly, to load your saved session, you call the :meth:`pysjtu.session.Session.load` and :meth:`pysjtu.session.Session.loads` function.
 
 .. sourcecode:: python
 
@@ -90,13 +92,15 @@ even if unhandled exceptions occurred.
     with pysjtu.Session(session_file="session.file") as sess:
         sess.get(...)
 
-The passed file must exist, or a :class:`FileNotFound` exception will be raised. But passing in an empty file is allowed, emptying username, password and cookies.
+.. note::
+
+    The given file must exist, or a :class:`FileNotFound` exception will be raised. But passing in an empty file is allowed, emptying username, password and cookies.
 
 Configuration
 +++++++++++++
 
 Sessions can be used to provide configs to requests. Just like Sessions in `requests` and Clients in `HTTPX`, this is
-done by passing parameters to the :class:`Client` constructor.
+done by passing parameters to the :class:`pysjtu.client.Client` constructor.
 
 .. sourcecode:: python
 
@@ -105,7 +109,7 @@ done by passing parameters to the :class:`Client` constructor.
 HTTP Requests
 +++++++++++++
 
-You can use a :class:`Session` to send HTTP requests as a logged user:
+You can use a :class:`pysjtu.session.Session` to send HTTP requests as a logged user:
 
 .. sourcecode:: python
 
@@ -121,40 +125,48 @@ They share the same interface with `HTTPX <https://www.python-httpx.org/quicksta
 
 By default, a session validation will be performed, and the session will be automatically renewed if it's expired.
 
-If the session is expired, and username and password hasn't been provided (you login by providing cookies only),
-a :class:`SessionException` will be raised. If the provided username and password is invalid, a :class:`LoginException` will be raised.
+.. note::
+    Auto session renewal works by automatically login again with the given username and password.
 
-To skip this validation, set `validate_session` to False. To disable session renewal, set `auto_renew` to False.
+    If the session is expired, and username and password hasn't been provided (you login by providing cookies only),
+    :class:`pysjtu.exceptions.SessionException` will be raised. If the provided username and password is invalid,
+    :class:`pysjtu.exceptions.LoginException` will be raised.
 
-Beware that if `validate_session` is True, `auto_renew` is False, and your session is expired, a :class:`SessionException`
-will be raised.
+They can be opt-out by calling request methods with `validate_session`, `auto_renew`, or both set to False.
 
 .. sourcecode:: python
 
     s.get("https://i.sjtu.edu.cn/...", validate_session=False)
     s.get("https://i.sjtu.edu.cn/...", auto_renew=False)
 
+.. note::
+
+    If `validate_session` is True, `auto_renew` is False, and your session is expired,
+    :class:`pysjtu.exceptions.SessionException` will be raised.
+
 Client Object
 -------------
 
-The :class:`Client` object provides a developer-friendly interface to iSJTU APIs. It depends on an authenticated
-:class:`Session` object to send HTTP requests.
+The :class:`pysjtu.client.Client` object provides a developer-friendly interface to iSJTU APIs. It uses an authenticated
+:class:`pysjtu.session.Session` object to send HTTP requests.
 
 Initialization
 ++++++++++++++
 
-To initialize a :class:`Client` object, you pass in a :class:`Session` object described in the previous section.
+To initialize a :class:`pysjtu.client.Client` object, you pass in a :class:`pysjtu.session.Session` object described in
+the previous section.
 
 .. sourcecode:: python
 
     client = pysjtu.Client(session=sess)
 
-Be aware that the new `client` object is bounded with the `session` passed in, which means API calls may alter the `session`'s
-internal states (cookies, etc). You may change `session`'s settings at any time, and these changes will reflect on `client`
-behaviours immediately.
+.. note::
+    The new `client` object is bounded with the `session` passed in, which means API calls may alter the `session`'s
+    internal states (cookies, etc). You may change `session`'s settings at any time, and these changes will reflect on `client`
+    behaviours immediately.
 
-If you haven't initialized any :class:`Session` yet and you want to login with a pair of username & password, the
-`create_client` function will help you get one and initialize a :class:`Client`.
+If you haven't initialized any :class:`pysjtu.session.Session` yet and you want to login with a pair of username & password, the
+`create_client` function will help you get one and initialize a :class:`pysjtu.client.Client`.
 
 .. sourcecode:: python
 
@@ -170,7 +182,7 @@ HTTP Proxying
 
 PySJTU supports HTTP proxies.
 
-To forward all traffic to `http://127.0.0.1:8888`, you may set the proxy information at :class:`Session` initialization.
+To forward all traffic to `http://127.0.0.1:8888`, you may set the proxy information at :class:`pysjtu.session.Session` initialization.
 
 .. sourcecode:: python
 
@@ -185,6 +197,11 @@ Like HTTPX, PySJTU has strict timeouts.
 
 Timeouts can be enforced request-wise and session-wise.
 
+.. warning::
+
+    A common pitfall is that the default timeout is too short for GPA related requests. To avoid this, you may set the timeout
+    separately for these requests.
+
 .. sourcecode:: python
 
     s = pysjtu.Session(timeout=10)
@@ -195,11 +212,18 @@ For detailed usage, refer to `HTTPX: Fine tunning the configuration <https://www
 OCR
 ---
 
-During login, captcha is solved automatically using built-in OCR engines. There are two OCR engines you may choose from:
-SVMRecognizer and NNRecognizer. For detailed comparison, see :ref:`Developer Interface`.
+During login, captcha is solved automatically using built-in OCR engines. There are three OCR engines you may choose from:
+:class:`pysjtu.ocr.LegacyRecognizer`, :class:`pysjtu.ocr.NNRecognizer` and :class:`pysjtu.ocr.JCSSRecognizer`.
 
-You may pick a specific engine by passing it to the :class:`Session` constructor.
+The first two are offline OCR engines, and the last one is an online one.
+To use an offline engine, you need to install `PySJTU` with `ocr` extra dependencies.
+For detailed comparison, see :ref:`Recognizers`.
+
+The default engine is :class:`pysjtu.ocr.JCSSRecognizer`.
+You may pick another one by passing it to the :class:`pysjtu.session.Session` constructor.
 
 .. sourcecode:: python
 
-    s = pysjtu.Session(ocr=pysjtu.LegacyRecognizer())
+    s = pysjtu.Session(ocr=pysjtu.NNRecognizer())
+    # or to use the client directly,
+    c = pysjtu.create_client(ocr=pysjtu.NNRecognizer())

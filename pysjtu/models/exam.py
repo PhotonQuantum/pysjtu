@@ -58,7 +58,8 @@ from pysjtu.schemas.exam import ExamSchema
 class Exams(Results[Exam]):
     """
     A list-like interface to Exam collections.
-    An additional filter method has been added to make filter operations easier.
+
+    This class is a subclass of :class:`pysjtu.models.base.Results`.
     """
     _schema = ExamSchema
     _result_model = Exam
