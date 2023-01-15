@@ -22,12 +22,6 @@ jobs:
           cache: true
           version: 2.4.0
 
-      - name: Mac dependencies
-        if: startsWith(runner.os, 'macOS')
-        uses: mstksg/get-package@v1
-        with:
-          brew: libomp
-
       - name: Install dependencies
         if: ${{ matrix.python != '3.11' }}
         run: pdm sync -G tests -G ocr
