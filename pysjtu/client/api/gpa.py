@@ -2,7 +2,6 @@ import time
 
 from pysjtu import consts
 from pysjtu import models
-from pysjtu import schemas
 from pysjtu.client.base import BaseClient
 from pysjtu.exceptions import GPACalculationException
 
@@ -21,7 +20,7 @@ class GPAMixin(BaseClient):
         if not self._default_gpa_query_params:
             rtn = self._session.get(consts.GPA_PARAMS_URL,
                                     params={"_": int(time.time() * 1000), "su": self.student_id})
-            self._default_gpa_query_params = schemas.GPAQueryParamsSchema().load(rtn.json())  # type: ignore
+            self._default_gpa_query_params = models.GPAQueryParams.Schema().load(rtn.json())  # type: ignore
 
         return self._default_gpa_query_params
 
@@ -41,7 +40,7 @@ class GPAMixin(BaseClient):
         :param query_params: parameters for this query.
             A default one can be fetched by reading property :attr:`default_gpa_query_params`.
         """
-        compiled_params = schemas.GPAQueryParamsSchema().dump(query_params)
+        compiled_params = models.GPAQueryParams.Schema().dump(query_params)
         calc_rtn = self._session.post(consts.GPA_CALC_URL + str(self.student_id),
                                       data=compiled_params, **kwargs)
         if calc_rtn.text != "\"统计成功！\"":
@@ -55,4 +54,4 @@ class GPAMixin(BaseClient):
                                 "queryModel.sortOrder": "asc", "time": 0})
         raw = self._session.post(consts.GPA_QUERY_URL + str(self.student_id),
                                  data=compiled_params, **kwargs)
-        return schemas.GPASchema().load(raw.json()["items"][0])  # type: ignore
+        return models.GPA.Schema().load(raw.json()["items"][0])  # type: ignore

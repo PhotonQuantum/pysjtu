@@ -4,7 +4,6 @@ from typing import List
 
 from pysjtu import consts
 from pysjtu import models
-from pysjtu import schemas
 from pysjtu.client.base import BaseClient
 from pysjtu.models import Scores
 
@@ -19,7 +18,7 @@ class ScoreMixin(BaseClient):
                                        "nd": int(time.time() * 1000), "queryModel.showCount": 15,
                                        "queryModel.currentPage": 1, "queryModel.sortName": "",
                                        "queryModel.sortOrder": "asc", "time": 1}, **kwargs)
-        factors = schemas.ScoreFactorSchema(many=True).load(raw.json()["items"][:-1])  # type: ignore
+        factors = models.ScoreFactor.Schema(many=True).load(raw.json()["items"][:-1])  # type: ignore
         return factors
 
     def score(self, year: int, term: int, **kwargs) -> Scores:

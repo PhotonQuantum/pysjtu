@@ -50,8 +50,15 @@ def has_callable(obj, name):
 
 def replace_keys(data, pairs):
     for from_key, to_key in pairs:
-        if from_key in data:
-            data[to_key] = data.pop(from_key)
+        try:
+            data[to_key] = data[from_key]
+        except KeyError:
+            pass
+    for from_key, _ in pairs:
+        try:
+            del data[from_key]
+        except KeyError:
+            pass
     return data
 
 

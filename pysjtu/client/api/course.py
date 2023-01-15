@@ -2,7 +2,6 @@ from functools import partial
 
 from pysjtu import consts
 from pysjtu import models
-from pysjtu import schemas
 from pysjtu.client.base import BaseClient
 from pysjtu.utils import range_list_to_str, schema_post_loader
 
@@ -44,5 +43,5 @@ class CourseLibMixin(BaseClient):
 
         req = partial(self._session.post, consts.COURSELIB_URL + str(self.student_id), **kwargs)
 
-        return models.QueryResult(req, partial(schema_post_loader, schemas.LibCourseSchema), req_params,
+        return models.QueryResult(req, partial(schema_post_loader, models.LibCourse.Schema), req_params,
                                   page_size=page_size)

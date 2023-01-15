@@ -1,79 +1,85 @@
-from dataclasses import dataclass
+import typing
 from typing import List, Optional
 
+from marshmallow import fields, EXCLUDE
+from marshmallow_dataclass import dataclass
+
+from pysjtu.fields import CourseWeek, CourseTime, SplitField
 from pysjtu.models.base import Result, Results
+from pysjtu.schema import mfield, WithField, FinalizeHook, LoadDumpSchema
 
 
-@dataclass
+class _CreditHourDetail(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return None  # pragma: no cover
+        class_hour_details = value.split(",")
+        rtn = {}
+        for item in class_hour_details:
+            try:
+                name, hour = item.split(":")
+                rtn[name] = float(hour)
+            except ValueError:
+                rtn["N/A"] = 0
+        return rtn
+
+
+@dataclass(base_schema=FinalizeHook(LoadDumpSchema))
 class ScheduleCourse(Result):
     """
     A model which describes a course in CourseLib. Some fields may be empty.
 
     :param name: literal name of the course.
-    :type name: str
     :param day: in which day(s) of weeks classes are given.
-    :type day: int
     :param week: in which week(s) classes are given.
-    :type week: list
     :param time: at which time of days classes are given.
-    :type time: range
     :param location: the place where classes are given.
-    :type location: str
     :param credit: credits that the course provides.
-    :type credit: int
     :param assessment: assessment method of this course. (exams, assesses, etc)
-    :type assessment: str
     :param remark: remarks of this course.
-    :type remark: str
     :param teacher_name: the teacher who offers this course.
-    :type teacher_name: List[str]
     :param teacher_title: title of the course's teacher.
-    :type teacher_title: List[str]
     :param course_id: course id.
-    :type course_id: str
     :param class_name: class name (constant between years).
-    :type class_name: str
     :param class_id: class id (variable between years).
-    :type class_id: str
     :param hour_total: credit hours of the course.
-    :type hour_total: int
     :param hour_remark: detailed explanation of the credit hours.
-    :type hour_remark: dict
     :param hour_week: credit hours of the course every week.
-    :type hour_week: int
     :param field: professional field of this course.
-    :type field: str
     """
-    name: str
-    course_id: str
-    class_name: str
-    class_id: str
-    day: Optional[int] = None
-    week: Optional[list] = None
-    time: Optional[range] = None
-    location: Optional[str] = None
-    credit: Optional[int] = None
-    assessment: Optional[str] = None
-    remark: Optional[str] = None
-    teacher_name: Optional[List[str]] = None
-    teacher_title: Optional[List[str]] = None
-    hour_total: Optional[int] = None
-    hour_remark: Optional[dict] = None
-    hour_week: Optional[int] = None
-    field: Optional[str] = None
+    name: str = mfield(required=True, data_key="kcmc")
+    course_id: str = mfield(required=True, data_key="kch_id")
+    class_name: str = mfield(required=True, data_key="jxbmc")
+    class_id: str = mfield(required=True, data_key="jxb_id")
+    day: Optional[int] = mfield(None, data_key="xqj")
+    week: WithField(Optional[list], field=CourseWeek) = mfield(None, data_key="zcd")
+    time: WithField(Optional[range], field=CourseTime) = mfield(None, data_key="jcs")
+    location: Optional[str] = mfield(None, data_key="cdmc")
+    credit: Optional[float] = mfield(None, data_key="xf")
+    assessment: Optional[str] = mfield(None, data_key="khfsmc")
+    remark: Optional[str] = mfield(None, data_key="xkbz")
+    teacher_name: WithField(Optional[List[str]], field=SplitField, sep=",") = mfield(None, data_key="xm")
+    teacher_title: WithField(Optional[List[str]], field=SplitField, sep=",") = mfield(None, data_key="zcmc")
+    hour_total: Optional[int] = mfield(None, data_key="zxs")
+    hour_remark: WithField(Optional[dict], field=_CreditHourDetail) = mfield(None, data_key="kcxszc")
+    hour_week: Optional[float] = mfield(None, data_key="zhxs")
+    field: Optional[str] = mfield(None, data_key="zyfxmc")
+
+    class Meta:
+        unknown = EXCLUDE
 
     def __repr__(self):
         return f"<ScheduleCourse {self.name} week={self.week} day={self.day} time={self.time}>"
 
 
-from pysjtu.schemas.schedule import ScheduleCourseSchema
-
-
 class Schedule(Results[ScheduleCourse]):
     """
     A list-like interface to Schedule collections.
-
-    This class is a subclass of :class:`pysjtu.models.base.Results`.
     """
-    _schema = ScheduleCourseSchema
-    _result_model = ScheduleCourse
+    _item = ScheduleCourse

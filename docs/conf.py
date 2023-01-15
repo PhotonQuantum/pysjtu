@@ -12,7 +12,9 @@
 #
 import os
 import sys
+
 from pysjtu import __version__
+
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -39,6 +41,11 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.autosectionlabel',
 ]
+
+autodoc_default_options = {
+    "show-inheritance": True,
+    "exclude-members": "Schema"
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

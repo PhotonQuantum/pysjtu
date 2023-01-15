@@ -1,10 +1,73 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Callable, List, Optional, Tuple, Union
+import re
+from typing import List, Optional, Tuple, Union, ClassVar, Type, Any, Mapping, Callable
 
-from pysjtu.models.base import Gender, LazyResult, PARTIAL, Result
-from pysjtu.utils import elfhash
+from marshmallow import fields, EXCLUDE, Schema
+from marshmallow_dataclass import dataclass
+
+from pysjtu.consts import CHINESE_WEEK
+from pysjtu.fields import StrBool, SplitField
+from pysjtu.models.base import LazyResult, _PARTIAL, Result
+from pysjtu.models.common import Gender
+from pysjtu.schema import mfield, WithField, FinalizeHook, LoadDumpSchema
+from pysjtu.utils import elfhash, parse_course_week
+
+
+class _Gender(fields.Field):
+    def _deserialize(
+            self,
+            value: Any,
+            attr: Optional[str],
+            data: Optional[Mapping[str, Any]],
+            **kwargs
+    ):
+        if not value:
+            return None  # pragma: no cover
+        return Gender(int(value))  # need to cast string to int
+
+    def _serialize(self, value: Any, attr: str, obj: Any, **kwargs):
+        return value.value
+
+
+class _Time(fields.Field):
+    regex = re.compile("星期(?P<weekday>.)第(?P<time>.*?)节{(?P<week>.*?)}")
+
+    def _deserialize(
+            self,
+            value: Any,
+            attr: Optional[str],
+            data: Optional[Mapping[str, Any]],
+            **kwargs
+    ):
+        if not value:
+            return None  # pragma: no cover
+
+        def _parse_time(input_str: str) -> List[range]:
+            return [range(int(time[0]), int(time[1]) + 1)
+                    for time in [times.split('-') for times in input_str.split(",")]]
+
+        def _dict_to_time(input_dict: dict) -> LessonTime:
+            return LessonTime(
+                weekday=CHINESE_WEEK[input_dict["weekday"]],
+                week=parse_course_week(input_dict["week"]),
+                time=_parse_time(input_dict["time"])
+            )
+
+        return [_dict_to_time(match.groupdict()) for match in self.regex.finditer(value)]
+
+
+class _Teacher(fields.Field):
+    def _deserialize(
+            self,
+            value: Any,
+            attr: Optional[str],
+            data: Optional[Mapping[str, Any]],
+            **kwargs
+    ):
+        if not value:
+            return None  # pragma: no cover
+        return [tuple(teacher.split("/")[1:]) for teacher in value.split(";")]
 
 
 @dataclass
@@ -15,101 +78,84 @@ class LessonTime:
 
 
 # noinspection PyAbstractClass
-@dataclass
+@dataclass(base_schema=FinalizeHook(LoadDumpSchema))
 class SelectionSharedInfo:
     """
     A model which contains shared information in this round of selection.
 
     :param term: current term when querying.
-    :type term: str
     :param selection_year: year of selected courses.
-    :type selection_year: int
     :param selection_term: term of selected courses.
-    :type selection_term: int
     :param major_id: internal major id.
-    :type major_id: str
     :param student_grade: year of enrollment.
-    :type student_grade: str
     :param natural_class_id: class id of the administrative class of the student.
-    :type natural_class_id: str
     :param self_selecting_status: unknown parameter.
-    :type self_selecting_status: int
     :param ccdm: unknown parameter.
-    :type ccdm: str
     :param student_type_code: unknown parameter.
-    :type student_type_code: int
     :param gender: student's gender.
-    :type gender: Gender
     :param field_id: student's professional field.
-    :type field_id: str
     :param student_background: unknown parameter.
-    :type student_background: int
     """
-    term: str
-    selection_year: int
-    selection_term: int
-    major_id: str
-    student_grade: int
-    natural_class_id: str
-    self_selecting_status: int
-    ccdm: str
-    student_type_code: int
-    gender: Gender
-    field_id: str
-    student_background: int
+    term: str = mfield(required=True, data_key="xqh_id")
+    selection_year: int = mfield(required=True, data_key="xkxnm")
+    selection_term: int = mfield(required=True, data_key="xkxqm")
+    major_id: str = mfield(required=True, data_key="zyh_id")
+    student_grade: int = mfield(required=True, data_key="njdm_id")
+    natural_class_id: str = mfield(required=True, data_key="bh_id")
+    self_selecting_status: int = mfield(required=True, data_key="xszxzt")
+    ccdm: str = mfield(required=True)
+    student_type_code: int = mfield(required=True, data_key="xslbdm")
+    gender: WithField(Gender, field=_Gender) = mfield(required=True, data_key="xbm")
+    field_id: str = mfield(required=True, data_key="zyfx_id")
+    student_background: int = mfield(required=True, data_key="xsbj")
+
+    Schema: ClassVar[Type[Schema]] = Schema
+
+    class Meta:
+        unknown = EXCLUDE
 
 
 # noinspection PyAbstractClass
-@dataclass
+@dataclass(base_schema=FinalizeHook(LoadDumpSchema))
 class SelectionSector(Result):
     """
     A model which describes a course sector in this round of selection.
 
     :param name: sector name.
-    :type name: str
     :param shared_info: shared information in this round of selection.
-    :type shared_info: SelectionSharedInfo
     :param task_type: unknown parameter.
-    :type task_type: int
     :param xkly: unknown parameter.
-    :type xkly: int
     :param pe_op_param: unknown parameter. (translation: the parameters updated in operations related to PE lessons.)
-    :type pe_op_param: int
     :param sector_type_id: unknown parameter.
-    :type sector_type_id: str
     :param include_other_grades: include courses from other grades.
-    :type include_other_grades: bool
     :param include_other_majors: include courses from other majors.
-    :type include_other_majors: bool
     :param sfznkx: unknown parameter.
-    :type sfznkx: str
     :param zdkxms: unknown parameter.
-    :type zdkxms: int
     :param txbsfrl: unknown parameter. (used when dropping courses.)
-    :type txbsfrl: int
     :param kkbk: unknown parameter.
-    :type kkbk: int
     :param course_type_code: unknown parameter.
-    :type course_type_code: str
     :param xkkz_id: unknown parameter.
-    :type xkkz_id: str
     """
-    task_type: int
-    xkly: int
-    pe_op_param: int
-    sector_type_id: str
-    include_other_grades: bool
-    include_other_majors: bool
-    sfznkx: bool
-    zdkxms: int
-    txbsfrl: int
-    kkbk: int
-    course_type_code: Optional[str] = None
-    name: Optional[str] = None
-    xkkz_id: Optional[str] = None
-    shared_info: Optional[SelectionSharedInfo] = None
-    _func_classes: Callable = None
-    _hash: Optional[int] = None
+    task_type: int = mfield(required=True, data_key="rwlx")
+    xkly: int = mfield(required=True)
+    pe_op_param: int = mfield(required=True, data_key="tykczgxdcs")
+    sector_type_id: str = mfield(required=True, data_key="bklx_id")
+    include_other_grades: WithField(bool, field=StrBool) = mfield(required=True, data_key="sfkknj")
+    include_other_majors: WithField(bool, field=StrBool) = mfield(required=True, data_key="sfkkzy")
+    sfznkx: WithField(bool, field=StrBool) = mfield(required=True)
+    zdkxms: int = mfield(required=True)
+    txbsfrl: int = mfield(required=True)
+    kkbk: int = mfield(required=True)
+    xkkz_id: Optional[str] = mfield(None, dump_only=True)
+    course_type_code: Optional[str] = mfield(None, required=True, dump_only=True, data_key="kklxdm")
+    name: Optional[str] = mfield(None, raw=True)
+    shared_info: Optional[SelectionSharedInfo] = mfield(None, raw=True)
+    _func_classes: Callable = mfield(None, raw=True)
+    _hash: Optional[int] = mfield(None, raw=True)
+
+    class Meta:
+        unknown = EXCLUDE
+        exclude = ["name", "shared_info", "_func_classes", "_hash"]
 
     def __hash__(self):
         if not self._hash:
@@ -127,7 +173,23 @@ class SelectionSector(Result):
         return self._func_classes()
 
 
-@dataclass
+class SelectionClassLazySchema(Schema):
+    """ :meta private:"""
+
+    class Meta:
+        unknown = EXCLUDE
+
+    class_id = fields.Str(required=True, data_key="jxb_id")
+    register_id = fields.Str(required=True, data_key="do_jxb_id")
+    teachers = _Teacher(required=True, data_key="jsxx")
+    locations = SplitField(required=True, data_key="jxdd", sep="<br/>")
+    time = _Time(required=True, data_key="sksj")
+    course_type = SplitField(required=True, data_key="kcxzmc", sep=",")
+    remark = fields.Str(data_key="xkbz", load_default=None)
+    students_planned = fields.Int(required=True, data_key="jxbrl")
+
+
+@dataclass(base_schema=FinalizeHook(LoadDumpSchema))
 class SelectionClass(LazyResult):
     """
     A model which describes a selectable class in this round of selection.
@@ -135,50 +197,42 @@ class SelectionClass(LazyResult):
     The data is not fetched until it is accessed for the first time.
 
     :param name: literal name of the course.
-    :type name: str
     :param credit: credits that the course provides.
-    :type credit: int
     :param course_id: course id.
-    :type course_id: str
     :param course_id: internal course id.
-    :type course_id: str
     :param class_name: class name (constant between years).
-    :type class_name: str
     :param class_id: class id (variable between years).
-    :type class_id: str
     :param students_registered: number of students registered for this course.
-    :type students_registered: int
     :param students_planned: number of students planned when setting this course.
-    :type students_planned: int
     :param register_id: dynamic id used when (de)registering for this class.
     :param teachers: the teachers who offer this course.
-    :type teachers: List[Tuple[str]]
     :param locations: the places where classes are given.
-    :type locations: List[str]
     :param time: the time when the class is given.
-    :type time: LessonTime
     :param course_type: course type. (eg. general, required, optional, ...)
-    :type course_type: str
     :param remark: remarks of this class.
-    :type remark: str
     :param sector: the sector which this course lies in.
     """
-    name: str
-    credit: float
-    course_id: str
-    internal_course_id: str
-    class_name: str
-    class_id: str
-    students_registered: int
-    register_id: str = PARTIAL
-    teachers: List[Tuple[str]] = PARTIAL
-    locations: List[str] = PARTIAL
-    time: LessonTime = PARTIAL
-    course_type: List[str] = PARTIAL
-    remark: Optional[str] = PARTIAL
-    students_planned: int = PARTIAL
-    sector: SelectionSector = None
-    _load_func: Callable = None
+    name: str = mfield(required=True, data_key="kcmc")
+    credit: float = mfield(required=True, data_key="xf")
+    course_id: str = mfield(required=True, data_key="kch")
+    internal_course_id: str = mfield(required=True, data_key="kch_id")
+    class_name: str = mfield(required=True, data_key="jxbmc")
+    class_id: str = mfield(required=True, data_key="jxb_id")
+    students_registered: int = mfield(required=True, data_key="yxzrs")
+    register_id: str = mfield(_PARTIAL, raw=True)
+    teachers: List[Tuple[str]] = mfield(_PARTIAL, raw=True)
+    locations: List[str] = mfield(_PARTIAL, raw=True)
+    time: LessonTime = mfield(_PARTIAL, raw=True)
+    course_type: List[str] = mfield(_PARTIAL, raw=True)
+    remark: Optional[str] = mfield(_PARTIAL, raw=True)
+    students_planned: int = mfield(_PARTIAL, raw=True)
+    sector: SelectionSector = mfield(None, raw=True)
+    _load_func: Callable = mfield(None, raw=True)
+
+    class Meta:
+        unknown = EXCLUDE
+        exclude = ["register_id", "teachers", "locations", "time", "course_type", "remark", "students_planned",
+                   "sector", "_load_func"]
 
     def __repr__(self):
         return f"<SelectionClass {self.class_name} {self.name}>"
@@ -213,3 +267,4 @@ class SelectionClass(LazyResult):
         :raises: :exc:`pysjtu.exceptions.SelectionNotAvailableException`
         """
         raise NotImplementedError  # pragma: no cover
+

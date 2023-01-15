@@ -5,8 +5,7 @@ from math import ceil
 import pytest
 
 from pysjtu.models import QueryResult, GPAQueryParams, GPA, LibCourse, Exam, ScoreFactor, Score, ScheduleCourse, \
-    Exams, Scores, Schedule, LazyResult, PARTIAL, SelectionClass, SelectionSector
-from pysjtu.schemas import ExamSchema, ScoreSchema, ScheduleCourseSchema
+    Exams, Scores, Schedule, LazyResult, _PARTIAL, SelectionClass, SelectionSector
 
 
 @pytest.fixture
@@ -92,8 +91,8 @@ def test_lazy_model(mocker):
             return "DummyModel"
 
         normal_field: int = 0
-        lazy_field_1: int = PARTIAL
-        lazy_field_2: str = PARTIAL
+        lazy_field_1: int = _PARTIAL
+        lazy_field_2: str = _PARTIAL
 
     fake_load_func = mocker.Mock(return_value={"lazy_field_1": 1, "lazy_field_2": "2"})
     model = DummyModel()
@@ -127,13 +126,13 @@ def test_lazy_model(mocker):
     (GPAQueryParams,
      ["start_term", "end_term", "condition_logic", "makeup_as_60", "rebuild_as_60", "gp_round", "gpa_round",
       "exclude_gp", "exclude_gpa", "course_whole", "course_range", "excluded_courses", "excluded_course_groups",
-      "included_course_groups", "statistics_method", "ranking", "has_roll", "registered", "attending"],
+      "included_course_groups", "dedup_method", "ranking", "has_roll", "registered", "attending"],
      ({"start_term": 0},
       "<GPAQueryParams {'start_term': 0, 'end_term': None, 'condition_logic': None, "
       "'makeup_as_60': None, 'rebuild_as_60': None, 'gp_round': None, 'gpa_round': "
       "None, 'exclude_gp': None, 'exclude_gpa': None, 'course_whole': None, "
       "'course_range': None, 'excluded_courses': None, 'excluded_course_groups': "
-      "None, 'included_course_groups': None, 'statistics_method': None, 'ranking': "
+      "None, 'included_course_groups': None, 'dedup_method': None, 'ranking': "
       "None, 'has_roll': None, 'registered': None, 'attending': None}>")),
 
     (GPA,
@@ -231,10 +230,10 @@ def fake_model():
     return FakeModel
 
 
-@pytest.mark.parametrize("model, mock_schema, test_score",
-                         [(Exams, ExamSchema, False), (Schedule, ScheduleCourseSchema, False),
-                          (Scores, ScoreSchema, True)])
-def test_loader_model(mocker, fake_model, model, mock_schema, test_score):
+@pytest.mark.parametrize("model, mock_item, test_score",
+                         [(Exams, Exam, False), (Schedule, ScheduleCourse, False),
+                          (Scores, Score, True)])
+def test_loader_model(mocker, fake_model, model, mock_item, test_score):
     rtn_var = [
         fake_model(name="Calculus", credit=6.0),
         fake_model(name="Calculus", credit=4.0),
@@ -246,7 +245,7 @@ def test_loader_model(mocker, fake_model, model, mock_schema, test_score):
             item.__dict__.update({"year": 2012, "term": 1, "_func_detail": None})
     else:
         loaded_var = rtn_var
-    mocker.patch.object(mock_schema, "load", return_value=rtn_var)
+    mocker.patch.object(mock_item.Schema, "load", return_value=rtn_var)
     if test_score:
         model_1 = model(year=2012, term=1, func_detail=None)
     else:
@@ -268,7 +267,7 @@ def test_schedule_filter(mocker, fake_model):
         fake_model(name="Chemistry", day=3, week=[range(1, 14, 2)], time=range(1, 3)),
         fake_model(name="Millitary", day=2, week=[5, 10, range(14, 16)], time=range(5, 7))
     ]
-    mocker.patch.object(ScheduleCourseSchema, "load", return_value=rtn_var)
+    mocker.patch.object(ScheduleCourse.Schema, "load", return_value=rtn_var)
     model_1 = Schedule()
     model_1.load(None)
     assert model_1.filter(week=3) == rtn_var[:2]

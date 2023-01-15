@@ -9,7 +9,15 @@ Containers
 Container models are not concrete models, but abstract models that are used to group other models.
 
 .. automodule:: pysjtu.models.base
-    :members: Results, QueryResult
+    :members:
+
+Common Models
+-------------
+
+Some common data types used in other models.
+
+.. automodule:: pysjtu.models.common
+    :members:
 
 Schedule Models
 ---------------

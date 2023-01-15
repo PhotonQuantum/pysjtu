@@ -1,10 +1,40 @@
-from dataclasses import dataclass
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Any, Mapping
 
+from marshmallow import fields, EXCLUDE
+from marshmallow_dataclass import dataclass
+
+from pysjtu.fields import ChineseBool
 from pysjtu.models.base import Result, Results
+from pysjtu.schema import FinalizeHook, LoadDumpSchema, WithField, mfield
 
 
-@dataclass
+class _ScoreFactorName(fields.Field):
+    def _deserialize(
+            self,
+            value: Any,
+            attr: Optional[str],
+            data: Optional[Mapping[str, Any]],
+            **kwargs
+    ):
+        if not value:
+            return None  # pragma: no cover
+        return value[:value.find("(")]
+
+
+class _ScoreFactorPercentage(fields.Field):
+    def _deserialize(
+            self,
+            value: Any,
+            attr: Optional[str],
+            data: Optional[Mapping[str, Any]],
+            **kwargs
+    ):
+        if not value:
+            return None  # pragma: no cover
+        return float(value[value.find("(") + 1:value.find("%")]) / 100
+
+
+@dataclass(base_schema=FinalizeHook(LoadDumpSchema))
 class ScoreFactor(Result):
     """
     A model which describes detailed composition of a course's score.
@@ -13,15 +43,19 @@ class ScoreFactor(Result):
     :param percentage: item factor
     :param score: item score
     """
-    name: str
-    percentage: float
-    score: float
+    name: WithField(str, field=_ScoreFactorName) = mfield(required=True, data_key="xmblmc")
+    percentage: WithField(float, field=_ScoreFactorPercentage) \
+        = mfield(required=True, data_key="xmblmc", load_only=True)
+    score: str = mfield(required=True, data_key="xmcj")
+
+    class Meta:
+        unknown = EXCLUDE
 
     def __repr__(self):
         return f"<ScoreFactor {self.name}({self.percentage * 100}%)={self.score}>"
 
 
-@dataclass
+@dataclass(base_schema=FinalizeHook(LoadDumpSchema))
 class Score(Result):
     """
     A model which describes the score of a specific course. Some fields may be empty.
@@ -55,23 +89,27 @@ class Score(Result):
     :param class_id: class id (variable between years).
     :type class_id: str
     """
-    name: str
-    teacher: str
-    score: str
-    credit: float
-    gp: float
-    invalid: Optional[bool] = None
-    course_type: Optional[str] = None
-    category: Optional[str] = None
-    score_type: Optional[str] = None
-    method: Optional[str] = None
-    course_id: Optional[str] = None
-    class_name: Optional[str] = None
-    class_id: Optional[str] = None
-    year: int = 0
-    term: int = 0
-    _detail: List[ScoreFactor] = None
-    _func_detail: Callable = None
+    name: str = mfield(required=True, data_key="kcmc")
+    teacher: str = mfield(data_key="jsxm")
+    score: str = mfield(required=True, data_key="cj")
+    credit: float = mfield(required=True, data_key="xf")
+    gp: float = mfield(required=True, data_key="jd")
+    invalid: WithField(Optional[bool], field=ChineseBool) = mfield(None, data_key="cjsfzf")
+    course_type: Optional[str] = mfield(None, data_key="kcbj")
+    category: Optional[str] = mfield(None, data_key="kclbmc")
+    score_type: Optional[str] = mfield(None, data_key="ksxz")
+    method: Optional[str] = mfield(None, data_key="khfsmc")
+    course_id: Optional[str] = mfield(None, data_key="kch_id")
+    class_name: Optional[str] = mfield(None, data_key="jxbmc")
+    class_id: Optional[str] = mfield(None, data_key="jxb_id")
+    year: int = mfield(0, raw=True)
+    term: int = mfield(0, raw=True)
+    _detail: List[ScoreFactor] = mfield(None, raw=True)
+    _func_detail: Callable = mfield(None, raw=True)
+
+    class Meta:
+        unknown = EXCLUDE
+        exclude = ["year", "term", "_detail", "_func_detail"]
 
     def __repr__(self):
         return f"<Score {self.name} score={self.score} credit={self.credit} gp={self.gp}>"
@@ -83,19 +121,15 @@ class Score(Result):
         return self._detail
 
 
-from pysjtu.schemas.score import ScoreSchema
-
-
 class Scores(Results[Score]):
     """
     A list-like interface to Score collections.
 
     This class is a subclass of :class:`pysjtu.models.base.Results`.
     """
-    _schema = ScoreSchema
-    _result_model = Score
+    _item = Score
 
-    def __init__(self, year: int = 0, term: int = 0, func_detail: Callable = None):
+    def __init__(self, year: int = 0, term: int = 0, func_detail: Callable[[int, int, str], List[ScoreFactor]] = None):
         super().__init__(year, term)
         self._func_detail = func_detail
 

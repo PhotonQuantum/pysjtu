@@ -33,6 +33,41 @@ with Session(session_file=sess_file, ocr=JCSSRecognizer()) if sess_file else Ses
                                                                                      ocr=JCSSRecognizer()) as sess:
     client = Client(session=sess)
 
+    print(client.student_id)
+    schedule = client.schedule(2019, 1)
+    print(schedule)
+    print(schedule.filter(name="高等数学II"))
+    print(list(map(lambda x: x.name, schedule.filter(week=2, day=range(1, 3), time=[range(10, 12), 1]))))
+
+    '''
+    c = Calendar()
+    local_tz = datetime.now(timezone.utc).astimezone().tzinfo
+    for lesson in schedule:
+        e = Event()
+        e.name = lesson.name
+        e.begin = arrow.get(datetime(2020, 1, 5 + lesson.day, *lesson_time[lesson.time[0] - 1][0], tzinfo=local_tz))
+        e.end = arrow.get(datetime(2020, 1, 5 + lesson.day, *lesson_time[lesson.time[-1] - 1][1], tzinfo=local_tz))
+        e.location = lesson.location
+        c.events.add(e)
+
+    with open("test.ics", mode="w") as f:
+        f.write(str(c))
+    '''
+
+    score = client.score(2019, 0)
+    print(score)
+    print(score[0].detail)
+
+    exam = client.exam(2019, 0)
+    print(exam)
+
+    query = client.query_courses(2019, 0, name="高等数学")
+    print(query[3:18])
+    for item in query:
+        print(item, end=" ")
+    print()
+
+    print(client.term_start_date)
     query_params = client.default_gpa_query_params
 
     print(client.gpa(query_params, timeout=30))

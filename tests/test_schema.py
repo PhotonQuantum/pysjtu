@@ -5,13 +5,14 @@ from os import path
 import pytest
 from marshmallow import ValidationError
 
-from pysjtu.models import CourseRange, LogicEnum, Ranking
-from pysjtu.models.selection import Gender, LessonTime
-from pysjtu.schemas import ExamSchema, GPAQueryParamsSchema, GPASchema, LibCourseSchema, ScheduleCourseSchema, \
-    ScoreFactorSchema, ScoreSchema, SelectionClassSchema, SelectionCourseSchema, SelectionSectorSchema, \
-    SelectionSharedInfoSchema
-from pysjtu.schemas.base import StrBool
-from pysjtu.schemas.schedule import CreditHourDetail
+from pysjtu.fields import StrBool
+from pysjtu.models import CourseRange, LogicEnum, Ranking, GPAQueryParams, GPA, LibCourse, Exam, ScoreFactor, Score, \
+    _PARTIAL
+from pysjtu.models.common import Gender
+from pysjtu.models.gpa import DedupMethod
+from pysjtu.models.schedule import _CreditHourDetail, ScheduleCourse
+from pysjtu.models.selection import LessonTime, SelectionClassLazySchema, SelectionClass, SelectionSector, \
+    SelectionSharedInfo
 
 
 @pytest.fixture()
@@ -27,10 +28,11 @@ def resp_loader():
 
 def test_selection_course_schema(resp_loader):
     raw_resp = resp_loader("selection_course")
-    schema = SelectionCourseSchema()
+    schema = SelectionClass.Schema()
     course = schema.load(raw_resp)
+    course_dict = {k: v for k, v in course.__dict__.items() if v is not _PARTIAL and v is not None}
 
-    assert course == {
+    assert course_dict == {
         "name": "问题求解与实践",
         "credit": 3.0,
         "course_id": "CS241",
@@ -43,7 +45,7 @@ def test_selection_course_schema(resp_loader):
 
 def test_selection_class_schema(resp_loader):
     raw_resp = resp_loader("selection_class")
-    schema = SelectionClassSchema()
+    schema = SelectionClassLazySchema()
     _class = schema.load(raw_resp)
 
     assert _class == {
@@ -68,7 +70,7 @@ def test_selection_class_schema(resp_loader):
 
 def test_selection_sector_schema(resp_loader):
     raw_resp = resp_loader("selection_sector")
-    schema = SelectionSectorSchema()
+    schema = SelectionSector.Schema()
     sector = schema.load(raw_resp)
 
     assert sector.task_type == 1
@@ -91,7 +93,7 @@ def test_selection_sector_schema(resp_loader):
 
 def test_selection_shared_info_schema(resp_loader):
     raw_resp = resp_loader("selection_shared_info")
-    schema = SelectionSharedInfoSchema()
+    schema = SelectionSharedInfo.Schema()
     shared_info = schema.load(raw_resp)
 
     assert shared_info.term == "02"
@@ -111,7 +113,7 @@ def test_selection_shared_info_schema(resp_loader):
 
 
 def test_schedule_credit_hour_detail_field():
-    field = CreditHourDetail()
+    field = _CreditHourDetail()
     assert field.deserialize("task_1:3.0,task_2:0.5") == {"task_1": 3.0, "task_2": 0.5}
     assert field.deserialize("-") == {"N/A": 0}
 
@@ -130,7 +132,7 @@ def test_str_bool_field():
 
 def test_schedule_course_schema_1(resp_loader):
     raw_resp = resp_loader("schedule_course_1")
-    schema = ScheduleCourseSchema()
+    schema = ScheduleCourse.Schema()
     schedule_course = schema.load(raw_resp)
 
     assert schedule_course.name == "军事理论"
@@ -154,7 +156,7 @@ def test_schedule_course_schema_1(resp_loader):
 
 def test_schedule_course_schema_2(resp_loader):
     raw_resp = resp_loader("schedule_course_2")
-    schema = ScheduleCourseSchema()
+    schema = ScheduleCourse.Schema()
     schedule_course = schema.load(raw_resp)
 
     assert schedule_course.name == "形势与政策"
@@ -178,7 +180,7 @@ def test_schedule_course_schema_2(resp_loader):
 
 def test_score_factor_schema(resp_loader):
     raw_resp = resp_loader("score_factor")
-    schema = ScoreFactorSchema(many=True)
+    schema = ScoreFactor.Schema(many=True)
     score_factors = schema.load(raw_resp)
 
     assert score_factors[0].name == "平时"
@@ -192,7 +194,7 @@ def test_score_factor_schema(resp_loader):
 
 def test_score_schema(resp_loader):
     raw_resp = resp_loader("score")
-    schema = ScoreSchema()
+    schema = Score.Schema()
     score = schema.load(raw_resp)
 
     assert score.name == "大学化学"
@@ -212,7 +214,7 @@ def test_score_schema(resp_loader):
 
 def test_exam_schema(resp_loader):
     raw_resp = resp_loader("exam")
-    schema = ExamSchema()
+    schema = Exam.Schema()
     exam = schema.load(raw_resp)
 
     assert exam.name == "2019-2020-1数学期中考"
@@ -230,7 +232,7 @@ def test_exam_schema(resp_loader):
 
 def test_gpa_query_params_schema_load(resp_loader):
     raw_resp = resp_loader("gpa_query_params")
-    schema = GPAQueryParamsSchema()
+    schema = GPAQueryParams.Schema()
     gpa_query_params = schema.load(raw_resp)
 
     assert gpa_query_params.gp_round == 9
@@ -240,7 +242,7 @@ def test_gpa_query_params_schema_load(resp_loader):
     assert gpa_query_params.excluded_courses == ""
     assert gpa_query_params.excluded_course_groups == ""
     assert gpa_query_params.included_course_groups == ""
-    assert gpa_query_params.statistics_method == "zhyccj"
+    assert gpa_query_params.dedup_method == DedupMethod.LAST_SCORE
     assert gpa_query_params.course_whole == ['MARX1205', 'TH009', 'TH020']
     assert gpa_query_params.has_roll and isinstance(gpa_query_params.has_roll, bool)
     assert gpa_query_params.registered is None
@@ -249,13 +251,13 @@ def test_gpa_query_params_schema_load(resp_loader):
 
 def test_gpa_query_params_schema_dump(resp_loader):
     raw_resp = resp_loader("gpa_query_params")
-    schema = GPAQueryParamsSchema()
+    schema = GPAQueryParams.Schema()
     gpa_query_params = schema.load(raw_resp)
 
     gpa_query_params.end_term = 2019
 
     gpa_query_params.condition_logic = 0
-    with pytest.raises(TypeError):
+    with pytest.raises(AttributeError):
         schema.dump(gpa_query_params)
     gpa_query_params.condition_logic = LogicEnum.AND
 
@@ -263,12 +265,12 @@ def test_gpa_query_params_schema_dump(resp_loader):
     gpa_query_params.rebuild_as_60 = True
 
     gpa_query_params.course_range = 0
-    with pytest.raises(TypeError):
+    with pytest.raises(AttributeError):
         schema.dump(gpa_query_params)
     gpa_query_params.course_range = CourseRange.ALL
 
     gpa_query_params.ranking = 0
-    with pytest.raises(TypeError):
+    with pytest.raises(AttributeError):
         schema.dump(gpa_query_params)
     gpa_query_params.ranking = Ranking.GRADE_AND_FIELD
 
@@ -287,7 +289,7 @@ def test_gpa_query_params_schema_dump(resp_loader):
 
 def test_gpa_schema(resp_loader):
     raw_resp = resp_loader("gpa")
-    schema = GPASchema()
+    schema = GPA.Schema()
     gpa = schema.load(raw_resp)
 
     assert gpa.total_score == 999
@@ -305,7 +307,7 @@ def test_gpa_schema(resp_loader):
 
 
 def test_lib_course_schema_1(resp_loader):
-    schema = LibCourseSchema()
+    schema = LibCourse.Schema()
     raw_resp = resp_loader("lib_course_1")
     lib_course = schema.load(raw_resp)
 
@@ -330,7 +332,7 @@ def test_lib_course_schema_1(resp_loader):
 
 
 def test_lib_course_schema_2(resp_loader):
-    schema = LibCourseSchema()
+    schema = LibCourse.Schema()
     raw_resp = resp_loader("lib_course_2")
     lib_course = schema.load(raw_resp)
 

@@ -1,8 +1,7 @@
 from pysjtu import consts
 from pysjtu.client.base import BaseClient
 from pysjtu.models.profile import Profile
-from pysjtu.parser.profile import parse
-from pysjtu.schemas.profile import profile_fields
+from pysjtu.parser.profile import parse, profile_fields
 
 
 class ProfileMixin(BaseClient):

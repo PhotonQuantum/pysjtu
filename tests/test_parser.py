@@ -4,10 +4,9 @@ from os import path
 import pytest
 from lxml import html
 
-from pysjtu.models.base import Gender
-from pysjtu.parser.profile import ProfileField, parse
+from pysjtu.models.common import Gender
+from pysjtu.parser.profile import ProfileField, parse, profile_fields
 from pysjtu.parser.selection import parse_fields, parse_sectors
-from pysjtu.schemas.profile import profile_fields
 
 
 @pytest.fixture()

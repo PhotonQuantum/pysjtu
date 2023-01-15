@@ -1,11 +1,13 @@
 import typing
 
-from marshmallow import ValidationError, fields  # type: ignore
+from marshmallow import fields, ValidationError
 
 from pysjtu.utils import parse_course_week
 
 
 class StrBool(fields.Field):
+    """ Deserialize from / serialize to bool of str type ("0", "1"). """
+
     def _deserialize(
             self,
             value: typing.Any,
@@ -32,6 +34,8 @@ class StrBool(fields.Field):
 
 
 class ChineseBool(fields.Field):
+    """ Deserialize from bool of Chinese type ("是", "否"). """
+
     def _deserialize(
             self,
             value: typing.Any,
@@ -45,6 +49,8 @@ class ChineseBool(fields.Field):
 
 
 class SplitField(fields.Field):
+    """ Deserialize from / serialize to a list of string split by a delimiter. """
+
     def __init__(self, sep: str, *args, **kwargs):
         self.sep = sep
         super().__init__(*args, **kwargs)
@@ -65,6 +71,8 @@ class SplitField(fields.Field):
 
 
 class CourseTime(fields.Field):
+    """ Deserialize from course time range like "1-2节". """
+
     def _deserialize(
             self,
             value: typing.Any,
@@ -80,6 +88,8 @@ class CourseTime(fields.Field):
 
 
 class CourseWeek(fields.Field):
+    """ Deserialize from course week ranges like "1-16(单)". """
+
     def _deserialize(
             self,
             value: typing.Any,

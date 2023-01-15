@@ -1,69 +1,77 @@
-from dataclasses import dataclass
+import typing
 from typing import List, Optional
 
+from marshmallow import fields, EXCLUDE
+from marshmallow_dataclass import dataclass
+
+from pysjtu.fields import CourseWeek, CourseTime, SplitField
 from pysjtu.models.base import Result
+from pysjtu.schema import mfield, WithField, FinalizeHook, LoadDumpSchema
 
 
-@dataclass
+class _LibCreditHourDetail(fields.Field):
+    def _deserialize(
+            self,
+            value: typing.Any,
+            attr: typing.Optional[str],
+            data: typing.Optional[typing.Mapping[str, typing.Any]],
+            **kwargs
+    ):
+        if not value:
+            return None  # pragma: no cover
+        class_hour_details = value.split("-")
+        rtn = {}
+        for item in class_hour_details:
+            name, hour = item.split("(")
+            rtn[name] = float(hour[:-1])
+        return rtn
+
+
+@dataclass(base_schema=FinalizeHook(LoadDumpSchema))
 class LibCourse(Result):
     """
     A model which describes a course in CourseLib. Some fields may be empty.
 
     :param name: literal name of the course.
-    :type name: str
     :param day: in which day(s) of weeks classes are given.
-    :type day: int
     :param week: in which week(s) classes are given.
-    :type week: list
     :param time: at which time of days classes are given.
-    :type time: range
     :param location: the place where classes are given.
-    :type location: str
     :param locations: the places where classes are given.
-    :type locations: List[str]
     :param faculty: the faculty which offers this course.
-    :type faculty: str
     :param credit: credits that the course provides.
-    :type credit: float
     :param teacher: the teacher who offers this course.
-    :type teacher: List[str]
     :param course_id: course id.
-    :type course_id: str
     :param class_name: class name (constant between years).
-    :type class_name: str
     :param class_id: class id (variable between years).
-    :type class_id: str
     :param class_composition: students from which faculties do the course consists of.
-    :type class_composition: List[str]
     :param hour_total: credit hours of the course.
-    :type hour_total: int
     :param hour_remark: detailed explanation of the credit hours.
-    :type hour_remark: dict
     :param seats: number of seats available in this course.
-    :type seats: int
     :param students_elected: number of students elected this course.
-    :type students_elected: int
     :param students_planned: number of students planned when setting this course.
-    :type students_planned: int
     """
-    name: str
-    day: Optional[int] = None
-    week: Optional[list] = None
-    time: Optional[range] = None
-    location: Optional[str] = None
-    locations: Optional[List[str]] = None
-    faculty: Optional[str] = None
-    credit: Optional[float] = None
-    teacher: Optional[List[str]] = None
-    course_id: Optional[str] = None
-    class_name: Optional[str] = None
-    class_id: Optional[str] = None
-    class_composition: Optional[List[str]] = None
-    hour_total: Optional[int] = None
-    hour_remark: Optional[dict] = None
-    seats: Optional[int] = None
-    students_elected: Optional[int] = None
-    students_planned: Optional[int] = None
+    name: str = mfield(required=True, data_key="kcmc")
+    day: Optional[int] = mfield(None, data_key="xqj")
+    week: WithField(Optional[list], CourseWeek) = mfield(None, data_key="qsjsz")
+    time: WithField(Optional[range], CourseTime) = mfield(None, data_key="skjc")
+    location: Optional[str] = mfield(None, data_key="cdmc")
+    locations: WithField(Optional[List[str]], field=SplitField, sep=";") = mfield(None, data_key="jxdd")
+    faculty: Optional[str] = mfield(None, data_key="kkxy")
+    credit: Optional[float] = mfield(None, data_key="xf")
+    teacher: WithField(Optional[List[str]], field=SplitField, sep=",") = mfield(None, data_key="zjs")
+    course_id: Optional[str] = mfield(None, data_key="kch")
+    class_name: Optional[str] = mfield(None, data_key="jxbmc")
+    class_id: Optional[str] = mfield(None, data_key="jxb_id")
+    class_composition: WithField(Optional[List[str]], field=SplitField, sep=";") = mfield(None, data_key="jxbzc")
+    hour_total: Optional[int] = mfield(None, data_key="rwzxs")
+    hour_remark: WithField(Optional[dict], _LibCreditHourDetail) = mfield(None, data_key="zhxs")
+    seats: Optional[int] = mfield(None, data_key="zws")
+    students_elected: Optional[int] = mfield(None, data_key="xkrs")
+    students_planned: Optional[int] = mfield(None, data_key="jxbrs")
+
+    class Meta:
+        unknown = EXCLUDE
 
     def __repr__(self):
         return f"<LibCourse {self.name} class_name={self.class_name}>"

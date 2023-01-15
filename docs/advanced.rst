@@ -7,7 +7,7 @@ Session Object
 The :class:`pysjtu.session.Session` object contains iSJTU session state, handles login operation, and persists certain parameters and
 some inner states across requests. And it has an HTTP request interface to help you send requests as a logged user.
 
-In :ref:`QuickStart`, we used `create_client` function to acquire a :class:`pysjtu.client.Client`. Under the hood, `create_client`
+In :ref:`QuickStart`, we used :func:`pysjtu.client.create_client` function to acquire a :class:`pysjtu.client.Client`. Under the hood, `create_client`
 creates a :class:`pysjtu.session.Session` for you. But if you need features like session persistence, proxies and tuned timeout, you
 need to create the session manually.
 
@@ -165,8 +165,8 @@ the previous section.
     internal states (cookies, etc). You may change `session`'s settings at any time, and these changes will reflect on `client`
     behaviours immediately.
 
-If you haven't initialized any :class:`pysjtu.session.Session` yet and you want to login with a pair of username & password, the
-`create_client` function will help you get one and initialize a :class:`pysjtu.client.Client`.
+If you haven't initialized any :class:`pysjtu.session.Session` yet and you want to login with a pair of username & password,
+:func:`pysjtu.client.create_client` function will help you get one and initialize a :class:`pysjtu.client.Client`.
 
 .. sourcecode:: python
 
