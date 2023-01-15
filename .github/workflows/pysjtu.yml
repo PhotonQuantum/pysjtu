@@ -42,18 +42,10 @@ jobs:
       - name: Test with pytest
         run: pdm run pytest --cov-report xml --cov=pysjtu
 
-      - name: Setup Java JDK
-        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.7' && github.repository == 'PhotonQuantum/pysjtu'
-        uses: actions/setup-java@v2
-        with:
-          java-version: 8
-          java-package: jre
-          distribution: 'liberica'
-
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest' && matrix.python == '3.8' && github.repository == 'PhotonQuantum/pysjtu'
-        env:
-          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_COVERAGE_TOKEN }}
-        run: |
-          curl -LS -o codacy-coverage-reporter-assembly.jar "$(curl -LSs https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({name, browser_download_url} | select(.name | endswith(".jar"))) | .[0].browser_download_url')"
-          java -jar codacy-coverage-reporter-assembly.jar report -l Python -r coverage.xml
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_COVERAGE_TOKEN }}
+          coverage-reports: coverage.xml
+          language: Python
