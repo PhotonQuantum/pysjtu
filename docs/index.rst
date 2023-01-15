@@ -32,6 +32,7 @@ The following topics will help you use PySJTU.
    isjtu_api
    models
    api
+   migration
 
 
 
