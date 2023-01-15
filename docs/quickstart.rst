@@ -1,7 +1,7 @@
 QuickStart
 ==========
 
-PySJTU supports Python 3.7+, and there's no plan to support Python 2. So you need to have Python 3.7 or higher installed.
+PySJTU supports Python 3.8+, and there's no plan to support Python 2. So you need to have Python 3.7 or higher installed.
 
 Installation
 ------------
@@ -12,11 +12,13 @@ To install PySJTU, simply use pip:
 
     $ pip install pysjtu
 
-And you may want to add this package into your requirements.txt:
+To run captcha recognition locally, install `ocr` extra dependencies:
 
 .. sourcecode:: sh
 
-    git+https://github.com/PhotonQuantum/pysjtu.git
+    $ pip install pysjtu[ocr]
+
+Then follows :ref:`OCR`.
 
 Making Queries
 --------------
@@ -35,8 +37,10 @@ Then, login JAccount and create a client:
     >>> c.student_id
     519027910001
 
-There's no need to input captcha manually. A built-in captcha recognizer will handle this for you.
-To customize captcha recognizer, see :ref:`OCR`.
+.. note::
+
+    There's no need to input captcha manually. A built-in captcha recognizer will handle this for you.
+    To customize captcha recognizer, see :ref:`OCR`.
 
 Next, try to get your schedule of the first term in 2019, and print all of your courses:
 
@@ -53,20 +57,14 @@ You can fetch your scores, and exam schedule in the same way.
     >>> scores = c.score(2019, 0)
     >>> exams = c.exam(2019, 0)
 
-Be aware that GPA query and college-wide course search don't follow this query style:
+.. warning::
 
-GPA query accepts special query parameters encapsulated in :class:`GPAQueryParams`.
-Default parameters can be fetched by reading `default_gpa_query_params`.
+    Be aware that GPA query and college-wide course search don't follow this query style:
 
-.. sourcecode:: python
+    .. sourcecode:: python
 
-    >>> gpa = c.gpa(c.default_gpa_query_params)
-
-While college-wide course searches accepts a bunch of criteria, for example:
-
-.. sourcecode:: python
-
-    >>> courses = c.query_courses(2019, 0, name="高等数学", day_of_week=1, ...)
+        >>> gpa = c.gpa(c.default_gpa_query_params)
+        >>> courses = c.query_courses(2019, 0, name="高等数学", day_of_week=1, ...)
 
 For detailed usages, see :ref:`iSJTU Interface`.
 
@@ -75,14 +73,14 @@ Result Content
 
 PySJTU will deserialize HTTP responses into :class:`Result` objects.
 
-Basically you will get a list(-like object) containing :class:`Result` objects, for example:
+For all operations you get a list(-like object) containing :class:`Result` objects as response, for example:
 
 .. sourcecode:: python
 
     >>> sched[0]
     <ScheduleCourse 军事理论 week=[range(9, 17)] day=1 time=range(1, 3)>
 
-And for most queries (except college-wide course searches), there's an additional `filter` method:
+And for most queries (except college-wide course searches), there's an additional :meth:`pysjtu.models.base.Results.filter` method:
 
 .. sourcecode:: python
 
@@ -99,7 +97,7 @@ These :class:`Result` objects offer a developer-friendly interface to query resu
     >>> sched[0].credit
     0.5
 
-For detailed usages, see :ref:`iSJTU Interface` and :ref:`Developer Interface`.
+For detailed usages, see :ref:`iSJTU Models`.
 
 Timeout
 -------

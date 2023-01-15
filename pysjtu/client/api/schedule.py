@@ -11,10 +11,10 @@ class ScheduleMixin(BaseClient):
         """
         Fetch your course schedule of specific year & term.
 
-        :param year: year for the new :class:`Schedule` object.
-        :param term: term for the new :class:`Schedule` object.
-        :return: A new :class:`Schedule` object.
-        :rtype: :class:`Schedule`
+        See :meth:`pysjtu.session.Session.post` for more information about the keyword arguments.
+
+        :param year: query year
+        :param term: query term
         """
         raw = self._session.post(consts.SCHEDULE_URL, data={"xnm": year, "xqm": consts.TERMS[term]}, **kwargs)
         schedule = models.Schedule(year, term)

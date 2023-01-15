@@ -1,6 +1,10 @@
 iSJTU Interface
 ===============
 
+:class:`pysjtu.client.Client` is the main interface to the iSJTU API.
+
+It is composed of multiple mixins, each of which provides a set of methods to access a specific part of the API.
+
 Student ID
 ----------
 
@@ -35,9 +39,6 @@ Schedule Query
 .. automodule:: pysjtu.client.api.schedule
     :members:
 
-.. automodule:: pysjtu.models.schedule
-    :members:
-
 **Example:**
 
 To fetch your schedule of the first term in 2019, filter by criteria, and dig into details:
@@ -60,9 +61,6 @@ Exam Query
 .. automodule:: pysjtu.client.api.exam
     :members:
 
-.. automodule:: pysjtu.models.exam
-    :members:
-
 **Example:**
 
 To get your exams of the first term in 2019, filter by criteria, and dig into details:
@@ -78,9 +76,6 @@ To get your exams of the first term in 2019, filter by criteria, and dig into de
 
 Score Query
 -----------
-
-.. automodule:: pysjtu.models.score
-    :members:
 
 .. automodule:: pysjtu.client.api.score
     :members:
@@ -107,9 +102,6 @@ To get your exams of the first term in 2019, filter by criteria, and dig into de
 GPA Query
 ---------
 
-.. automodule:: pysjtu.models.gpa
-    :members:
-
 .. automodule:: pysjtu.client.api.gpa
     :members:
 
@@ -129,9 +121,6 @@ To fetch default GPA query parameters, change statistics scope and query GPA sta
 
 College-Wide Course Search
 --------------------------
-
-.. automodule:: pysjtu.models.course
-    :members:
 
 .. automodule:: pysjtu.client.api.course
     :members:
@@ -158,8 +147,30 @@ To perform a college-wide course search:
 Course Selection
 ----------------
 
-.. automodule:: pysjtu.models.selection
-    :members:
-
 .. automodule:: pysjtu.client.api.selection
     :members:
+
+**Example:**
+
+To select/drop a course:
+
+.. sourcecode:: python
+
+    # First, get course sectors
+    sectors = client.course_selection_sectors
+    sector = next(filter(lambda x: x == "主修", sectors))
+
+    # Then, fetch class list
+    classes = sector.classes
+    klass = next(filter(lambda x: x.class_name == "CS2305", classes))
+
+    # Finally, select/drop the class
+    while True:
+        time.sleep(1)
+        try:
+            klass.register()    # or klass.drop()
+            break
+        except FullCapacityException:
+            pass        # retry
+        except Exception as e:
+            raise e     # or handle other exceptions

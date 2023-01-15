@@ -6,6 +6,7 @@ from pysjtu.client.api import CourseLibMixin, ExamMixin, GPAMixin, ScheduleMixin
     ProfileMixin
 from pysjtu.client.base import BaseClient
 from pysjtu.session import BaseSession, Session
+from pysjtu.utils import forward_method_args
 
 
 class Client(ProfileMixin, SelectionMixin, ScheduleMixin, CourseLibMixin, ExamMixin, GPAMixin, ScoreMixin, BaseClient):
@@ -57,12 +58,13 @@ class Client(ProfileMixin, SelectionMixin, ScheduleMixin, CourseLibMixin, ExamMi
         return self._session._cache_store["student_id"]
 
 
+@forward_method_args(Session.__init__)
 def create_client(*args, **kwargs) -> Client:
     """
     Create a new :class:`Client` with given options.
 
     This is just a shortcut for ``Client(Session(*args, **kwargs))``.
-    To manipulate or reuse underlying Session object, use :class:`Session` and :class:`Client` instead.
+    To manipulate or reuse underlying Session object, use :class:`pysjtu.session.Session` and :class:`Client` instead.
 
     :return: an authenticated :class:`Client`.
     """

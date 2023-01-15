@@ -6,19 +6,32 @@ from pysjtu.models.base import Result
 
 
 class LogicEnum(Enum):
-    """ Used by :class:`GPAQueryParams` to specify condition logic. """
+    """ Used by :class:`GPAQueryParams` to specify condition logic.
+
+    AND: all conditions must be satisfied.
+
+    OR: at least one condition must be satisfied.
+    """
     AND = 0
     OR = 1
 
 
 class CourseRange(Enum):
-    """ Used by :class:`GPAQueryParams` to specify courses taken into account when ranking """
+    """ Used by :class:`GPAQueryParams` to specify courses taken into account when ranking
+
+    ALL: all courses taken.
+
+    CORE: only core courses taken.
+    """
     ALL = "qbkc"
     CORE = "hxkc"
 
 
 class Ranking(Enum):
-    """ Used by :class:`GPAQueryParams` to specify student range upon which to rank """
+    """ Used by :class:`GPAQueryParams` to specify student range upon which to rank
+
+    GRADE_AND_FIELD: rank students in the same grade and field.
+    """
     GRADE_AND_FIELD = "njzy"
 
 
