@@ -7,7 +7,7 @@ from functools import partial
 from http.cookiejar import CookieJar
 from pathlib import Path
 from typing import Callable, Optional, Union
-from urllib.parse import parse_qs, urljoin, urlparse
+from urllib.parse import parse_qs, urlparse
 
 import httpx
 from httpx import Response
@@ -56,6 +56,8 @@ class Session(BaseSession):
         ...     s.get('https://i.sjtu.edu.cn')
         <Response [200 OK]>
 
+    For additional keyword arguments, see https://www.python-httpx.org/api.
+
     :param username: JAccount username.
     :param password: JAccount password.
     :param cookies: The cookie to be used on each request.
@@ -63,7 +65,6 @@ class Session(BaseSession):
     :param session_file: The file which a session is loaded from & saved to.
     :param retry: A list contains retry delays. If it's exhausted, an exception will be raised.
     :param base_url: Base url of backend APIs.
-    :param _mocker_app: An WSGI application to send requests to (for debug or test purposes).
     """
     _client: httpx.Client  # httpx session
     _retry: list = [.5] * 5 + list(range(1, 5))  # retry list
@@ -71,7 +72,6 @@ class Session(BaseSession):
     _username: str
     _password: str
     _session_file: Optional[FileTypes]
-    _base_url: str
 
     def _secure_req(self, ref: Callable) -> Response:
         """
@@ -84,7 +84,7 @@ class Session(BaseSession):
             return ref()
         except httpx.NetworkError as e:
             req = e.request
-            if not req.url.scheme == "https":
+            if req.url.scheme != "https":
                 req.url = req.url.copy_with(scheme="https", port=None)
             else:
                 raise e
@@ -100,15 +100,14 @@ class Session(BaseSession):
                 self._session_file.seek(0)
             self.dump(self._session_file)
 
-    def __init__(self, username: str = "", password: str = "", cookies: CookieTypes = None, ocr: Recognizer = None,
-                 session_file: FileTypes = None, retry: list = None, base_url: str = "https://i.sjtu.edu.cn",
-                 _mocker_app=None, *args, **kwargs):
-        self._client = httpx.Client(app=_mocker_app, follow_redirects=True, *args, **kwargs)
-        self._ocr = ocr if ocr else JCSSRecognizer(*args, **kwargs)
+    def __init__(self, username: str = "", password: str = "", cookies: Optional[CookieTypes] = None,
+                 ocr: Optional[Recognizer] = None, session_file: Optional[FileTypes] = None,
+                 retry: Optional[list] = None, base_url: str = "https://i.sjtu.edu.cn", **kwargs):
+        self._client = httpx.Client(follow_redirects=True, base_url=base_url, **kwargs)
+        self._ocr = ocr if ocr else JCSSRecognizer(**kwargs)
         self._username = ""
         self._password = ""
         self._cache_store = {}
-        self._base_url = base_url
         # noinspection PyTypeChecker
         self._session_file = None
         if retry:
@@ -135,17 +134,14 @@ class Session(BaseSession):
         """
         Send a request. If asked, validate the current session and renew it when necessary.
 
+        For additional keyword arguments, see https://www.python-httpx.org/api.
+
         :param method: HTTP method for the new `Request` object: `GET`, `OPTIONS`,
             `HEAD`, `POST`, `PUT`, `PATCH`, or `DELETE`.
         :param url: URL for the new `Request` object.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
-        :return: an :class:`Response` object.
         """
-        # complete the url in case base_url is omitted
-        url_parsed = urlparse(url)
-        url = url if all([getattr(url_parsed, attr) for attr in ["scheme", "netloc", "path"]]) \
-            else urljoin(self._base_url, url)
         rtn = self._client.request(method, url=url, **kwargs)
         try:
             rtn.raise_for_status()
@@ -183,10 +179,11 @@ class Session(BaseSession):
         """
         Send a GET request. If asked, validate the current session and renew it when necessary.
 
+        For additional keyword arguments, see https://www.python-httpx.org/api.
+
         :param url: URL for the new `Request` object.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
-        :return: an :class:`Response` object.
         """
         return self.request(
             "GET",
@@ -207,10 +204,11 @@ class Session(BaseSession):
         """
         Send a OPTIONS request. If asked, validate the current session and renew it when necessary.
 
+        For additional keyword arguments, see https://www.python-httpx.org/api.
+
         :param url: URL for the new `Request` object.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
-        :return: an :class:`Response` object.
         """
         return self.request(
             "OPTIONS",
@@ -231,10 +229,11 @@ class Session(BaseSession):
         """
         Send a HEAD request. If asked, validate the current session and renew it when necessary.
 
+        For additional keyword arguments, see https://www.python-httpx.org/api.
+
         :param url: URL for the new `Request` object.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
-        :return: an :class:`Response` object.
         """
         return self.request(
             "HEAD",
@@ -255,10 +254,11 @@ class Session(BaseSession):
         """
         Send a POST request. If asked, validate the current session and renew it when necessary.
 
+        For additional keyword arguments, see https://www.python-httpx.org/api.
+
         :param url: URL for the new `Request` object.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
-        :return: an :class:`Response` object.
         """
         return self.request(
             "POST",
@@ -279,10 +279,11 @@ class Session(BaseSession):
         """
         Send a PUT request. If asked, validate the current session and renew it when necessary.
 
+        For additional keyword arguments, see https://www.python-httpx.org/api.
+
         :param url: URL for the new `Request` object.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
-        :return: an :class:`Response` object.
         """
         return self.request(
             "PUT",
@@ -303,10 +304,11 @@ class Session(BaseSession):
         """
         Sends a PATCH request. If asked, validates the current session and renews it when necessary.
 
+        For additional keyword arguments, see https://www.python-httpx.org/api.
+
         :param url: URL for the new `Request` object.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
-        :return: an :class:`Response` object.
         """
         return self.request(
             "PATCH",
@@ -327,10 +329,11 @@ class Session(BaseSession):
         """
         Sends a DELETE request. If asked, validates the current session and renews it when necessary.
 
+        For additional keyword arguments, see https://www.python-httpx.org/api.
+
         :param url: URL for the new `Request` object.
         :param validate_session: (optional) Whether to validate the current session.
         :param auto_renew: (optional) Whether to renew the session when it expires. Works when validate_session is True.
-        :return: an :class:`Response` object.
         """
         return self.request(
             "DELETE",
@@ -512,6 +515,6 @@ class Session(BaseSession):
         self._client.timeout = new_timeout
 
     @property
-    def base_url(self) -> str:
+    def base_url(self) -> httpx.URL:
         """ Base url of backend APIs. """
-        return self._base_url
+        return self._client.base_url

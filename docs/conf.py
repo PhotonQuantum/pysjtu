@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from pysjtu import __version__
 sys.path.insert(0, os.path.abspath('..'))
 
 
@@ -22,7 +23,7 @@ copyright = '2020, LightQuantum'
 author = 'LightQuantum'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = __version__
 
 language = 'en'
 
@@ -34,7 +35,7 @@ language = 'en'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx_autodoc_typehints',
+    # 'sphinx_autodoc_typehints',
     'sphinx.ext.coverage',
     'sphinx.ext.autosectionlabel',
 ]
@@ -57,14 +58,21 @@ master_doc = 'index'
 #
 # html_theme = 'alabaster'
 html_theme = 'sphinx_book_theme'
+html_theme_options = {
+    "repository_url": "https://github.com/PhotonQuantum/pysjtu",
+    "use_repository_button": True,
+    "use_download_button": True,
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
 
 # -- Extension configuration -------------------------------------------------
 # set_type_checking_flag = True
 always_document_param_types = True
 autodoc_member_order = 'bysource'
+autodoc_typehints = 'description'
+autodoc_typehints_description_target = 'documented_params'

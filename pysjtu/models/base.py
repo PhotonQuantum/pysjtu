@@ -160,10 +160,12 @@ class QueryResult(Generic[T_Result]):
 
 class Results(List[T_Result]):
     """
-    Base class for Results
+    Base class for Results. Almost all return types of query operations are inherited from this class.
 
-    :param year: year of the :class:`Results` object.
-    :param term: term of the :class:`Results` object.
+    See :ref:`Result Content` for more information.
+
+    :param year: year of the query.
+    :param term: term of the query.
     """
     _schema: Type[Schema]
     _result_model: Type[T_Result]
@@ -188,6 +190,7 @@ class Results(List[T_Result]):
         Load a list of dicts into Results, and deserialize dicts to Result objects.
 
         :param data: a list of dicts.
+        :meta private:
         """
         schema = self._schema(many=True)
         results = schema.load(data)
@@ -196,7 +199,14 @@ class Results(List[T_Result]):
 
     def filter(self, **param) -> List[T_Result]:
         """
-        Get Result objects matching specific criteria.
+        Get Result objects matching specific criteria. The criteria are specified by keyword arguments.
+
+        Available fields are defined by child classes.
+
+        .. note::
+            There are three special time-related fields: `week`, `time` and `day`.
+
+            When filtering by them, the filter logic is `contains` instead of `equals`.
 
         :param param: query criteria
         :return: Result objects matching given criteria.

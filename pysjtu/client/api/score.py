@@ -6,6 +6,7 @@ from pysjtu import consts
 from pysjtu import models
 from pysjtu import schemas
 from pysjtu.client.base import BaseClient
+from pysjtu.models import Scores
 
 
 class ScoreMixin(BaseClient):
@@ -21,14 +22,14 @@ class ScoreMixin(BaseClient):
         factors = schemas.ScoreFactorSchema(many=True).load(raw.json()["items"][:-1])  # type: ignore
         return factors
 
-    def score(self, year: int, term: int, **kwargs) -> models.Results[models.Score]:
+    def score(self, year: int, term: int, **kwargs) -> Scores:
         """
         Fetch your scores of specific year & term.
 
-        :param year: year for the new :class:`Scores` object.
-        :param term: term for the new :class:`Scores` object.
-        :return: A new :class:`Scores` object.
-        :rtype: :class:`Scores`
+        See :meth:`pysjtu.session.Session.post` for more information about the keyword arguments.
+
+        :param year: query year
+        :param term: query term
         """
         raw = self._session.post(consts.SCORE_URL,
                                  data={"xnm": year, "xqm": consts.TERMS[term], "_search": False,

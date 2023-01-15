@@ -89,7 +89,8 @@ from pysjtu.schemas.score import ScoreSchema
 class Scores(Results[Score]):
     """
     A list-like interface to Score collections.
-    An additional filter method has been added to make filter operations easier.
+
+    This class is a subclass of :class:`pysjtu.models.base.Results`.
     """
     _schema = ScoreSchema
     _result_model = Score
@@ -103,6 +104,7 @@ class Scores(Results[Score]):
         Load a list of dicts into Scores, and deserialize dicts to Score objects.
 
         :param data: a list of dicts contains scores.
+        :meta private:
         """
         super().load(data)
         for item in self:

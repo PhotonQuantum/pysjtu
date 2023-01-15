@@ -175,8 +175,8 @@ dependencies = [
 
 [[package]]
 name = "idna"
-version = "2.10"
-requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "3.4"
+requires_python = ">=3.5"
 summary = "Internationalized Domain Names in Applications (IDNA)"
 
 [[package]]
@@ -196,9 +196,12 @@ dependencies = [
 
 [[package]]
 name = "importlib-resources"
-version = "3.0.0"
-requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
+version = "5.10.2"
+requires_python = ">=3.7"
 summary = "Read resources from Python packages"
+dependencies = [
+    "zipp>=3.1.0; python_version < \"3.10\"",
+]
 
 [[package]]
 name = "iniconfig"
@@ -314,11 +317,15 @@ summary = "Python style guide checker"
 
 [[package]]
 name = "pydata-sphinx-theme"
-version = "0.4.3"
-requires_python = ">=3.5"
+version = "0.12.0"
+requires_python = ">=3.7"
 summary = "Bootstrap-based Sphinx theme from the PyData community"
 dependencies = [
-    "sphinx",
+    "beautifulsoup4",
+    "docutils!=0.17.0",
+    "packaging",
+    "pygments>=2.7",
+    "sphinx>=4.2",
 ]
 
 [[package]]
@@ -444,20 +451,20 @@ summary = "A modern CSS selector implementation for Beautiful Soup."
 
 [[package]]
 name = "sphinx"
-version = "6.1.3"
-requires_python = ">=3.8"
+version = "5.3.0"
+requires_python = ">=3.6"
 summary = "Python documentation generator"
 dependencies = [
     "Jinja2>=3.0",
-    "Pygments>=2.13",
+    "Pygments>=2.12",
     "alabaster<0.8,>=0.7",
     "babel>=2.9",
     "colorama>=0.4.5; sys_platform == \"win32\"",
-    "docutils<0.20,>=0.18",
+    "docutils<0.20,>=0.14",
     "imagesize>=1.3",
     "importlib-metadata>=4.8; python_version < \"3.10\"",
     "packaging>=21.0",
-    "requests>=2.25.0",
+    "requests>=2.5.0",
     "snowballstemmer>=2.0",
     "sphinxcontrib-applehelp",
     "sphinxcontrib-devhelp",
@@ -468,26 +475,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "sphinx-autodoc-typehints"
-version = "1.20.2"
-requires_python = ">=3.7"
-summary = "Type hints (PEP 484) support for the Sphinx autodoc extension"
-dependencies = [
-    "sphinx>=5.3",
-]
-
-[[package]]
 name = "sphinx-book-theme"
-version = "0.0.39"
-requires_python = ">=3.6"
-summary = "Jupyter Book: Create an online book with Jupyter Notebooks"
+version = "0.4.0rc1"
+requires_python = ">=3.7"
+summary = "A clean book theme for scientific explanations and documentation with Sphinx"
 dependencies = [
-    "beautifulsoup4",
-    "click",
-    "docutils>=0.15",
-    "pydata-sphinx-theme~=0.4.1",
+    "pydata-sphinx-theme~=0.12.0",
     "pyyaml",
-    "sphinx",
+    "sphinx<6,>=4",
 ]
 
 [[package]]
@@ -570,7 +565,7 @@ summary = "Backport of pathlib-compatible object wrapper for zip files"
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:44868e2e01fa4033b5ed2920e489af3dd0c75334de680816ba360919d2e90bb5"
+content_hash = "sha256:6877142682aa99731def9ec090a1770e46bd27e2587939ec4aee439c5ac44c12"
 
 [metadata.files]
 "alabaster 0.7.13" = [
@@ -788,9 +783,9 @@ content_hash = "sha256:44868e2e01fa4033b5ed2920e489af3dd0c75334de680816ba360919d
     {url = "https://files.pythonhosted.org/packages/cc/3f/2c29224acb2e2df4d2046e4c73ee2662023c58ff5b113c4c1adac0886c43/humanfriendly-10.0.tar.gz", hash = "sha256:6b0b831ce8f15f7300721aa49829fc4e83921a9a301cc7f606be6686a2288ddc"},
     {url = "https://files.pythonhosted.org/packages/f0/0f/310fb31e39e2d734ccaa2c0fb981ee41f7bd5056ce9bc29b2248bd569169/humanfriendly-10.0-py2.py3-none-any.whl", hash = "sha256:1697e1a8a8f550fd43c2865cd84542fc175a61dcb779b6fee18cf6b6ccba1477"},
 ]
-"idna 2.10" = [
-    {url = "https://files.pythonhosted.org/packages/a2/38/928ddce2273eaa564f6f50de919327bf3a00f091b5baba8dfa9460f3a8a8/idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
-    {url = "https://files.pythonhosted.org/packages/ea/b7/e0e3c1c467636186c39925827be42f16fee389dc404ac29e930e9136be70/idna-2.10.tar.gz", hash = "sha256:b307872f855b18632ce0c21c5e45be78c0ea7ae4c15c828c20788b26921eb3f6"},
+"idna 3.4" = [
+    {url = "https://files.pythonhosted.org/packages/8b/e1/43beb3d38dba6cb420cefa297822eac205a277ab43e5ba5d5c46faf96438/idna-3.4.tar.gz", hash = "sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"},
+    {url = "https://files.pythonhosted.org/packages/fc/34/3030de6f1370931b9dbb4dad48f6ab1015ab1d32447850b9fc94e60097be/idna-3.4-py3-none-any.whl", hash = "sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2"},
 ]
 "imagesize 1.4.1" = [
     {url = "https://files.pythonhosted.org/packages/a7/84/62473fb57d61e31fef6e36d64a179c8781605429fd927b5dd608c997be31/imagesize-1.4.1.tar.gz", hash = "sha256:69150444affb9cb0d5cc5a92b3676f0b2fb7cd9ae39e947a5e11a36b4497cd4a"},
@@ -800,9 +795,9 @@ content_hash = "sha256:44868e2e01fa4033b5ed2920e489af3dd0c75334de680816ba360919d
     {url = "https://files.pythonhosted.org/packages/26/a7/9da7d5b23fc98ab3d424ac2c65613d63c1f401efb84ad50f2fa27b2caab4/importlib_metadata-6.0.0-py3-none-any.whl", hash = "sha256:7efb448ec9a5e313a57655d35aa54cd3e01b7e1fbcf72dce1bf06119420f5bad"},
     {url = "https://files.pythonhosted.org/packages/90/07/6397ad02d31bddf1841c9ad3ec30a693a3ff208e09c2ef45c9a8a5f85156/importlib_metadata-6.0.0.tar.gz", hash = "sha256:e354bedeb60efa6affdcc8ae121b73544a7aa74156d047311948f6d711cd378d"},
 ]
-"importlib-resources 3.0.0" = [
-    {url = "https://files.pythonhosted.org/packages/46/0b/7973c432eae095b60db1a37d6bf2c693cb4290b4d38d92f1bafe503c853d/importlib_resources-3.0.0.tar.gz", hash = "sha256:19f745a6eca188b490b1428c8d1d4a0d2368759f32370ea8fb89cad2ab1106c3"},
-    {url = "https://files.pythonhosted.org/packages/ba/03/0f9595c0c2ef12590877f3c47e5f579759ce5caf817f8256d5dcbd8a1177/importlib_resources-3.0.0-py2.py3-none-any.whl", hash = "sha256:d028f66b66c0d5732dae86ba4276999855e162a749c92620a38c1d779ed138a7"},
+"importlib-resources 5.10.2" = [
+    {url = "https://files.pythonhosted.org/packages/2e/f8/be5c59ff2545362397cbc989f5cd3835326fc4092433d50dfaf21616bc71/importlib_resources-5.10.2.tar.gz", hash = "sha256:e4a96c8cc0339647ff9a5e0550d9f276fc5a01ffa276012b58ec108cfd7b8484"},
+    {url = "https://files.pythonhosted.org/packages/be/0f/bd3e7fa47cc43276051c557d3b2fe946664781d2ecf08b05d074e1a3ee59/importlib_resources-5.10.2-py3-none-any.whl", hash = "sha256:7d543798b0beca10b6a01ac7cafda9f822c54db9e8376a6bf57e0cbd74d486b6"},
 ]
 "iniconfig 2.0.0" = [
     {url = "https://files.pythonhosted.org/packages/d7/4b/cbd8e699e64a6f16ca3a8220661b5f83792b3017d0f79807cb8708d33913/iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
@@ -1116,9 +1111,9 @@ content_hash = "sha256:44868e2e01fa4033b5ed2920e489af3dd0c75334de680816ba360919d
     {url = "https://files.pythonhosted.org/packages/67/e4/fc77f1039c34b3612c4867b69cbb2b8a4e569720b1f19b0637002ee03aff/pycodestyle-2.9.1-py2.py3-none-any.whl", hash = "sha256:d1735fc58b418fd7c5f658d28d943854f8a849b01a5d0a1e6f3f3fdd0166804b"},
     {url = "https://files.pythonhosted.org/packages/b6/83/5bcaedba1f47200f0665ceb07bcb00e2be123192742ee0edfb66b600e5fd/pycodestyle-2.9.1.tar.gz", hash = "sha256:2c9607871d58c76354b697b42f5d57e1ada7d261c261efac224b664affdc5785"},
 ]
-"pydata-sphinx-theme 0.4.3" = [
-    {url = "https://files.pythonhosted.org/packages/e6/4a/01439756d28d0d1b4af1fa347efeff73f6f4e64c8b5132325cc3c0862d03/pydata-sphinx-theme-0.4.3.tar.gz", hash = "sha256:8cf8fbc74c6c47d6ed497a91f3bedf94d57383b52eebb4fa05ae7fc4f50767a2"},
-    {url = "https://files.pythonhosted.org/packages/f8/7f/b11e6bd6d1a8419b29b54b0f2594f879cf766b834acce8df2bcd9fed301b/pydata_sphinx_theme-0.4.3-py3-none-any.whl", hash = "sha256:aa0ae055de5de36a637387941d0e18d8dad35d97d56f0faf25f5219658d49df2"},
+"pydata-sphinx-theme 0.12.0" = [
+    {url = "https://files.pythonhosted.org/packages/49/6c/9b54482c3ed5910c4643a334edb18b61e9ecb406e8b26bcd5cee4333c37b/pydata_sphinx_theme-0.12.0-py3-none-any.whl", hash = "sha256:c17dbab67a3774f06f34f6378e896fcd0668cc8b5da1c1ba017e65cf1df0af58"},
+    {url = "https://files.pythonhosted.org/packages/93/1d/ba3fde97da9027881fa8a83be89a9d2a7186abcd35f848112edc5e8ba558/pydata_sphinx_theme-0.12.0.tar.gz", hash = "sha256:7a07c3ac1fb1cfbb5f7d1e147a9500fb120e329d610e0fa2caac4a645141bdd9"},
 ]
 "pyflakes 2.5.0" = [
     {url = "https://files.pythonhosted.org/packages/07/92/f0cb5381f752e89a598dd2850941e7f570ac3cb8ea4a344854de486db152/pyflakes-2.5.0.tar.gz", hash = "sha256:491feb020dca48ccc562a8c0cbe8df07ee13078df59813b83959cbdada312ea3"},
@@ -1218,17 +1213,13 @@ content_hash = "sha256:44868e2e01fa4033b5ed2920e489af3dd0c75334de680816ba360919d
     {url = "https://files.pythonhosted.org/packages/16/e3/4ad79882b92617e3a4a0df1960d6bce08edfb637737ac5c3f3ba29022e25/soupsieve-2.3.2.post1-py3-none-any.whl", hash = "sha256:3b2503d3c7084a42b1ebd08116e5f81aadfaea95863628c80a3b774a11b7c759"},
     {url = "https://files.pythonhosted.org/packages/f3/03/bac179d539362319b4779a00764e95f7542f4920084163db6b0fd4742d38/soupsieve-2.3.2.post1.tar.gz", hash = "sha256:fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d"},
 ]
-"sphinx 6.1.3" = [
-    {url = "https://files.pythonhosted.org/packages/2e/2c/22a20486cad91a66f4f70bd88c20c8bb306ae719cbba93d7debae7efa80d/sphinx-6.1.3-py3-none-any.whl", hash = "sha256:807d1cb3d6be87eb78a381c3e70ebd8d346b9a25f3753e9947e866b2786865fc"},
-    {url = "https://files.pythonhosted.org/packages/db/0b/a0f60c4abd8a69bd5b0d20edde8a8d8d9d4ca825bbd920d328d248fd0290/Sphinx-6.1.3.tar.gz", hash = "sha256:0dac3b698538ffef41716cf97ba26c1c7788dba73ce6f150c1ff5b4720786dd2"},
+"sphinx 5.3.0" = [
+    {url = "https://files.pythonhosted.org/packages/67/a7/01dd6fd9653c056258d65032aa09a615b5d7b07dd840845a9f41a8860fbc/sphinx-5.3.0-py3-none-any.whl", hash = "sha256:060ca5c9f7ba57a08a1219e547b269fadf125ae25b06b9fa7f66768efb652d6d"},
+    {url = "https://files.pythonhosted.org/packages/af/b2/02a43597980903483fe5eb081ee8e0ba2bb62ea43a70499484343795f3bf/Sphinx-5.3.0.tar.gz", hash = "sha256:51026de0a9ff9fc13c05d74913ad66047e104f56a129ff73e174eb5c3ee794b5"},
 ]
-"sphinx-autodoc-typehints 1.20.2" = [
-    {url = "https://files.pythonhosted.org/packages/84/f4/33a7d6386a2f0e78c6bd67743e7ec540ede0111db490505e9be5b2c26355/sphinx_autodoc_typehints-1.20.2-py3-none-any.whl", hash = "sha256:56c3b96d11a0d9c88dfb6b88178689f2cf0fd9710166ddeb7308abddfe43aa30"},
-    {url = "https://files.pythonhosted.org/packages/d7/a9/e803b599ad0b7064198e7c0ec243e531d8da69bd14da1bf17ae52291df89/sphinx_autodoc_typehints-1.20.2.tar.gz", hash = "sha256:5efda31203ee3775aa82e80f30274b22952387639b609f9715d5a0dd63939163"},
-]
-"sphinx-book-theme 0.0.39" = [
-    {url = "https://files.pythonhosted.org/packages/6f/d2/d89e87ced31068e9e51b7bb4957d5a03a5e5d7ad7422f728237ef5224eb1/sphinx-book-theme-0.0.39.tar.gz", hash = "sha256:07f9651233cb8ad4f5bde2b88205597622c6ef57c4d9f8799e93999e7ac4f070"},
-    {url = "https://files.pythonhosted.org/packages/bb/2f/656c04412e557db6aec293f25610bfd8c6f9b7e3f995e10408e1c4df05a3/sphinx_book_theme-0.0.39-py3-none-any.whl", hash = "sha256:ca6c8e53b6b39a5ef61b2826fcddb82d81e6a29ca2399a6c18237ae4888e3c8c"},
+"sphinx-book-theme 0.4.0rc1" = [
+    {url = "https://files.pythonhosted.org/packages/67/64/0d9240a5b94da087f80cb24d628cbc760b1e5039204b26070e8841996840/sphinx_book_theme-0.4.0rc1.tar.gz", hash = "sha256:00a312d5287c497b1f189a0d2aac3954216e60b5dee1e07454e4b674d7c9d3ca"},
+    {url = "https://files.pythonhosted.org/packages/87/37/367584106218f61d440d696fc7e66704538b160a9746a016e590d5bb34c2/sphinx_book_theme-0.4.0rc1-py3-none-any.whl", hash = "sha256:bfad8ef469885da5633f7cf7f8cd9a0ae11ea2351a91e507b44cf15973934512"},
 ]
 "sphinxcontrib-applehelp 1.0.3" = [
     {url = "https://files.pythonhosted.org/packages/00/45/1973a8e0fae5a9b4fafd6c0523164622f8166d4f099c6616e6654bc07979/sphinxcontrib.applehelp-1.0.3.tar.gz", hash = "sha256:83749f09f6ac843b8cb685277dbc818a8bf2d76cc19602699094fe9a74db529e"},

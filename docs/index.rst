@@ -19,20 +19,24 @@ Main features of PySJTU:
 - Fully type annotated.
 - 99% test coverage.
 
+Topics
+------
+
+The following topics will help you use PySJTU.
+
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 1
 
    quickstart
    advanced
    isjtu_api
+   models
    api
 
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`

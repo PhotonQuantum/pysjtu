@@ -71,13 +71,7 @@ Install with pip:
 $ pip install pysjtu[ocr]
 ```
 
-> You may omit 'ocr' extra dependencies if you don't need the builtin captcha recognizers.
-> 
-> Python 3.9 still doesn't have a prebuilt ONNXRuntime release, so 'ocr' features won't work on it.
->
-> (You may still use the JCSSRecognizer which depends on a remote service called [JCSS](https://github.com/PhotonQuantum/jcss).)
-
-PySJTU requires Python 3.7+.
+PySJTU requires Python 3.8+.
 
 ## Built With
 

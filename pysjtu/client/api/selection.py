@@ -3,7 +3,7 @@ from typing import List
 
 from pysjtu import consts
 from pysjtu.client.base import BaseClient
-from pysjtu.exceptions import DeregistrationException, FullCapacityException, RegistrationException, \
+from pysjtu.exceptions import DropException, FullCapacityException, RegistrationException, \
     SelectionClassFetchException, SelectionNotAvailableException, TimeConflictException
 from pysjtu.models.selection import SelectionClass, SelectionSector, SelectionSharedInfo
 from pysjtu.parser.selection import parse_sector, parse_sectors, parse_shared_info
@@ -52,25 +52,24 @@ class SelectionMixin(BaseClient):
         else:
             raise RegistrationException(f"Unexpected response: {register}")  # pragma: no cover
 
-    def _class_deregister(self, _class: SelectionClass, **kwargs):
+    def _class_drop(self, _class: SelectionClass, **kwargs):
         payload = {
             "kch_id": _class.internal_course_id,
             "jxb_ids": _class.register_id
         }
-        deregister = self._session.post(f"{consts.SELECTION_DEREGISTER}{self.student_id}", data=payload,
-                                        **kwargs).json()
-        if deregister == "1":
+        drop = self._session.post(f"{consts.SELECTION_DROP}{self.student_id}", data=payload, **kwargs).json()
+        if drop == "1":
             return
-        elif deregister == "2":  # pragma: no cover
-            raise DeregistrationException("Server busy.")  # pragma: no cover
-        elif deregister == "3":  # pragma: no cover
-            raise DeregistrationException("Unknown error.")  # pragma: no cover
-        elif deregister == "4":  # pragma: no cover
-            raise DeregistrationException("Illegal access.")  # pragma: no cover
-        elif deregister == "5":  # pragma: no cover
-            raise DeregistrationException("Validation failure.")  # pragma: no cover
+        elif drop == "2":  # pragma: no cover
+            raise DropException("Server busy.")  # pragma: no cover
+        elif drop == "3":  # pragma: no cover
+            raise DropException("Unknown error.")  # pragma: no cover
+        elif drop == "4":  # pragma: no cover
+            raise DropException("Illegal access.")  # pragma: no cover
+        elif drop == "5":  # pragma: no cover
+            raise DropException("Validation failure.")  # pragma: no cover
         else:
-            raise DeregistrationException(f"Unexpected response: {deregister}")  # pragma: no cover
+            raise DropException(f"Unexpected response: {drop}")  # pragma: no cover
 
     def _fetch_selection_classes(self, sector: SelectionSector, internal_course_id: str) -> List[dict]:
         payload = {
@@ -103,7 +102,7 @@ class SelectionMixin(BaseClient):
             _class._load_func = partial(self._fetch_selection_class, _class)
             _class.is_registered = partial(self._class_is_registered, _class)
             _class.register = partial(self._class_register, _class)
-            _class.deregister = partial(self._class_deregister, _class)
+            _class.drop = partial(self._class_drop, _class)
         return selection_classes
 
     @property

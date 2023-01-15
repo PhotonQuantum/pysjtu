@@ -72,7 +72,8 @@ from pysjtu.schemas.schedule import ScheduleCourseSchema
 class Schedule(Results[ScheduleCourse]):
     """
     A list-like interface to Schedule collections.
-    An additional filter method has been added to make filter operations easier.
+
+    This class is a subclass of :class:`pysjtu.models.base.Results`.
     """
     _schema = ScheduleCourseSchema
     _result_model = ScheduleCourse
