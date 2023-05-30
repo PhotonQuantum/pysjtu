@@ -1,5 +1,6 @@
 LOGIN_POST_URL = "https://jaccount.sjtu.edu.cn/jaccount/ulogin"
 CAPTCHA_URL = "https://jaccount.sjtu.edu.cn/jaccount/captcha"
+CAPTCHA_REFERER = "https://jaccount.sjtu.edu.cn/jaccount/jalogin"
 
 DEFAULT_BASE_URL = "https://i.sjtu.edu.cn"
 

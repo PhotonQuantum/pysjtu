@@ -14,6 +14,7 @@ from httpx import Response
 
 from pysjtu.ocr import JCSSRecognizer, Recognizer
 from . import consts
+from .consts import CAPTCHA_REFERER
 from .exceptions import DumpWarning, LoadWarning, LoginException, ServiceUnavailable, SessionException
 from .utils import FileTypes
 
@@ -359,7 +360,8 @@ class Session(BaseSession):
             login_params = {k: v[0] for k, v in parse_qs(urlparse(str(login_page_req.url)).query).items()}
 
             captcha_img = self.get(consts.CAPTCHA_URL,
-                                   params={"uuid": uuid, "t": int(time.time() * 1000)}).content
+                                   params={"uuid": uuid, "t": int(time.time() * 1000)},
+                                   headers={"Referer": CAPTCHA_REFERER}).content
             captcha = self._ocr.recognize(captcha_img)
 
             login_params.update({"v": "", "uuid": uuid, "user": username, "pass": password, "captcha": captcha})
