@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           cache: true
-          version: 2.4.0
+          version: 2.7.0
 
       - name: Install dependencies
         if: ${{ matrix.python != '3.11' }}

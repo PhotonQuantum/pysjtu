@@ -18,7 +18,7 @@ jobs:
       with:
         python-version: "3.10"
         cache: true
-        version: 2.4.0
+        version: 2.7.0
 
     - name: Install dependencies
       run: pdm sync -G tests -G ocr
