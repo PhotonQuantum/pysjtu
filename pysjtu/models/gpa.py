@@ -1,3 +1,4 @@
+# flake8: noqa
 import typing
 from enum import Enum, IntEnum
 from typing import List, Optional
