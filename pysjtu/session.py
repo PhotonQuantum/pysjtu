@@ -356,7 +356,7 @@ class Session(BaseSession):
         for i in self._retry:
             login_page_req = self._secure_req(
                 partial(self.get, consts.LOGIN_URL, validate_session=False, headers=consts.HEADERS))
-            uuid = re.findall(r"(?<=uuid\": ').*(?=')", login_page_req.text)[0]
+            uuid = re.findall(r"(?<=uuid=).*(?=\")", login_page_req.text)[0]
             login_params = {k: v[0] for k, v in parse_qs(urlparse(str(login_page_req.url)).query).items()}
 
             captcha_img = self.get(consts.CAPTCHA_URL,
