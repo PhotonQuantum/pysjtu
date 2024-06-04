@@ -18,13 +18,18 @@ from .mock_server import app
 
 # noinspection PyPep8Naming
 def Session(*args, **kwargs):
-    return _Session(*args, **kwargs, proxies={"all://": None})
+    return _Session(*args, **kwargs, mounts={"all://": None})
 
 
 @pytest.fixture
-def logged_session(mocker):
+def transport():
+    return httpx.WSGITransport(app=app)
+
+
+@pytest.fixture
+def logged_session(mocker, transport):
     mocker.patch.object(JCSSRecognizer, "recognize", return_value="ipsum")
-    sess = Session(app=app, retry=[0], timeout=1)
+    sess = Session(transport=transport, retry=[0], timeout=1)
     sess.login("FeiLin", "WHISPERS")
     return sess
 
@@ -66,32 +71,32 @@ class TestSession:
         with pytest.raises(httpx.NetworkError):
             sess._secure_req(partial(httpx.get, "https://fail.page.edu.cn"))
 
-    def test_context(self, mocker):
+    def test_context(self, mocker, transport):
         tmpfile = NamedTemporaryFile()
         pickle.dump({"username": "FeiLin", "password": "WHISPERS"}, tmpfile)
         tmpfile.seek(0)
 
         mocker.patch.object(JCSSRecognizer, "recognize", return_value="ipsum")
-        with Session(app=app, session_file=tmpfile.file):
+        with Session(transport=transport, session_file=tmpfile.file):
             pass
         tmpfile.seek(0)
 
         assert pickle.load(tmpfile)["cookies"]
 
-    def test_init(self, mocker, check_login):
+    def test_init(self, mocker, transport, check_login):
         tmpfile = NamedTemporaryFile()
         mocker.patch.object(JCSSRecognizer, "recognize", return_value="ipsum")
-        sess = Session(app=app, username="FeiLin", password="WHISPERS")
+        sess = Session(transport=transport, username="FeiLin", password="WHISPERS")
         assert check_login(sess)
         cookie = sess.cookies
         sess.dump(tmpfile.file)
         tmpfile.seek(0)
 
         with pytest.warns(LoadWarning):
-            sess = Session(app=app, cookies=cookie)
+            sess = Session(transport=transport, cookies=cookie)
             assert check_login(sess)
 
-        sess = Session(app=app, session_file=tmpfile.file)
+        sess = Session(transport=transport, session_file=tmpfile.file)
         assert check_login(sess)
 
     def test_req(self, logged_session, check_login):
@@ -144,11 +149,11 @@ class TestSession:
         with pytest.raises(SessionException):
             logged_session.get("https://i.sjtu.edu.cn/xtgl/index_initMenu.html")
 
-    def test_loads_dumps(self, logged_session, check_login):
+    def test_loads_dumps(self, transport, logged_session, check_login):
         cookie = logged_session.cookies
         dumps = logged_session.dumps()
 
-        sess = Session(app=app)
+        sess = Session(transport=transport)
         sess.loads({"username": "FeiLin", "password": "WHISPERS"})
         assert check_login(sess)
 
@@ -158,7 +163,7 @@ class TestSession:
         assert not sess._username
         assert not sess._password
 
-        sess = Session(app=app)
+        sess = Session(transport=transport)
         with pytest.raises(TypeError):
             sess.loads({"cookies": "Cookie☆"})
         with pytest.warns(LoadWarning):
@@ -168,21 +173,21 @@ class TestSession:
         with pytest.warns(DumpWarning):
             sess.dumps()
 
-        sess = Session(app=app)
+        sess = Session(transport=transport)
         sess.loads(dumps)
         assert check_login(sess)
 
         # test auto renew mechanism
         logged_session.logout()
-        sess = Session(app=app)
+        sess = Session(transport=transport)
         sess.loads(dumps)
         assert check_login(sess)
 
-    def test_load_dump(self, logged_session, check_login, tmp_path):
+    def test_load_dump(self, transport, logged_session, check_login, tmp_path):
         tmp_file = NamedTemporaryFile()
         logged_session.dump(tmp_file.file)
         tmp_file.seek(0)
-        sess = Session(app=app)
+        sess = Session(transport=transport)
         sess.load(tmp_file.file)
         assert check_login(sess)
 
@@ -190,14 +195,14 @@ class TestSession:
         # noinspection PyTypeChecker
         open(tmp_file, mode="a").close()
         logged_session.dump(tmp_file)
-        sess = Session(app=app)
+        sess = Session(transport=transport)
         sess.load(tmp_file)
         assert check_login(sess)
 
         tmp_file = str(tmp_path / "tmpfile_2")
         open(tmp_file, mode="a").close()
         logged_session.dump(tmp_file)
-        sess = Session(app=app)
+        sess = Session(transport=transport)
         sess.load(tmp_file)
         assert check_login(sess)
 
@@ -209,21 +214,21 @@ class TestSession:
             sess.dump(0)
 
         empty_file = NamedTemporaryFile()
-        sess = Session(app=app)
+        sess = Session(transport=transport)
         with pytest.warns(LoadWarning):
             sess.load(empty_file.file)
 
         empty_file = tmp_path / "empty_file"
         # noinspection PyTypeChecker
         open(empty_file, mode="a").close()
-        sess = Session(app=app)
+        sess = Session(transport=transport)
         with pytest.warns(LoadWarning):
             sess.load(empty_file)
 
-    def test_properties(self, logged_session):
+    def test_properties(self, transport, logged_session):
         cookie = logged_session.cookies
 
-        sess = Session(app=app)
+        sess = Session(transport=transport)
 
         assert isinstance(sess.timeout, httpx.Timeout)
         sess.timeout = httpx.Timeout(1.0)
@@ -259,14 +264,14 @@ class TestClient:
         def post(self): ...
 
     # noinspection PyTypeChecker
-    def test_init(self, logged_session):
+    def test_init(self, transport, logged_session):
         Client(logged_session)
         Client(self.DummySession())
         with pytest.raises(TypeError):
             Client(0)
         with pytest.raises(TypeError):
             Client(self.DummySession2())
-        client = create_client("FeiLin", "WHISPERS", app=app, proxies={"all://": None})
+        client = create_client("FeiLin", "WHISPERS", transport=transport, mounts={"all://": None})
         assert client.student_id == 519027910001
 
     def test_student_id(self, logged_client):

@@ -31,7 +31,7 @@ def captcha_files():
     ]
 
 
-@pytest.mark.skipif(sys.version_info > (3, 10), reason="Python 3.11 doesn't have ONNXRuntime, yet.")
+# @pytest.mark.skipif(sys.version_info > (3, 10), reason="Python 3.11 doesn't have ONNXRuntime, yet.")
 @pytest.mark.parametrize("captcha", captcha_files())
 def test_recognizer(captcha, recognizer):
     expected, file = captcha
@@ -42,5 +42,5 @@ def test_recognizer(captcha, recognizer):
 def test_jcss_recognizer():
     respx.post("https://jcss.lightquantum.me").respond(
         content='{"status":"success","data":{"prediction":"gbmke","elapsed_time":2}}')
-    predictor = JCSSRecognizer(proxies={"all://": None})
+    predictor = JCSSRecognizer(mounts={"all://": None})
     assert predictor.recognize(b'fbkfbkfbk') == "gbmke"

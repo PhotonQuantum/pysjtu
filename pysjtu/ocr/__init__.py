@@ -95,7 +95,7 @@ class NNRecognizer(Recognizer):
 
         captcha = ""
         for tensor in tensors:
-            asc = int(np.argmax(tensor, 1))
+            asc = np.argmax(tensor, 1)[0]
             if asc < 26:
                 captcha += chr(ord("a") + asc)
         return captcha
